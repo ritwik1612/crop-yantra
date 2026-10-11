@@ -6,14 +6,12 @@ only raw/, merged/ and training/. No simulated observations are added.
 from __future__ import annotations
 import argparse
 import csv
-import json
 import math
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
-import zipfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -46,18 +44,13 @@ def main():
             source.append(dict(STATE=state,DISTRICT=row['District '].strip(),CROP=row['Crop'].strip(),
                                FYEAR=year,SEASON=row['Season'].strip(),CROP_AREA_HA=area,PRODUCTION_TONNES=production))
     source.sort(key=lambda r:(r['STATE'],r['DISTRICT'],r['CROP'],r['FYEAR'],r['SEASON']))
-    with zipfile.ZipFile(raw/'boundaries/india_districts.geojson.zip') as archive:
-        member=next(name for name in archive.namelist() if name.endswith('.json'))
-        with archive.open(member) as f: boundaries=json.load(f)['features']
+    with (raw/'boundaries/india_districts.csv').open(newline='',encoding='utf-8-sig') as f:
+        boundaries=list(csv.DictReader(f))
     state_keys={key(s):s for s in STATES}; gadm={}; district_keys=defaultdict(list)
-    for feature in boundaries:
-        props=feature['properties']; state=state_keys.get(key(props.get('NAME_1',''))); district=props.get('NAME_2')
+    for props in boundaries:
+        state=state_keys.get(key(props.get('NAME_1',''))); district=props.get('NAME_2')
         if state not in STATES or not district: continue
-        geometry=feature['geometry']; points=[]
-        for polygon in geometry['coordinates']:
-            rings=polygon if geometry['type']=='MultiPolygon' else [polygon]
-            for ring in rings: points.extend(ring)
-        gadm[(state,key(district))]=(district,sum(p[0] for p in points)/len(points),sum(p[1] for p in points)/len(points))
+        gadm[(state,key(district))]=(district,float(props['CENTROID_X']),float(props['CENTROID_Y']))
     for state,district_key in gadm: district_keys[district_key].append((state,district_key))
     centroids=[]
     for state,district in sorted({(r['STATE'],r['DISTRICT']) for r in source}):
@@ -92,7 +85,11 @@ def main():
         subprocess.run([sys.executable,str(Path(__file__).parent/'internal/merge_seasonal.py'),
                         '--data-dir',str(stage),'--output-dir',str(merged)],check=True)
         generated=merged/'south_india_rice_master_training.csv'
-        generated.replace(merged/'rice_master.csv')
+        destination=merged/'rice_master.csv'
+        if destination.exists() and generated.read_bytes()==destination.read_bytes():
+            generated.unlink()
+        else:
+            generated.replace(destination)
     print(f"Sources: 3 | valid four-state crop rows: {len(source)} | rice labels: {len(labels)}")
 
 if __name__=='__main__': main()

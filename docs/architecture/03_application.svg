@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="705.6pt" height="534.96pt" viewBox="0 0 705.6 534.96" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-11T21:50:18.299902</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 534.96 
+L 705.6 534.96 
+L 705.6 0 
+L 0 0 
+z
+" style="fill: #fafcf8"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 134.901 113.634 
+L 570.699 113.634 
+Q 577.395 113.634 577.395 106.9812 
+L 577.395 73.1628 
+Q 577.395 66.51 570.699 66.51 
+L 134.901 66.51 
+Q 128.205 66.51 128.205 73.1628 
+L 128.205 106.9812 
+Q 128.205 113.634 134.901 113.634 
+z
+" clip-path="url(#p3912752d8d)" style="fill: #eaf3e5; stroke: #74877a; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 134.901 191.25 
+L 570.699 191.25 
+Q 577.395 191.25 577.395 184.5972 
+L 577.395 150.7788 
+Q 577.395 144.126 570.699 144.126 
+L 134.901 144.126 
+Q 128.205 144.126 128.205 150.7788 
+L 128.205 184.5972 
+Q 128.205 191.25 134.901 191.25 
+z
+" clip-path="url(#p3912752d8d)" style="fill: #f1f2f6; stroke: #74877a; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 134.901 268.866 
+L 570.699 268.866 
+Q 577.395 268.866 577.395 262.2132 
+L 577.395 228.3948 
+Q 577.395 221.742 570.699 221.742 
+L 134.901 221.742 
+Q 128.205 221.742 128.205 228.3948 
+L 128.205 262.2132 
+Q 128.205 268.866 134.901 268.866 
+z
+" clip-path="url(#p3912752d8d)" style="fill: #f1f2f6; stroke: #74877a; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 134.901 346.482 
+L 570.699 346.482 
+Q 577.395 346.482 577.395 339.8292 
+L 577.395 306.0108 
+Q 577.395 299.358 570.699 299.358 
+L 134.901 299.358 
+Q 128.205 299.358 128.205 306.0108 
+L 128.205 339.8292 
+Q 128.205 346.482 134.901 346.482 
+z
+" clip-path="url(#p3912752d8d)" style="fill: #f1f2f6; stroke: #74877a; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 134.901 424.098 
+L 570.699 424.098 
+Q 577.395 424.098 577.395 417.4452 
+L 577.395 383.6268 
+Q 577.395 376.974 570.699 376.974 
+L 134.901 376.974 
+Q 128.205 376.974 128.205 383.6268 
+L 128.205 417.4452 
+Q 128.205 424.098 134.901 424.098 
+z
+" clip-path="url(#p3912752d8d)" style="fill: #f1f2f6; stroke: #74877a; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 134.901 487.854 
+L 570.699 487.854 
+Q 577.395 487.854 577.395 481.2012 
+L 577.395 452.9268 
+Q 577.395 446.274 570.699 446.274 
+L 134.901 446.274 
+Q 128.205 446.274 128.205 452.9268 
+L 128.205 481.2012 
+Q 128.205 487.854 134.901 487.854 
+z
+" clip-path="url(#p3912752d8d)" style="fill: #f1f2f6; stroke: #74877a; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 20px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #173e2b" x="352.8" y="40.176" transform="rotate(-0 352.8 40.176)">User input to application output</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(323.076992 84.620281)">User input</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(236.98332 101.870281)">State / district / season / year / rice area</text>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(281.662617 163.350344)">Location + weather data</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(293.487852 180.600344)">Feature construction</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(238.357031 239.852281)">Saved SimpleImputer + StandardScaler</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(300.839766 258.216344)">+ OneHotEncoder</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(267.388242 317.468281)">Denoising Autoencoder (DAE)</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(271.273984 334.718281)">Only for the DAE input route</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(285.511523 395.084281)">Selected MLP regressor</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #173e2b" transform="translate(255.195547 412.334281)">or HistGradientBoostingRegressor</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #173e2b" x="352.8" y="470.237281" transform="rotate(-0 352.8 470.237281)">Output: predicted rice yield (t/ha)</text>
+   </g>
+   <g id="patch_8">
+    <path d="M 352.8 116.247639 
+Q 352.8 128.881112 352.8 139.725731 
+" style="fill: none; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+    <path d="M 354.8 135.725731 
+L 352.8 139.725731 
+L 350.8 135.725731 
+z
+" style="fill: #456c50; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 352.8 193.863639 
+Q 352.8 206.497112 352.8 217.341731 
+" style="fill: none; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+    <path d="M 354.8 213.341731 
+L 352.8 217.341731 
+L 350.8 213.341731 
+z
+" style="fill: #456c50; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 352.8 271.479639 
+Q 352.8 284.113112 352.8 294.957731 
+" style="fill: none; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+    <path d="M 354.8 290.957731 
+L 352.8 294.957731 
+L 350.8 290.957731 
+z
+" style="fill: #456c50; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 352.8 349.095639 
+Q 352.8 361.729112 352.8 372.573731 
+" style="fill: none; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+    <path d="M 354.8 368.573731 
+L 352.8 372.573731 
+L 350.8 368.573731 
+z
+" style="fill: #456c50; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 352.8 426.710624 
+Q 352.8 435.184227 352.8 441.868976 
+" style="fill: none; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+    <path d="M 354.8 437.868976 
+L 352.8 441.868976 
+L 350.8 437.868976 
+z
+" style="fill: #456c50; stroke: #456c50; stroke-width: 1.6; stroke-linecap: round"/>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #526958" x="352.8" y="508.644" transform="rotate(-0 352.8 508.644)">Proposed inference flow. The current APP beta displays illustrative results only.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p3912752d8d">
+   <rect x="18" y="18" width="669.6" height="498.96"/>
+  </clipPath>
+ </defs>
+</svg>

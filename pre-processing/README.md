@@ -16,8 +16,12 @@ Run from the repository/project root.
 | verify_outputs.py | Check rows/splits/targets/finite predictors and safe input-column selection |
 | make_figures.py | Create coverage, yield, time-trend and correlation plots |
 
-Crop_Preprocessing.ipynb is the maintained Colab notebook: full visible code,
-saved output tables and all seven actual figures. Open it from the repository's
+Crop_Preprocessing.ipynb is the maintained Colab notebook with full visible code,
+including the exact source-selection/merge modules and standard/DAE methods
+shown in the dataset presentation. It writes the displayed modules into the
+Colab checkout before execution and validates the output feature schemas.
+Both representations retain the same labels, rows and chronological partitions.
+It includes saved output tables and all seven actual figures. Open it from the repository's
 Colab link; the old notebook used the previous flat dataset layout.
 
 artifacts/ stores fitted preprocessing only:

@@ -6,6 +6,46 @@ versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- 2026-10-11: Synchronized active root project files to the public repository,
+  including boundary CSV conversion, the updated visible-code notebook, APP beta,
+  faculty proposal and dataset feature presentations.
+- Expanded the repository README with source provenance, all feature groups,
+  dataset splits, representation differences, model roles, setup and limitations.
+
+### Architecture documentation
+
+- Added three reproducible SVG/PNG diagrams for data preprocessing, model training
+  and the proposed application flow. Completed and proposed stages are distinguished.
+
+### Added
+
+- Updated the Colab notebook to embed the exact merge and preprocessing modules,
+  match the presentation's predictor lists, explain the DAE rationale, and check
+  both representation schemas and all six output row counts. Existing saved
+  preprocessing results remain labelled as the 08 October run.
+
+- Added five editable flow diagrams to the dataset presentation and exported
+  the same 25 rendered slides as a PDF alongside the PowerPoint.
+
+- Dataset-only PowerPoint covering raw sources, selected features, district and
+  season joins, standard and DAE feature transformations, complete preprocessed
+  predictor lists, representation differences, and all six training-ready CSVs.
+
+- Detailed raw-source feature selection and district/year/season merge diagram.
+- Ordinary district and boundary-coordinate CSVs replacing the active GADM ZIP.
+  Verified all 676 district records and 275,432 ordered vertices against the source.
+  The builder now reads district CSV coordinates; the 2,018-row master is unchanged.
+
+- Expanded the faculty proposal with exact supervised and future sequence model
+  architectures, predictor inputs, proposed learning procedures, evaluation rules
+  and a user-to-prediction inference diagram. Yield model training remains proposed.
+
+- Faculty-facing LaTeX preprocessing and proposed-model PDF with source links,
+  four workflow diagrams, both student names and a merged-versus-preprocessed
+  comparison. It separates verified preprocessing results from proposed yield experiments.
+
 ## [0.2.0] - 2026-10-08
 
 ### Changed

@@ -1,5 +1,19 @@
 # Start here: South India rice yield project
 
+See the [architecture diagrams](architecture/README.md) for the model names
+and data flow through preprocessing, training and the proposed application output.
+
+The [dataset feature-transition presentation](presentations/Rice_Dataset_Feature_Transition_Visual.pptx)
+shows raw sources, selection, merging, preprocessing, complete standard/DAE
+feature lists and training-ready CSV outputs.
+The same rendered slides are available as a [PDF](presentations/Rice_Dataset_Feature_Transition_Visual.pdf).
+
+For the faculty pitch, read [Preprocessing_Proposal.pdf](Preprocessing_Proposal.pdf).
+See the detailed [raw-source feature selection and merge diagram](figures/Raw_Data_Feature_Selection_and_Merge.png)
+for exact source fields, district matching, seasonal alignment and predictor exclusions.
+It explains the source merge, feature construction, preprocessing, representation
+comparison and proposed models without local file paths.
+
 Read [Crop_Workflow.pdf](Crop_Workflow.pdf) for the full source-to-application
 explanation, three workflow diagrams, actual preprocessing findings and plots.
 See [MODEL_REGISTRY.md](MODEL_REGISTRY.md) for exact model names and roles,
@@ -13,7 +27,7 @@ This replaces the older standalone notebook's superseded flat CSV paths.
 
 | Folder | Contents | Use |
 | --- | --- | --- |
-| ../DATASET/raw/ | Three original source files | Rebuild the dataset |
+| ../DATASET/raw/ | Three source families; district properties and coordinates are ordinary CSVs | Rebuild the dataset |
 | ../DATASET/merged/rice_master.csv | One consolidated master, 2,018 rows x 30 columns | Inspect source-derived observations |
 | ../DATASET/training/standard/ | train.csv, validation.csv, test.csv | Conventional-feature experiments |
 | ../DATASET/training/autoencoder/ | train.csv, validation.csv, test.csv | DAE-feature experiments |

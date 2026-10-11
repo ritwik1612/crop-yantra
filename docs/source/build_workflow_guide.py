@@ -102,7 +102,7 @@ add('The current data supports yield estimation. Direct disease classification, 
 page('01 | Original sources', 'Three raw sources, five construction tables')
 table(['Source / preserved file','Contents and contribution'],[
     ('Government crop statistics<br/>government/crop_statistics.csv<br/>(originally APY.csv)','State, district, crop, crop year, season, reported area and production. We derive rice yield = production / area.'),
-    ('GADM 4.1 administrative level 2<br/>boundaries/india_districts.geojson.zip','District boundaries, state/district names and identifiers. We match names and calculate representative coordinates.'),
+    ('GADM 4.1 administrative level 2<br/>boundaries/india_districts.csv','District names, identifiers and representative coordinates. Full geometry is preserved in boundary_coordinates.csv, linked by GID_2.'),
     ('NASA POWER Daily API extract<br/>weather/daily_weather.csv','Daily temperature, relative humidity, wind, precipitation, radiation, surface pressure and evapotranspiration proxy, queried at matched district locations. Vapour pressure is calculated from temperature and humidity.'),
 ], [210,289])
 add('These preserved files live under <b>DATASET/raw/</b>. Their contents match the original project copies. The weather CSV is an assembled API extract. It is not a second government label dataset. Preserve raw files without editing.')

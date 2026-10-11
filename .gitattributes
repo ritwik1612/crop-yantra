@@ -1,5 +1,8 @@
 *.pdf binary
 *.png binary
+*.pptx binary
+*.svg text eol=lf
+*.tex text eol=lf
 *.zip binary
 *.pt binary
 *.pkl binary

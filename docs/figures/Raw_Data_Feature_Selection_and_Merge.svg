@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="3760" viewBox="0 0 2400 3760">
+<rect width="100%" height="100%" fill="#f5f8f6"/>
+<text x="60" y="83" font-family="Arial,sans-serif" font-size="48" font-weight="700" fill="#173d32">HOW THREE RAW SOURCES BECOME ONE RICE DATASET</text>
+<text x="60" y="134" font-family="Arial,sans-serif" font-size="30" font-weight="400" fill="#173d32">Feature selection, district matching, seasonal alignment and model input decisions</text>
+<text x="60" y="202" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#173d32">1. RAW SOURCE FIELDS</text>
+<rect x="60" y="225" width="720" height="470" rx="18" fill="#e6f0fa" stroke="#b9cdc3" stroke-width="2"/>
+<text x="88" y="281" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">GOVERNMENT CROP STATISTICS</text>
+<text x="88" y="335" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">crop_statistics.csv</text>
+<text x="88" y="376" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">State, District, Crop, Crop_Year,</text>
+<text x="88" y="417" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Season, Area, Production, Yield</text>
+<text x="88" y="458" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32"></text>
+<text x="88" y="499" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">One crop / district / year / season record.</text>
+<text x="88" y="540" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Area: hectares. Production: tonnes.</text>
+<text x="88" y="581" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Supplies crop context and the yield label.</text>
+<text x="88" y="622" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Header spaces are trimmed during mapping.</text>
+<rect x="840" y="225" width="720" height="470" rx="18" fill="#e5f2eb" stroke="#b9cdc3" stroke-width="2"/>
+<text x="868" y="281" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">GADM DISTRICT BOUNDARIES</text>
+<text x="868" y="335" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">india_districts.csv: 676 districts</text>
+<text x="868" y="376" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">GID_0, COUNTRY, GID_1, NAME_1,</text>
+<text x="868" y="417" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">NL_NAME_1, GID_2, NAME_2, VARNAME_2,</text>
+<text x="868" y="458" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">NL_NAME_2, TYPE_2, ENGTYPE_2, CC_2,</text>
+<text x="868" y="499" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">HASC_2 + geometry type and coordinates.</text>
+<text x="868" y="540" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">boundary_coordinates.csv: 275,432 vertices</text>
+<text x="868" y="581" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">GID_2 links names to polygon/ring/vertex</text>
+<text x="868" y="622" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">indexes, LONGITUDE and LATITUDE.</text>
+<rect x="1620" y="225" width="720" height="470" rx="18" fill="#fff1df" stroke="#b9cdc3" stroke-width="2"/>
+<text x="1648" y="281" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">NASA DAILY WEATHER EXTRACT</text>
+<text x="1648" y="335" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">daily_weather.csv</text>
+<text x="1648" y="376" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">IDCOVER, IDREGION, DATE,</text>
+<text x="1648" y="417" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">TMAX, TMIN, TAVG, VPRES, WSPD,</text>
+<text x="1648" y="458" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">PREC, ET0, RAD, RELH, PS</text>
+<text x="1648" y="499" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32"></text>
+<text x="1648" y="540" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">One district / date record.</text>
+<text x="1648" y="581" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Ten numerical weather channels.</text>
+<text x="1648" y="622" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Extract includes derived vapour pressure.</text>
+<path d="M420.0,700 L420.0,722" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M420.0,775 L420.0,790" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M409.0,772 L420.0,790 L431.0,772" fill="#53776a"/>
+<path d="M1200.0,700 L1200.0,722" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1200.0,775 L1200.0,790" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1189.0,772 L1200.0,790 L1211.0,772" fill="#53776a"/>
+<path d="M1980.0,700 L1980.0,722" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1980.0,775 L1980.0,790" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1969.0,772 L1980.0,790 L1991.0,772" fill="#53776a"/>
+<text x="60" y="764" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#173d32">2. SELECT AND PREPARE RELEVANT INFORMATION</text>
+<rect x="60" y="800" width="720" height="470" rx="18" fill="#e6f0fa" stroke="#b9cdc3" stroke-width="2"/>
+<text x="88" y="856" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">KEEP RICE AND VALID CROP RECORDS</text>
+<text x="88" y="910" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Choose AP, Karnataka, Tamil Nadu, Telangana.</text>
+<text x="88" y="951" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Choose Crop = rice or paddy.</text>
+<text x="88" y="992" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Require finite area &gt; 0, production &gt;= 0.</text>
+<text x="88" y="1033" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Trim State, District and Season names.</text>
+<text x="88" y="1074" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Crop_Year -&gt; FYEAR; Area -&gt; CROP_AREA.</text>
+<text x="88" y="1115" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Production -&gt; PRODUCTION_TONNES.</text>
+<text x="88" y="1156" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Recompute YIELD = production / area.</text>
+<text x="88" y="1197" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">3,554 valid rice labels before alignment.</text>
+<text x="88" y="1238" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Raw Yield is not copied into the master.</text>
+<rect x="840" y="800" width="720" height="470" rx="18" fill="#e5f2eb" stroke="#b9cdc3" stroke-width="2"/>
+<text x="868" y="856" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">USE NAMES AND LOCATION</text>
+<text x="868" y="910" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">NAME_1 = state; NAME_2 = district.</text>
+<text x="868" y="951" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Normalize case, spaces and punctuation.</text>
+<text x="868" y="992" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Match state + normalized district first.</text>
+<text x="868" y="1033" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">If absent, use a district unique across</text>
+<text x="868" y="1074" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">the four states: historical-state crosswalk.</text>
+<text x="868" y="1115" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Average boundary vertices -&gt; longitude</text>
+<text x="868" y="1156" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">CENTROID_X and latitude CENTROID_Y.</text>
+<text x="868" y="1197" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Keep MATCH_STATUS for audit.</text>
+<text x="868" y="1238" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Other GADM codes/types stay in raw CSV.</text>
+<rect x="1620" y="800" width="720" height="470" rx="18" fill="#fff1df" stroke="#b9cdc3" stroke-width="2"/>
+<text x="1648" y="856" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">USE DATE AND TEN WEATHER CHANNELS</text>
+<text x="1648" y="910" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">IDREGION connects weather to district.</text>
+<text x="1648" y="951" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">DATE selects days for crop year + season.</text>
+<text x="1648" y="992" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Use a day only when all 10 values are finite.</text>
+<text x="1648" y="1033" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">IDCOVER is not a final predictor.</text>
+<text x="1648" y="1074" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">ET0 is NASA EVLAND land evaporation.</text>
+<text x="1648" y="1115" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">RAD is solar radiation in kWh/m2/day.</text>
+<text x="1648" y="1156" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">VPRES is derived from temperature/humidity.</text>
+<text x="1648" y="1197" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Weather values are aggregated,</text>
+<text x="1648" y="1238" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">not joined as individual daily model rows.</text>
+<path d="M420.0,1275 L420.0,1292" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M420.0,1345 L420.0,1360" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M409.0,1342 L420.0,1360 L431.0,1342" fill="#53776a"/>
+<path d="M1200.0,1275 L1200.0,1292" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1200.0,1345 L1200.0,1360" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1189.0,1342 L1200.0,1360 L1211.0,1342" fill="#53776a"/>
+<path d="M1980.0,1275 L1980.0,1292" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1980.0,1345 L1980.0,1360" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1969.0,1342 L1980.0,1360 L1991.0,1342" fill="#53776a"/>
+<text x="60" y="1334" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#173d32">3. LINK THE SOURCES USING DISTRICT ID AND SEASONAL DATES</text>
+<rect x="60" y="1370" width="2280" height="410" rx="18" fill="#edf3ef" stroke="#b9cdc3" stroke-width="2"/>
+<text x="88" y="1426" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">CROP RECORD + MATCHED DISTRICT + WEATHER FOR THE SAME GROWING WINDOW</text>
+<text x="88" y="1480" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Create IDREGION = IND_&lt;normalized government state&gt;_&lt;normalized government district&gt;.</text>
+<text x="88" y="1521" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Crop record + district location: join by IDREGION after the state/district name match.</text>
+<text x="88" y="1562" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Crop area + area share + yield: join by (IDREGION, FYEAR, SEASON).</text>
+<text x="88" y="1603" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Weather: match IDREGION, then select DATE within the season window for FYEAR.</text>
+<text x="88" y="1644" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Kharif Jun-Nov; Rabi previous Nov-Apr; Summer Mar-Jun; Autumn Sep-Dec;</text>
+<text x="88" y="1685" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Winter previous Dec-Mar; Whole Year Jan-Dec. These are fixed project calendar assumptions.</text>
+<text x="88" y="1726" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Example actual key: IND_ANDHRAPRADESH_ADILABAD / 2001 / Kharif -&gt; Jun-Nov 2001 weather.</text>
+<text x="88" y="1767" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Retain matched location + finite yield + at least 60 complete weather days.</text>
+<path d="M1200,1785 L1200,1802" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1200,1855 L1200,1870" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1189,1852 L1200,1870 L1211,1852" fill="#53776a"/>
+<text x="60" y="1844" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#173d32">4. CALCULATE SEASONAL SUMMARIES AND ENGINEER FEATURES</text>
+<rect x="60" y="1880" width="1110" height="490" rx="18" fill="#ffffff" stroke="#b9cdc3" stroke-width="2"/>
+<text x="88" y="1936" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">WEATHER SUMMARIES: 11 NUMERICAL INPUTS</text>
+<text x="88" y="1990" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">WEATHER_DAY_COUNT = number of complete days.</text>
+<text x="88" y="2031" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Means: TMAX_MEAN, TMIN_MEAN, TAVG_MEAN,</text>
+<text x="88" y="2072" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">VPRES_MEAN, WSPD_MEAN, RELH_MEAN, PS_MEAN.</text>
+<text x="88" y="2113" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Totals: PREC_TOTAL, ET0_TOTAL, RAD_TOTAL.</text>
+<text x="88" y="2154" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32"></text>
+<text x="88" y="2195" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Means describe typical seasonal conditions.</text>
+<text x="88" y="2236" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Totals describe accumulated rain, evaporation and energy.</text>
+<text x="88" y="2277" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Coverage count helps interpret the totals.</text>
+<text x="88" y="2318" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Full-season summaries currently support retrospective</text>
+<text x="88" y="2359" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">estimation; pre-harvest forecasts need date cutoffs.</text>
+<rect x="1230" y="1880" width="1110" height="490" rx="18" fill="#ffffff" stroke="#b9cdc3" stroke-width="2"/>
+<text x="1258" y="1936" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">CROP, LOCATION AND DERIVED FEATURES: 10 INPUTS</text>
+<text x="1258" y="1990" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">CROP_AREA + CENTROID_X + CENTROID_Y.</text>
+<text x="1258" y="2031" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">AREA_FRACTION = district area / state-year-season rice area.</text>
+<text x="1258" y="2072" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">CROP_AREA_LOG1P = log(1 + crop area).</text>
+<text x="1258" y="2113" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">GDD_BASE10 = sum(max(daily TAVG - 10, 0)).</text>
+<text x="1258" y="2154" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">TEMP_RANGE_MEAN = TMAX_MEAN - TMIN_MEAN.</text>
+<text x="1258" y="2195" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">WATER_BALANCE_PROXY = PREC_TOTAL - ET0_TOTAL.</text>
+<text x="1258" y="2236" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">RAIN_PER_GDD = PREC_TOTAL / GDD_BASE10.</text>
+<text x="1258" y="2277" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">RADIATION_PER_GDD = RAD_TOTAL / GDD_BASE10.</text>
+<text x="1258" y="2318" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">GDD ratios are assigned 0 when GDD is 0.</text>
+<text x="1258" y="2359" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Captures area scale, heat, water and energy relationships.</text>
+<path d="M1200,2375 L1200,2392" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1200,2445 L1200,2460" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1189,2442 L1200,2460 L1211,2442" fill="#53776a"/>
+<text x="60" y="2434" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#173d32">5. MERGED MASTER: SAME DISTRICT / YEAR / SEASON OBSERVATIONS</text>
+<rect x="60" y="2470" width="2280" height="220" rx="18" fill="#e2efe7" stroke="#b9cdc3" stroke-width="2"/>
+<text x="88" y="2526" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">rice_master.csv: 2,018 ROWS x 30 COLUMNS; YEARS 2001-2019</text>
+<text x="88" y="2580" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">21 numerical inputs + 2 categorical inputs + 1 yield target + 6 provenance/identity fields.</text>
+<text x="88" y="2621" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Feature choices follow crop/weather relevance, available data and leakage prevention.</text>
+<text x="88" y="2662" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">No statistical feature ranking has established that every selected feature improves prediction.</text>
+<path d="M420.0,2695 L420.0,2712" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M420.0,2765 L420.0,2780" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M409.0,2762 L420.0,2780 L431.0,2762" fill="#53776a"/>
+<path d="M1200.0,2695 L1200.0,2712" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1200.0,2765 L1200.0,2780" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1189.0,2762 L1200.0,2780 L1211.0,2762" fill="#53776a"/>
+<path d="M1980.0,2695 L1980.0,2712" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1980.0,2765 L1980.0,2780" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1969.0,2762 L1980.0,2780 L1991.0,2762" fill="#53776a"/>
+<text x="60" y="2754" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#173d32">6. SELECT MODEL INPUTS WHILE KEEPING TARGET AND METADATA SEPARATE</text>
+<rect x="60" y="2790" width="720" height="370" rx="18" fill="#e5f2eb" stroke="#b9cdc3" stroke-width="2"/>
+<text x="88" y="2846" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">USE AS PREDICTORS: 23 FIELDS</text>
+<text x="88" y="2900" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">21 numerical fields listed above.</text>
+<text x="88" y="2941" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">STATE and SEASON provide region and</text>
+<text x="88" y="2982" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">growing-season context.</text>
+<text x="88" y="3023" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Seven one-hot indicators are learned</text>
+<text x="88" y="3064" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">from training categories.</text>
+<text x="88" y="3105" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">No disease labels or imagery are present.</text>
+<rect x="840" y="2790" width="720" height="370" rx="18" fill="#e6f0fa" stroke="#b9cdc3" stroke-width="2"/>
+<text x="868" y="2846" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">PREDICT THIS TARGET: 1 FIELD</text>
+<text x="868" y="2900" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">YIELD = production / rice area.</text>
+<text x="868" y="2941" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Unit: tonnes per hectare (t/ha).</text>
+<text x="868" y="2982" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Preserve the same label for both</text>
+<text x="868" y="3023" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">standard and DAE experiments.</text>
+<text x="868" y="3064" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Never put YIELD into the predictor</text>
+<text x="868" y="3105" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">inputs or DAE reconstruction target.</text>
+<rect x="1620" y="2790" width="720" height="370" rx="18" fill="#fff1df" stroke="#b9cdc3" stroke-width="2"/>
+<text x="1648" y="2846" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">EXCLUDE FROM INPUTS: 6 FIELDS</text>
+<text x="1648" y="2900" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">PRODUCTION_TONNES: leaks yield with area.</text>
+<text x="1648" y="2941" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">CROP: always rice, no variation.</text>
+<text x="1648" y="2982" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">IDREGION, DISTRICT: record identity.</text>
+<text x="1648" y="3023" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">FYEAR: controls chronological splitting.</text>
+<text x="1648" y="3064" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">MATCH_STATUS: matching audit.</text>
+<text x="1648" y="3105" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Keep all six in the master for traceability.</text>
+<path d="M420,3165 L420,3192" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M420,3245 L420,3260" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M409,3242 L420,3260 L431,3242" fill="#53776a"/>
+<text x="60" y="3234" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#173d32">7. SPLIT FIRST, THEN FIT PREPROCESSING ON TRAINING DATA ONLY</text>
+<rect x="60" y="3270" width="2280" height="160" rx="18" fill="#ffffff" stroke="#b9cdc3" stroke-width="2"/>
+<text x="88" y="3326" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">TRAIN 2001-2015: 1,485 | VALIDATION 2016-2017: 245 | TEST 2018-2019: 288</text>
+<text x="88" y="3380" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Training medians + scaling for 21 numerical inputs; train-fitted one-hot encoding for STATE and SEASON.</text>
+<path d="M650,3435 L650,3510" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M639,3492 L650,3510 L661,3492" fill="#53776a"/>
+<path d="M1750,3435 L1750,3510" fill="none" stroke="#53776a" stroke-width="5"/>
+<path d="M1739,3492 L1750,3510 L1761,3492" fill="#53776a"/>
+<rect x="60" y="3520" width="1110" height="190" rx="18" fill="#e6f0fa" stroke="#b9cdc3" stroke-width="2"/>
+<text x="88" y="3576" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">STANDARD: 28 PREDICTORS</text>
+<text x="88" y="3630" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">21 scaled numerical values + 7 category indicators.</text>
+<text x="88" y="3671" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Train MLP and boosted trees; evaluate held-out yield.</text>
+<rect x="1230" y="3520" width="1110" height="190" rx="18" fill="#e5f2eb" stroke="#b9cdc3" stroke-width="2"/>
+<text x="1258" y="3576" font-family="Arial,sans-serif" font-size="32" font-weight="700" fill="#173d32">DAE: 16 PREDICTORS</text>
+<text x="1258" y="3630" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">21 scaled values -&gt; 8 latent + 7 indicators + 1 recon. MSE.</text>
+<text x="1258" y="3671" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#173d32">Same rows/labels/models. Test whether DAE helps.</text>
+</svg>
