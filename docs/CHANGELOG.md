@@ -6,6 +6,20 @@ versioning.
 
 ## [Unreleased]
 
+### 2026-10-14 — Visual output dashboard
+
+- Added live what-if yield/area controls and reset. All derived charts, KPI cards,
+  formulas, price scenarios and JSON exports react immediately without re-running
+  a predictor or changing observed source data.
+
+- Added production-tonnes/kg and area cards, demo-versus-observed yield chart,
+  same-season observed yield trend with accessible table, and interactive area scenarios.
+- Added optional user-price gross-value calculation. No prices, costs, confidence
+  intervals or stress/disease scores are invented. Demo calculations and observed
+  history are explicitly distinguished.
+- Extended downloaded JSON with computed outputs, source reference/trend and
+  scenario/price assumptions. Added arithmetic and missing/ambiguous-data tests.
+
 ### 2026-10-14 — RYP webpage and training preparation
 
 - Renamed the beta RYP (Rice Yield Prediction) and added a rice-plant silhouette logo/favicon.

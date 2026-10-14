@@ -27,3 +27,16 @@ No API, live weather service or trained yield inference is part of this beta.
   uncertainty and feature attribution are not provided yet.
 
 Existing raw, merged and training CSVs were not modified during this UI work.
+
+## Live visual outputs
+
+Output arithmetic tests passed, including unavailable/ambiguous history,
+future-year exclusion, zero price/yield and invalid area/price/scenario input.
+Browser changes of demo yield to 12 t/ha, area to 20 ha and price to ₹20/kg
+immediately returned 240 t, 240,000 kg and ₹4,800,000. Moving the scenario slider
+to 150% returned 360 t with a chart marker. The observed label stayed unchanged.
+No trained predictor or weather service was run. Gross value is not profit.
+
+The phone-width black theme also updated successfully: 15 ha at 4.2 t/ha
+produced 63 t and ₹1,260,000 at the QA-supplied ₹20/kg price. Effective document
+width and scroll width both remained 375 px, with no horizontal overflow.

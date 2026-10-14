@@ -217,9 +217,13 @@ The Info page explains sources, preprocessing and named models, and provides a
 persistent global black-background dark theme. It also opens directly from
 `APP/prototype/index.html` without a frontend build.
 
-**The beta deliberately displays a fixed illustrative 4.20 t/ha.** It does not
+**The beta starts with illustrative 4.20 t/ha and supports live what-if controls.** It does not
 fetch weather, run saved preprocessing, or call a trained yield model. Production
-is the illustrative yield multiplied by entered rice area. The result explanation
+is the chosen demo yield multiplied by entered rice area. Production/kg cards,
+comparison bars, area scenarios, source-observed history and optional user-price
+gross-value charts make outputs visual. Changes to demo yield, area or supplied
+price update derived displays instantly. No scenario changes observed labels.
+The result explanation
 shows that formula and distinguishes proposed computation from executed steps.
 Observed historical data is labelled separately. All 103 districts in the six-state/
 UT GADM source subset are selectable; 60 have the 2,018 historical rows. Kerala
@@ -234,6 +238,7 @@ requirements and inference limitations. Current desktop verification covers data
 readiness and the webpage; fitting/inference need compatible torch/sklearn.
 
 ![RYP preview](docs/figures/RYP_Preview.png)
+![Interactive RYP output charts](docs/figures/RYP_Outputs.png)
 ![Proposed application architecture](docs/architecture/03_application.png)
 
 ## Research scope and limitations

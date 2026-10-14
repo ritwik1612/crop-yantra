@@ -33,9 +33,25 @@ crosswalk records remain labelled with their actual source state.
 
 ## Honest preview output
 
-Yield remains a fixed **4.20 t/ha illustrative placeholder**. Demo production
-is 4.20 × entered hectares. Representation/model selections change the displayed
-proposed pipeline, not the demo yield. The page runs no neural network, weather
+The result dashboard includes production (tonnes and kilograms), entered area,
+observed yield reference, demo/observed comparison bars, same-season historical
+yield trend/table, and interactive area scenarios. Historical charts include
+only records through the selected crop year; ambiguous year matches are excluded.
+An optional user-supplied ₹/kg price computes **gross value**, not profit, and
+updates a three-price scenario chart immediately. No
+default market price is assumed. The scenario slider changes arithmetic area,
+not yield, and does not represent an uncertainty interval. Downloaded JSON
+retains these outputs and assumptions. Empty history stays visibly unavailable.
+
+Run `node APP/tests/test_outputs.cjs` from the repository root for output logic tests.
+
+Yield starts at **4.20 t/ha as an illustrative placeholder**. Live what-if
+controls let users change this assumption and the cultivation area. Every KPI,
+chart and calculation reacts instantly. Demo production is the chosen demo yield
+× entered hectares; reset restores default yield and the original area. The
+0–12 t/ha slider is an interface range, not a validated agronomic range.
+Representation/model selections change the displayed proposed pipeline,
+not the demo yield. The page runs no neural network, weather
 fetch, preprocessing transform or trained regressor.
 
 When exactly one historical district/year/season observation matches, its actual
