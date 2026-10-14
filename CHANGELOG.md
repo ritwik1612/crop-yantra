@@ -6,6 +6,19 @@ versioning.
 
 ## [Unreleased]
 
+### 2026-10-14 — RYP webpage and training preparation
+
+- Renamed the beta RYP (Rice Yield Prediction) and added a rice-plant silhouette logo/favicon.
+- Added source-derived white state map, hover lift, state zoom, all 103
+  selectable source-vintage districts, search, keyboard access and pan/zoom.
+- Added an Info page with a persistent global black-background dark theme.
+- Added demo-result derivation, calculation JSON download and separately labelled
+  historical observations. Changing inputs clears stale results.
+- Added check-only training readiness, explicit future four-experiment training,
+  model export contracts and saved-preprocessing inference modules. No yield
+  model training was run; PyTorch/scikit-learn fitting and inference still need
+  a compatible environment and execution verification.
+
 ### Changed
 
 - 2026-10-11: Synchronized active root project files to the public repository,

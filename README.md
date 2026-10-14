@@ -29,7 +29,7 @@ disease labels or crop images. Low estimated yield cannot establish disease.
 | Denoising Autoencoder (DAE) | Fitted; checkpoint and learned features included |
 | MLP and HistGradientBoostingRegressor | Definitions included; supervised training not performed |
 | LSTM and 1D CNN | Definitions included; sequence preparation and training are future work |
-| Verdant beta | Working static presentation interface; explicitly illustrative results |
+| RYP beta | White state/district map, dark theme, methodology and explicitly illustrative results |
 | Yield accuracy improvement | Not established; requires the proposed experiments |
 
 ![Data and preprocessing architecture](docs/architecture/01_data_preprocessing.png)
@@ -40,6 +40,10 @@ disease labels or crop images. Low estimated yield cannot establish disease.
 APP/
   prototype/                 Static beta frontend
   models/                    Tabular and temporal yield model definitions
+  training/                  Check-only readiness and explicit future training
+  inference/                 Saved-preprocessing/model inference contract
+  tools/                     Reproducible source-derived browser map export
+  tests/                     Data readiness and map-export checks
 DATASET/
   raw/                       Government, boundary CSVs and daily weather
   merged/                    rice_master.csv
@@ -206,17 +210,30 @@ It writes its displayed modules before running them and checks output schemas.
 python -m http.server 8765 --directory APP/prototype
 ```
 
-Open **http://localhost:8765**. The prototype includes Overview, Yield preview,
-Data pipeline and Models & learning, with green/off-white styling and dependent
-district selection. It can also be opened directly from `APP/prototype/index.html`.
+Open **http://localhost:8765**. **RYP — Rice Yield Prediction** includes a white
+South India map with state hover lift, click-to-zoom state outlines, 103 selectable
+source-vintage districts, search, linked dropdowns, pan/zoom and a rice-plant logo.
+The Info page explains sources, preprocessing and named models, and provides a
+persistent global black-background dark theme. It also opens directly from
+`APP/prototype/index.html` without a frontend build.
 
 **The beta deliberately displays a fixed illustrative 4.20 t/ha.** It does not
 fetch weather, run saved preprocessing, or call a trained yield model. Production
-is the illustrative yield multiplied by entered rice area. District options
-are examples rather than a complete registry. Optional external fonts have
+is the illustrative yield multiplied by entered rice area. The result explanation
+shows that formula and distinguishes proposed computation from executed steps.
+Observed historical data is labelled separately. All 103 districts in the six-state/
+UT GADM source subset are selectable; 60 have the 2,018 historical rows. Kerala
+and Puducherry are context, not added training data. Modern district subdivisions
+are not claimed. Optional external fonts have
 system fallbacks. This is a presentation prototype, not a prediction service.
 
-![Beta preview](docs/figures/Beta_Preview.png)
+Run `python APP/training/train.py` for check-only readiness. Supervised fitting
+requires an explicit `--train`; it has not been run. See
+[training preparation](APP/training/README.md) for future MLP/tree experiments,
+requirements and inference limitations. Current desktop verification covers data
+readiness and the webpage; fitting/inference need compatible torch/sklearn.
+
+![RYP preview](docs/figures/RYP_Preview.png)
 ![Proposed application architecture](docs/architecture/03_application.png)
 
 ## Research scope and limitations

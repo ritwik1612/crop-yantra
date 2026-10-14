@@ -1,8 +1,14 @@
-# Yield application: implementation stage
+# RYP — Rice Yield Prediction
+
+Open [the webpage guide](prototype/README.md) for the responsive white state-map
+interface, district selection, global dark theme, methodology and explained demo
+output. [Training preparation](training/README.md) describes check-only readiness
+and explicit future supervised training. No yield training has been performed.
 
 models/tabular.py contains the GBDT baseline factory and MLP predictor.
 models/temporal.py contains the LSTM and 1D CNN sequence predictor definitions.
-These are architecture definitions, not trained yield models or an application UI.
+These are architecture definitions, not trained yield weights. The static UI is
+under prototype/; training/ and inference/ prepare the future tabular workflow.
 
 Read ../DATASET/training/manifest.json to select predictors and separate YIELD.
 Only train.csv fits supervised weights; validation.csv selects settings;
