@@ -31,19 +31,33 @@
    result:'No diagnosis: image model not connected',
    notes:'Context can support a future image classifier but must not override visual evidence. No disease-related yield loss is inferred.'};
  }
- root.CropHealth={advisories,validateFile,makeRequest};
+ function illustration(disease,season='Kharif',stage='unknown'){
+  const palettes={Kharif:['#e1ebe7','#315b48'],Rabi:['#e8ecdf','#536d43'],Summer:['#f2ead9','#6a7947'],Autumn:['#ede5d9','#736344'],Winter:['#e2e9ee','#46675d']};
+  const [background,leaf]=palettes[season]||palettes.Kharif;
+  const stages={unknown:'Unspecified stage',seedling:'Seedling',tillering:'Tillering',booting:'Booting',flowering:'Flowering',grain_filling:'Grain filling'};
+  const label=stages[stage]||stages.unknown;
+  const count=stage==='seedling'?2:stage==='tillering'?4:6;
+  const leaves=Array.from({length:count},(_,i)=>{const side=i%2?-1:1,cy=216-i*21;return `<path d="M292 ${cy} Q${292+side*120} ${cy-32} ${292+side*134} ${cy-78} Q${292+side*30} ${cy-65} 292 ${cy}" fill="${leaf}" opacity="${.65+i*.05}"/>`;}).join('');
+  const lesions=disease==='blast'?'<path d="M355 114l12-15 4 21-12 10zM219 161l-8-18-6 17 7 12z" fill="#bba36e" stroke="#6e513d" stroke-width="2"/>':disease==='brown_spot'?'<g fill="#a78459" stroke="#604b36" stroke-width="2"><ellipse cx="362" cy="110" rx="6" ry="4"/><ellipse cx="333" cy="127" rx="5" ry="3"/><ellipse cx="224" cy="155" rx="6" ry="4"/></g>':'<path d="M306 142 Q357 112 420 69 Q385 115 315 153" fill="#c1b378"/>';
+  const panicle=['booting','flowering','grain_filling'].includes(stage)?'<path d="M292 124q-6-83 42-92" fill="none" stroke="#9e8a4a" stroke-width="3"/><g fill="#baa569">'+[0,1,2,3,4].map(i=>`<ellipse cx="${304+i*6}" cy="${50+i*12}" rx="6" ry="4" transform="rotate(-30 ${304+i*6} ${50+i*12})"/>`).join('')+'</g>':'';
+  const safeSeason=palettes[season]?season:'Kharif';
+  const markup=`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"><rect width="600" height="300" fill="${background}"/><circle cx="300" cy="138" r="113" fill="white" opacity=".35"/><path d="M292 248V92" stroke="${leaf}" stroke-width="5" fill="none"/>${leaves}${panicle}${lesions}<text x="24" y="27" fill="#354a3c" font-family="Arial,sans-serif" font-size="12">RICE / ${safeSeason.toUpperCase()}</text><text x="576" y="27" text-anchor="end" fill="#354a3c" font-family="Arial,sans-serif" font-size="12">${label.toUpperCase()}</text><path d="M170 251h250" stroke="#788774" opacity=".35"/><text x="300" y="281" text-anchor="middle" fill="#526453" font-family="Arial,sans-serif" font-size="10" letter-spacing="1">ILLUSTRATION ONLY · NOT A DIAGNOSIS</text></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(markup);
+ }
+ root.CropHealth={advisories,validateFile,makeRequest,illustration};
  if(typeof module!=='undefined'&&module.exports)module.exports=root.CropHealth;
  if(typeof document==='undefined')return;
  const $=id=>document.getElementById(id),esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let context=null,imageMeta=null,objectURL=null,selectionVersion=0;
  function refresh(){
   $('health-context').textContent=context?.district?`${context.district}, ${context.state} · ${context.season} ${context.year} · ${context.areaHa??'—'} ha · Rice`:'No district selected. Choose one in the yield workspace; context will appear here automatically.';
-  $('health-cards').innerHTML=advisories(context,$('growth-stage').value,$('field-conditions').value).map(d=>`<article class="disease-card"><img src="${d.image}" alt="Illustrative placeholder for ${d.name}; not a diagnostic photograph" loading="lazy"><div class="disease-body"><span class="small-badge">GENERAL AWARENESS · NOT A DIAGNOSIS</span><h3>${d.name}</h3><p>${d.symptoms}</p><details><summary>Why this reference appears</summary><p>${esc(d.reason)}</p><p>${d.favourable}</p><p>${d.stageMatch?'Your reported growth stage matches the handbook entry.':'No growth-stage match established.'} ${d.conditionMatch?'Your reported field conditions match the handbook entry.':'No condition match established.'} Season alone does not prove favourable weather.</p></details><a href="${d.source}" target="_blank" rel="noopener">Read agricultural source ↗</a></div></article>`).join('');
+  $('health-cards').innerHTML=advisories(context,$('growth-stage').value,$('field-conditions').value).map(d=>`<article class="disease-card"><img src="${illustration(d.id,$('health-season').value,$('growth-stage').value)}" alt="${d.name}: rice illustration, ${esc($('health-season').value)}, ${esc($('growth-stage').selectedOptions[0].text)}; not a diagnostic photograph"><div class="disease-body"><span class="small-badge">DISEASE REFERENCE</span><h3>${d.name}</h3><p>${d.symptoms}</p><details><summary>Conditions and source</summary><p>${esc(d.reason)}</p><p>${d.favourable}</p><p>${d.stageMatch?'Growth stage matches the reference.':'No growth-stage match.'} ${d.conditionMatch?'Reported conditions match the reference.':'No condition match.'}</p></details><a href="${d.source}" target="_blank" rel="noopener">TNAU reference ↗</a></div></article>`).join('');
   $('prepare-screening').disabled=!imageMeta||!context?.district;
   if(imageMeta)$('photo-status').textContent='Photo stays on your device. Current context is linked; no disease classifier is connected.';
  }
- root.CropHealth.setContext=value=>{context=value;refresh();};
- ['growth-stage','field-conditions'].forEach(id=>$(id).addEventListener('change',refresh));
+ root.CropHealth.setContext=value=>{context=value;if(value?.season)$('health-season').value=value.season;refresh();};
+ ['growth-stage','field-conditions','health-crop'].forEach(id=>$(id).addEventListener('change',refresh));
+ $('health-season').addEventListener('change',()=>{$('season').value=$('health-season').value;$('season').dispatchEvent(new Event('input',{bubbles:true}));});
  function clearPhoto(){selectionVersion++;if(objectURL)URL.revokeObjectURL(objectURL);objectURL=null;imageMeta=null;$('crop-photo').value='';$('photo-preview').removeAttribute('src');$('photo-preview').hidden=true;$('photo-empty').hidden=false;$('photo-info').textContent='JPEG / PNG / WebP · up to 10 MB';$('photo-status').textContent='No image selected. No photos are uploaded or stored by this demo.';$('photo-error').textContent='';$('prepare-screening').disabled=true;}
  $('remove-photo').addEventListener('click',clearPhoto);
  async function loadPhoto(file){

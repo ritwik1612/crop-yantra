@@ -1,12 +1,26 @@
 # Crop Yantra — Rice Yield & Crop Health
 
+Small information buttons explain each major section. The results and method
+page include an expandable worked calculation: invented weather inputs, scaling,
+two hidden neurons, a 4.20 t/ha toy output and yield × hectares. The toy is not
+trained inference and is explicitly distinguished from the actual proposed MLP.
+
+Yield inputs, results and crop health now form one page, in that order. The crop
+health navigation scrolls to its section. Season selection is synchronized with
+the yield form; rice illustrations update for season and growth stage without
+implying regional disease prevalence. Rice is the only supported crop.
+
+Charts show labelled yield comparison tracks, a reactive production-versus-area
+line, and historical yield with hover/keyboard observation labels. Missing
+historical values remain unavailable rather than being drawn as zero.
+
 The crop-health tab shares district/season context with the yield form, displays
 clearly labelled illustrative placeholders and previews photos locally. It
 exports metadata only; no classifier, diagnosis or remote photo upload is active.
 See the [small South Indian rice-image training plan](../../docs/IMAGE_TRAINING_PLAN.md).
 
 A responsive pretraining webpage with white cartography, state hover lift,
-animated state zoom, clickable district partitions, search, synchronized form
+animated state zoom, clickable district partitions, synchronized form
 controls, pan/zoom and keyboard district navigation. A rice-plant silhouette
 provides the header identity and favicon.
 
@@ -20,7 +34,7 @@ Visit http://127.0.0.1:8765. No Node build, API key, map service or frontend
 dependency installation is needed. Optional Google Fonts have system fallbacks.
 
 1. Click a state (hover enlarges its white silhouette slightly).
-2. Click a district, or use district search/dropdowns. Back to South India
+2. Click a district, or use the state/district dropdowns. Back to South India
    restores the overview. Drag to pan; buttons zoom; Ctrl-scroll zooms.
 3. Set season/year/area and choose a proposed representation/predictor.
 4. Preview the result. Its explanation shows the exact calculation and which

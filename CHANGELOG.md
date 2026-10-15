@@ -6,6 +6,23 @@ versioning.
 
 ## [Unreleased]
 
+### 2026-10-15 — Dashboard and inline crop health
+
+- Removed district search; retained map selection, dropdowns and map reset.
+
+- Added accessible section-info popups and a complete hypothetical 3 → 2 → 1
+  calculation in the results and methodology. Invented inputs/weights are
+  explicitly distinguished from the proposed trained MLP and manual demo values.
+
+- Replaced sparse output plots with labelled yield tracks, a continuous area
+  scenario chart and a shaded historical series with focusable observations.
+- Moved crop health below yield results on the same page; navigation scrolls
+  rather than hiding the yield workspace.
+- Added synchronized season selection and season/growth-stage rice illustration
+  variants. Illustrations are not disease predictions or seasonal prevalence.
+- Removed promotional headings and redundant workspace copy. Rice-only scope,
+  source attribution and essential pretraining limitations remain visible.
+
 ### 2026-10-14 — Visual output dashboard
 
 - Added live what-if yield/area controls and reset. All derived charts, KPI cards,
