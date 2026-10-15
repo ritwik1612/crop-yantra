@@ -21,6 +21,8 @@ been downloaded or trained. See [regional fit, size and training plan](docs/IMAG
 
 ## Start here
 
+- [District-augmented CSV](DATASET/augmented/rice_master_augmented.csv): one 30-column table, 3,363 rows. Read the [construction and training-use notes](DATASET/augmented/README.md). Original master and existing training splits are unchanged.
+
 - [Faculty proposal](docs/Preprocessing_Proposal.pdf): sources, features, preprocessing and model plan.
 - [Project architecture diagrams](docs/architecture/README.md).
 - [Detailed source selection and merge](docs/figures/Raw_Data_Feature_Selection_and_Merge.svg).

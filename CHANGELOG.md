@@ -6,6 +6,16 @@ versioning.
 
 ## [Unreleased]
 
+### 2026-10-15 — Nearest-district augmentation
+
+- Added one 30-column augmented table: 2,018 original rows and 1,345 estimates
+  covering the 43 missing districts in the 103-district historical map.
+- Used three distinct same-year/season donors within 250 km, inverse-distance
+  squared weights and original training years only; retained reproducible donor
+  records and hashes in a separate manifest.
+- Preserved raw data, original master, preprocessing artifacts and held-out
+  training/evaluation files. Added independent preservation/calculation tests.
+
 ### 2026-10-15 — Dashboard and inline crop health
 
 - Removed district search; retained map selection, dropdowns and map reset.
