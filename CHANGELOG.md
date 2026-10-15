@@ -6,6 +6,13 @@ versioning.
 
 ## [Unreleased]
 
+### 2026-10-15 — Data adequacy audit
+
+- Added a read-only persistence-baseline audit and documented genuine sample
+  counts, held-out baseline errors and 4,604 raw rice candidate records.
+- Distinguished proposed image-subset storage budget from the 1.09 GB source
+  competition download. No main model training or accuracy claim was added.
+
 ### 2026-10-15 — Nearest-district augmentation
 
 - Added one 30-column augmented table: 2,018 original rows and 1,345 estimates
