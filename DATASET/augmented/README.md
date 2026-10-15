@@ -34,7 +34,9 @@ proxies, not independently acquired target-district measurements.
 
 `generation_manifest.json` records exact donor row keys, coordinates' geographic
 IDs, distances, weights, output record positions, source/output hashes and
-skipped periods. Reproduce with `pre-processing/augment_districts.mjs` using the
+skipped periods. Text-file hashes normalize CRLF to LF, matching Git attributes
+and making verification portable across Windows/Linux checkouts.
+Reproduce with `pre-processing/augment_districts.mjs` using the
 bundled artifact-tool runtime; alternatively configure `ARTIFACT_MODULE_BASE`
 to a directory whose node_modules contains `@oai/artifact-tool`.
 

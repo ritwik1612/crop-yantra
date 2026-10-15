@@ -13,7 +13,8 @@ const states={AndhraPradesh:'Andhra Pradesh',Karnataka:'Karnataka',TamilNadu:'Ta
 const basePath=path.join(root,'DATASET/merged/rice_master.csv');
 const boundariesPath=path.join(root,'DATASET/raw/boundaries/india_districts.csv');
 const destination=path.join(root,'DATASET/augmented');
-const sha=value=>createHash('sha256').update(value).digest('hex');
+// Match the repository's *.csv text eol=lf rule on Windows and Linux.
+const sha=value=>createHash('sha256').update(value.replaceAll('\r\n','\n')).digest('hex');
 const key=value=>String(value).toUpperCase().replace(/[^A-Z0-9]/g,'');
 const coordinate=row=>`${Number(row.CENTROID_X).toFixed(6)},${Number(row.CENTROID_Y).toFixed(6)}`;
 const numeric=value=>value!==''&&value!==null&&Number.isFinite(Number(value));
@@ -100,7 +101,7 @@ sheet.getRange('H1:H8').format.columnWidth=30;
 outputBook.recalculate();
 console.log((await outputBook.inspect({kind:'table',range:'A1:J4',include:'values',tableMaxRows:4,tableMaxCols:10,maxChars:1800})).ndjson);
 const matrix=sheet.getUsedRange().values;
-const outputCSV=matrix.map(row=>row.map(csvCell).join(',')).join('\r\n')+'\r\n';
+const outputCSV=matrix.map(row=>row.map(csvCell).join(',')).join('\n')+'\n';
 // Verify the complete round trip before replacing this task's generated output.
 const roundTrip=await Workbook.fromCSV(outputCSV,{sheetName:'Verify'});
 if(roundTrip.worksheets.getItem('Verify').getUsedRange().values.length!==mixed.length+1)throw Error('CSV row round trip mismatch');

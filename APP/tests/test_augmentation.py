@@ -32,7 +32,7 @@ class AugmentationTests(unittest.TestCase):
         self.assertEqual(len(self.mixed), len(self.output))
         for record_key, row in self.base.items():
             self.assertEqual(row, self.mixed[record_key])
-        self.assertEqual(hashlib.sha256((ROOT/'DATASET/merged/rice_master.csv').read_bytes()).hexdigest(), self.manifest['source_sha256'])
+        self.assertEqual(hashlib.sha256((ROOT/'DATASET/merged/rice_master.csv').read_bytes().replace(b'\r\n', b'\n')).hexdigest(), self.manifest['source_sha256'])
         self.assertEqual(hashlib.sha256((ROOT/'DATASET/augmented/rice_master_augmented.csv').read_bytes()).hexdigest(), self.manifest['output_sha256'])
 
     def test_donors_and_calculations(self):
