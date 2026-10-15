@@ -2,3 +2,6 @@ dist/
 .sites/
 *.tar.gz
 *.log
+
+.vercel
+.env*

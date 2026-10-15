@@ -122,3 +122,12 @@ versioning.
 
 - Added `South_India_Preprocessing_Report.tex`: a Computer Modern academic LaTeX report covering data provenance, files, features, preprocessing methods, outputs, quality findings, and modelling implications.
 - Compiled and visually verified `South_India_Preprocessing_Report.pdf` (four A4 pages).
+# 2026-10-15 — Crop Yantra pretraining demo
+
+- Renamed the GitHub repository to crop-yantra and updated active source links.
+- Added general rice disease references, labelled illustrative leaf placeholders,
+  shared yield context, local photo preview and metadata-only request export.
+- Documented a compact Tamil Nadu rice-image subset and EfficientNet-B0 plan;
+  no image model training or diagnosis is claimed.
+- Added static Vercel deployment configuration with environment-file exclusions.
+

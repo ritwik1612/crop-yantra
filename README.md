@@ -1,4 +1,4 @@
-# South India Rice Yield Prediction
+# Crop Yantra — Rice Yield & Crop Health
 
 District-season rice yield estimation using government crop statistics, GADM
 district locations and NASA POWER weather. This repository includes preserved
@@ -8,15 +8,23 @@ green/off-white demonstration app.
 
 **Team:** R Ritwik (23BAI0037) and Joshith G (23BAI0075).
 
-**Current scope is yield prediction, not crop disease detection.** There are no
-disease labels or crop images. Low estimated yield cannot establish disease.
+**Live pretraining demo:** https://crop-yantra.vercel.app
+**GitHub:** https://github.com/ritwik1612/crop-yantra
+
+**Main task: rice yield prediction.** The tabular dataset has no disease labels.
+The auxiliary crop-health demo provides handbook references and local photo
+preview, not diagnosis. Low estimated yield cannot establish disease.
+
+Image plan: a small Tamil Nadu Paddy Doctor subset, up to 1,600 images, with
+ImageNet-pretrained EfficientNet-B0 fine-tuning. No image data or weights have
+been downloaded or trained. See [regional fit, size and training plan](docs/IMAGE_TRAINING_PLAN.md).
 
 ## Start here
 
 - [Faculty proposal](docs/Preprocessing_Proposal.pdf): sources, features, preprocessing and model plan.
 - [Project architecture diagrams](docs/architecture/README.md).
 - [Detailed source selection and merge](docs/figures/Raw_Data_Feature_Selection_and_Merge.svg).
-- [Complete preprocessing notebook in Colab](https://colab.research.google.com/github/ritwik1612/south-india-crop-yield-dataset/blob/main/pre-processing/Crop_Preprocessing.ipynb).
+- [Complete preprocessing notebook in Colab](https://colab.research.google.com/github/ritwik1612/crop-yantra/blob/main/pre-processing/Crop_Preprocessing.ipynb).
 - [Beta application](APP/prototype/README.md) and [model registry](docs/MODEL_REGISTRY.md).
 - [Changelog](CHANGELOG.md).
 
@@ -191,8 +199,8 @@ was used for the recorded local verification. Model artifacts are version-depend
 load pickle/PyTorch objects only from a trusted copy.
 
 ```bash
-git clone https://github.com/ritwik1612/south-india-crop-yield-dataset.git
-cd south-india-crop-yield-dataset
+git clone https://github.com/ritwik1612/crop-yantra.git
+cd crop-yantra
 python -m pip install -r pre-processing/requirements.txt
 python pre-processing/run_pipeline.py --epochs 180
 python pre-processing/verify_outputs.py
@@ -200,7 +208,7 @@ python pre-processing/verify_outputs.py
 
 Already generated datasets and artifacts are included; rerunning the full
 pipeline retrains the DAE and updates generated outputs. A GPU is not required
-for the recorded CPU run. The [Colab notebook](https://colab.research.google.com/github/ritwik1612/south-india-crop-yield-dataset/blob/main/pre-processing/Crop_Preprocessing.ipynb)
+for the recorded CPU run. The [Colab notebook](https://colab.research.google.com/github/ritwik1612/crop-yantra/blob/main/pre-processing/Crop_Preprocessing.ipynb)
 contains visible implementation code, saved previews and seven actual graphs.
 It writes its displayed modules before running them and checks output schemas.
 

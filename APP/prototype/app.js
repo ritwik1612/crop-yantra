@@ -34,6 +34,7 @@ function updateDistrictOptions(state){
  $('district').disabled=!state;
 }
 function updateCoverage(){
+ window.CropHealth?.setContext({crop:'Rice',districtId:selected?.id??null,district:selected?.name??null,state:selected?.state??$('state').value,season:$('season').value,year:Number($('year').value),areaHa:$('area').value&&$('area').validity.valid?Number($('area').value):null});
  const el=$('coverage');el.classList.toggle('unsupported',Boolean(selected&&!selected.records));
  if(!selected){el.innerHTML='<b>Start with a location</b>Click a state, then select a district on the map or from the dropdown.';return;}
  let text=selected.records?`${selected.records} historical observations · ${selected.years[0]}–${selected.years.at(-1)}. Coverage does not establish predictive accuracy.`:'No observations for this district in the current cohort. You can preview the interface, but model generalization here has not been established.';
@@ -186,7 +187,7 @@ function renderResult(request){
 }
 $('yield-form').addEventListener('submit',event=>{event.preventDefault();if(!$('yield-form').reportValidity())return;if(!selected){$('form-error').textContent='Choose a district first.';return;}resultSnapshot=snapshot();renderResult(resultSnapshot);$('result').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});});
 data.manifest.standard.predictor_columns.filter(name=>name.startsWith('numeric__')).forEach(name=>{const tag=document.createElement('span');tag.textContent=name.replace('numeric__','');$('feature-list').append(tag);});
-function route(){const hash=location.hash.slice(1), info=hash==='info'||['sources-section','preprocessing-section','models-section','output-section'].includes(hash);$('studio').hidden=info;$('info').hidden=!info;document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',a.hash===(info?'#info':'#studio')));if(hash.endsWith('-section'))requestAnimationFrame(()=>$(hash)?.scrollIntoView());else window.scrollTo({top:0,behavior:'auto'});}
+function route(){const hash=location.hash.slice(1),info=hash==='info'||['sources-section','preprocessing-section','models-section','output-section'].includes(hash),health=hash==='health';$('studio').hidden=info||health;$('info').hidden=!info;$('health').hidden=!health;document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',a.hash===(info?'#info':health?'#health':'#studio')));if(hash.endsWith('-section'))requestAnimationFrame(()=>$(hash)?.scrollIntoView());else window.scrollTo({top:0,behavior:'auto'});}
 window.addEventListener('hashchange',route);route();
 const themeButton=$('theme-toggle');
 function setTheme(theme){document.documentElement.dataset.theme=theme;themeButton.setAttribute('aria-pressed',String(theme==='dark'));themeButton.textContent=theme==='dark'?'☀ Switch to light mode':'◐ Switch to dark mode';try{localStorage.setItem('ryp-theme',theme);}catch{/* Storage may be unavailable in private/file contexts. */}}

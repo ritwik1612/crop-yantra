@@ -1,0 +1,7 @@
+.git/
+.openai/
+.vercel/
+dist/
+README.md
+.env*
+*.log

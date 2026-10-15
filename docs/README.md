@@ -19,7 +19,7 @@ explanation, three workflow diagrams, actual preprocessing findings and plots.
 See [MODEL_REGISTRY.md](MODEL_REGISTRY.md) for exact model names and roles,
 and [COMPLETION_CHECKLIST.md](COMPLETION_CHECKLIST.md) for the delivery audit.
 Open [the prototype](../APP/prototype/index.html), or serve it at localhost:8765.
-[Open the maintained preprocessing notebook in Colab](https://colab.research.google.com/github/ritwik1612/south-india-crop-yield-dataset/blob/main/pre-processing/Crop_Preprocessing.ipynb).
+[Open the maintained preprocessing notebook in Colab](https://colab.research.google.com/github/ritwik1612/crop-yantra/blob/main/pre-processing/Crop_Preprocessing.ipynb).
 It shows the complete current code, saved table previews and seven actual plots.
 This replaces the older standalone notebook's superseded flat CSV paths.
 

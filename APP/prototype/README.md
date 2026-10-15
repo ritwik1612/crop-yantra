@@ -1,4 +1,9 @@
-# RYP — Rice Yield Prediction
+# Crop Yantra — Rice Yield & Crop Health
+
+The crop-health tab shares district/season context with the yield form, displays
+clearly labelled illustrative placeholders and previews photos locally. It
+exports metadata only; no classifier, diagnosis or remote photo upload is active.
+See the [small South Indian rice-image training plan](../../docs/IMAGE_TRAINING_PLAN.md).
 
 A responsive pretraining webpage with white cartography, state hover lift,
 animated state zoom, clickable district partitions, search, synchronized form
