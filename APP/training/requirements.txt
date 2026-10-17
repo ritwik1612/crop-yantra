@@ -1,0 +1,3 @@
+# Common processing/evaluation requirements for both pipelines.
+# Install the matched torch/torchvision pair separately for the target device.
+-r images/requirements.txt

@@ -1,25 +1,41 @@
-# Crop Yantra — Rice Yield & Crop Health
+# Paddy — Rice Yield & Crop Health
+
+**Current application:** offline Windows desktop app. See
+[installation and build instructions](APP/desktop/README.md).
+The previous Crop Yantra Vercel project was removed at the user's request.
+The name Paddy and elegant rice-plant logo are confirmed for the Windows release.
 
 District-season rice yield estimation using government crop statistics, GADM
 district locations and NASA POWER weather. This repository includes preserved
 source data, one merged master, two model-ready representations, fitted
-Denoising Autoencoder preprocessing, proposed yield model definitions and a
-green/off-white demonstration app.
+Denoising Autoencoder preprocessing, trained yield/image models and a
+green/off-white interactive desktop app.
 
 **Team:** R Ritwik (23BAI0037) and Joshith G (23BAI0075).
 
-**Live pretraining demo:** https://crop-yantra.vercel.app
+**Windows setup:** [Download Paddy Setup](https://github.com/ritwik1612/crop-yantra/releases/download/v0.1.0/Paddy-Setup-0.1.0.exe)
+Defaults to Program Files, allows another folder, and creates a Paddy Start menu
+shortcut for Windows Search. Windows 10/11 x64 with Edge WebView2 is required.
+The academic installer is unsigned; Windows may show an unknown-publisher warning.
 **GitHub:** https://github.com/ritwik1612/crop-yantra
 
 **Main task: rice yield prediction.** The tabular dataset has no disease labels.
-The auxiliary crop-health demo provides handbook references and local photo
-preview, not diagnosis. Low estimated yield cannot establish disease.
+The auxiliary crop-health section provides handbook references and local
+four-class rice-photo screening, not confirmed diagnosis. Low estimated yield
+cannot establish disease.
 
-Image plan: a small Tamil Nadu Paddy Doctor subset, up to 1,600 images, with
-ImageNet-pretrained EfficientNet-B0 fine-tuning. No image data or weights have
-been downloaded or trained. See [regional fit, size and training plan](docs/IMAGE_TRAINING_PLAN.md).
+Image component: a prepared Tamil Nadu Paddy Doctor subset of 1,600 images
+(400 per class; 1,120 train / 240 validation / 240 test), with trained
+ImageNet-initialized EfficientNet-B0 weights. Held-out accuracy: 86.25%.
+The selected yield model is standard-preprocessed HistGradientBoostingRegressor;
+held-out MAE: 0.532 t/ha. Models run locally; no cloud inference is used.
+The prepared image subset occupies 129.48 MB including its manifest.
+See [image setup and commands](APP/training/images/README.md) and
+[regional fit, size and training plan](docs/IMAGE_TRAINING_PLAN.md).
 
 ## Start here
+
+- [Both-model training runbook](APP/training/START_TRAINING.md): verified inputs, model names, no-fitting preflight, local launch commands and optional Colab notebook. Supervised training has not started.
 
 - [District-augmented CSV](DATASET/augmented/rice_master_augmented.csv): one 30-column table, 3,363 rows. Read the [construction and training-use notes](DATASET/augmented/README.md). Original master and existing training splits are unchanged.
 

@@ -25,6 +25,8 @@
   ['.disease-body h3','This is a reference illustration, not an analysed crop photo. Growth stage and reported conditions determine reference ordering.'],
   ['.photo-card h2','JPEG, PNG and WebP photos are previewed locally. The current export includes context and image metadata only, not image bytes or a diagnosis.'],
   ['.photo-method h2','The proposed classifier is ImageNet-pretrained EfficientNet-B0, to be fine-tuned on a small Tamil Nadu rice-image subset. Training is pending.'],
+  ['#detection-title','Follow the planned photo-to-label pipeline. Select a step for details. The app currently previews photos only; no trained classifier is connected. District and season support separate reference guidance.'],
+  ['.output-influence h3','These are exact changes in demo production when yield or area increases by 10%. They are arithmetic sensitivities, not learned weather-feature rankings. Model-based importance is pending training and explanation integration.'],
   ['#sources-section h2','Government rice statistics, district locations and NASA POWER weather are joined by location, crop year and season.'],
   ['#preprocessing-section h2','Imputation, scaling, category encoding and DAE are fitted on training data only. Validation and test rows reuse the fitted transforms.'],
   ['#models-section h2','Compare MLP and HistGradientBoostingRegressor on standard and DAE features. Accuracy and improvement must be measured after training.'],
@@ -42,12 +44,12 @@
  popup.innerHTML='<button type="button" aria-label="Close explanation">×</button><p></p>';document.body.append(popup);
  let trigger=null;
  function close(restore=false){popup.hidden=true;if(trigger){trigger.setAttribute('aria-expanded','false');if(restore)trigger.focus();}trigger=null;}
- function open(button,text){if(trigger===button&&!popup.hidden){close();return;}close();trigger=button;button.setAttribute('aria-expanded','true');popup.querySelector('p').textContent=text;popup.hidden=false;const rect=button.getBoundingClientRect(),width=Math.min(320,innerWidth-24);popup.style.width=width+'px';popup.style.left=Math.max(12,Math.min(rect.left,innerWidth-width-12))+'px';const height=popup.getBoundingClientRect().height;popup.style.top=(rect.bottom+height+12<innerHeight?rect.bottom+10:Math.max(12,rect.top-height-10))+'px';}
+ function open(button,text){if(trigger===button&&!popup.hidden){close();return;}close();trigger=button;button.setAttribute('aria-expanded','true');popup.querySelector('p').textContent=root.CropDesktop?.ready?root.CropDesktop.helpText(button,text):text;popup.hidden=false;const rect=button.getBoundingClientRect(),width=Math.min(320,innerWidth-24);popup.style.width=width+'px';popup.style.left=Math.max(12,Math.min(rect.left,innerWidth-width-12))+'px';const height=popup.getBoundingClientRect().height;popup.style.top=(rect.bottom+height+12<innerHeight?rect.bottom+10:Math.max(12,rect.top-height-10))+'px';}
  popup.querySelector('button').addEventListener('click',()=>close(true));
  document.addEventListener('keydown',event=>{if(event.key==='Escape')close(true);});
  document.addEventListener('pointerdown',event=>{if(!popup.hidden&&!popup.contains(event.target)&&event.target!==trigger)close();});
  window.addEventListener('resize',()=>close());window.addEventListener('hashchange',()=>close());window.addEventListener('scroll',()=>close(),{passive:true});
  function enhance(){for(const [selector,text] of explanations)document.querySelectorAll(selector).forEach(heading=>{if(heading.querySelector('.section-help-button'))return;const button=document.createElement('button');button.type='button';button.className='section-help-button';button.textContent='i';button.setAttribute('aria-label','About '+heading.textContent.trim());button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls',popup.id);button.addEventListener('click',()=>open(button,text));heading.append(button);});}
- const output=document.getElementById('output-section');output.insertAdjacentHTML('beforeend',calculation());
+ // Request-specific calculation panels are mounted only on the output page.
  enhance();new MutationObserver(enhance).observe(document.getElementById('main'),{childList:true,subtree:true});
 })(typeof window!=='undefined'?window:globalThis);

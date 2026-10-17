@@ -2,6 +2,15 @@
 (function(root){
  'use strict';
  const source='https://agritech.tnau.ac.in/org_farm/orgfarm_prac_agri_paddy_diseases.html';
+ const referencePhotos={
+  blast:{file:'assets/blast-real.jpg',title:'Rice blast symptoms',url:'https://commons.wikimedia.org/wiki/File:Rice_blast_symptoms.jpg',license:'Public domain',licenseURL:'https://creativecommons.org/publicdomain/mark/1.0/'},
+  bacterial_blight:{file:'assets/blight-real.jpg',title:'Bacterial blight of rice',url:'https://commons.wikimedia.org/wiki/File:Bacterial_blight_of_rice.jpeg',license:'CC BY 3.0 US',licenseURL:'https://creativecommons.org/licenses/by/3.0/us/'},
+  brown_spot:{file:'assets/brown-spot-real.jpg',title:'Brown spot of rice',url:'https://commons.wikimedia.org/wiki/File:Cochliobolus_miyabeanus.jpg',license:'CC BY 3.0 US',licenseURL:'https://creativecommons.org/licenses/by/3.0/us/'}
+ };
+ function imageCard(d,season,stage){
+  const photo=referencePhotos[d.id];
+  return `<div class="disease-visual"><button class="disease-flip" type="button" aria-pressed="false" aria-label="Show real ${d.name} reference photo"><span class="flip-inner"><span class="flip-front"><img src="${illustration(d.id,season,stage)}" alt="${d.name}: rice illustration, ${season}; not a diagnostic photograph"><span class="flip-caption">Illustration · hover or click for photo ↻</span></span><span class="flip-back" aria-hidden="true"><img src="${photo.file}" alt="${photo.title}: real symptom reference photo by Donald Groth" loading="lazy"><span class="flip-caption">Real symptom example · click to switch ↻</span></span></span></button><small class="photo-credit"><a href="${photo.url}" target="_blank" rel="noopener">${photo.title}</a> · Donald Groth, LSU AgCenter / Bugwood.org · <a href="${photo.licenseURL}" target="_blank" rel="noopener">${photo.license}</a>. Display cropped to fit. General reference, not local outbreak evidence.</small></div>`;
+ }
  const catalogue=[
   {id:'blast',name:'Rice blast',stages:['seedling','tillering','booting','flowering','grain_filling'],conditions:['wet_cloudy'],symptoms:'Look for spindle-shaped leaf lesions with pale centres. Other disorders can look similar.',favourable:'Wet/cloudy conditions, frequent rain or drizzle and high humidity are described in the handbook.',image:'assets/blast-placeholder.svg'},
   {id:'bacterial_blight',name:'Bacterial leaf blight',stages:['tillering','booting','flowering'],conditions:['wet_cloudy','warm_humid'],symptoms:'Watch for lesions extending along the leaf. A photograph alone may not distinguish look-alike disorders.',favourable:'The handbook lists wet conditions and high temperature/humidity; growth stages include tillering to heading.',image:'assets/blight-placeholder.svg'},
@@ -44,18 +53,31 @@
   const markup=`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"><rect width="600" height="300" fill="${background}"/><circle cx="300" cy="138" r="113" fill="white" opacity=".35"/><path d="M292 248V92" stroke="${leaf}" stroke-width="5" fill="none"/>${leaves}${panicle}${lesions}<text x="24" y="27" fill="#354a3c" font-family="Arial,sans-serif" font-size="12">RICE / ${safeSeason.toUpperCase()}</text><text x="576" y="27" text-anchor="end" fill="#354a3c" font-family="Arial,sans-serif" font-size="12">${label.toUpperCase()}</text><path d="M170 251h250" stroke="#788774" opacity=".35"/><text x="300" y="281" text-anchor="middle" fill="#526453" font-family="Arial,sans-serif" font-size="10" letter-spacing="1">ILLUSTRATION ONLY · NOT A DIAGNOSIS</text></svg>`;
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(markup);
  }
- root.CropHealth={advisories,validateFile,makeRequest,illustration};
+ root.CropHealth={advisories,validateFile,makeRequest,illustration,imageCard,referencePhotos};
  if(typeof module!=='undefined'&&module.exports)module.exports=root.CropHealth;
  if(typeof document==='undefined')return;
  const $=id=>document.getElementById(id),esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let context=null,imageMeta=null,objectURL=null,selectionVersion=0;
  function refresh(){
   $('health-context').textContent=context?.district?`${context.district}, ${context.state} · ${context.season} ${context.year} · ${context.areaHa??'—'} ha · Rice`:'No district selected. Choose one in the yield workspace; context will appear here automatically.';
-  $('health-cards').innerHTML=advisories(context,$('growth-stage').value,$('field-conditions').value).map(d=>`<article class="disease-card"><img src="${illustration(d.id,$('health-season').value,$('growth-stage').value)}" alt="${d.name}: rice illustration, ${esc($('health-season').value)}, ${esc($('growth-stage').selectedOptions[0].text)}; not a diagnostic photograph"><div class="disease-body"><span class="small-badge">DISEASE REFERENCE</span><h3>${d.name}</h3><p>${d.symptoms}</p><details><summary>Conditions and source</summary><p>${esc(d.reason)}</p><p>${d.favourable}</p><p>${d.stageMatch?'Growth stage matches the reference.':'No growth-stage match.'} ${d.conditionMatch?'Reported conditions match the reference.':'No condition match.'}</p></details><a href="${d.source}" target="_blank" rel="noopener">TNAU reference ↗</a></div></article>`).join('');
+  $('health-cards').innerHTML=advisories(context,$('growth-stage').value,$('field-conditions').value).map(d=>`<article class="disease-card">${imageCard(d,$('health-season').value,$('growth-stage').value)}<div class="disease-body"><span class="small-badge">DISEASE REFERENCE</span><h3>${d.name}</h3><p>${d.symptoms}</p><details><summary>Conditions and source</summary><p>${esc(d.reason)}</p><p>${d.favourable}</p><p>${d.stageMatch?'Growth stage matches the reference.':'No growth-stage match.'} ${d.conditionMatch?'Reported conditions match the reference.':'No condition match.'}</p></details><a href="${d.source}" target="_blank" rel="noopener">TNAU reference ↗</a></div></article>`).join('');
   $('prepare-screening').disabled=!imageMeta||!context?.district;
-  if(imageMeta)$('photo-status').textContent='Photo stays on your device. Current context is linked; no disease classifier is connected.';
+  if(imageMeta)$('photo-status').textContent=root.CropDesktop?.ready?'Ready for offline rice screening. The photo is not uploaded.':'Photo stays on your device. Current context is linked; no disease classifier is connected.';
  }
  root.CropHealth.setContext=value=>{context=value;if(value?.season)$('health-season').value=value.season;refresh();};
+ $('health-cards').addEventListener('click',event=>{
+  const button=event.target.closest('.disease-flip');if(!button)return;
+  const flipped=button.getAttribute('aria-pressed')!=='true';
+  button.setAttribute('aria-pressed',String(flipped));
+  button.classList.remove('hover-preview');
+  button.querySelector('.flip-front').setAttribute('aria-hidden',String(flipped));
+  button.querySelector('.flip-back').setAttribute('aria-hidden',String(!flipped));
+  button.setAttribute('aria-label',flipped?'Show disease illustration':'Show real disease reference photo');
+ });
+ // Hover previews temporarily; clicking pins the real photo. Keyboard users can
+ // toggle the same native button with Space or Enter, without needing hover.
+ $('health-cards').addEventListener('pointerover',event=>{const button=event.target.closest('.disease-flip');if(button&&event.pointerType==='mouse'&&button.getAttribute('aria-pressed')!=='true'&&!button.contains(event.relatedTarget))button.classList.add('hover-preview');});
+ $('health-cards').addEventListener('pointerout',event=>{const button=event.target.closest('.disease-flip');if(button&&!button.contains(event.relatedTarget))button.classList.remove('hover-preview');});
  ['growth-stage','field-conditions','health-crop'].forEach(id=>$(id).addEventListener('change',refresh));
  $('health-season').addEventListener('change',()=>{$('season').value=$('health-season').value;$('season').dispatchEvent(new Event('input',{bubbles:true}));});
  function clearPhoto(){selectionVersion++;if(objectURL)URL.revokeObjectURL(objectURL);objectURL=null;imageMeta=null;$('crop-photo').value='';$('photo-preview').removeAttribute('src');$('photo-preview').hidden=true;$('photo-empty').hidden=false;$('photo-info').textContent='JPEG / PNG / WebP · up to 10 MB';$('photo-status').textContent='No image selected. No photos are uploaded or stored by this demo.';$('photo-error').textContent='';$('prepare-screening').disabled=true;}
@@ -77,8 +99,8 @@
  $('photo-drop').addEventListener('dragleave',()=>$('photo-drop').classList.remove('drag-over'));
  $('photo-drop').addEventListener('drop',event=>{event.preventDefault();$('photo-drop').classList.remove('drag-over');loadPhoto(event.dataTransfer.files[0]).catch(()=>{$('photo-error').textContent='Could not read that image.';});});
  $('prepare-screening').addEventListener('click',()=>{
-  try{const request=makeRequest(context,imageMeta,$('growth-stage').value,$('field-conditions').value);$('photo-status').textContent='Screening workflow prepared. Disease name: unavailable — no image classifier is connected. The selected context is included, but no image bytes leave your device.';
-   const url=URL.createObjectURL(new Blob([JSON.stringify(request,null,2)],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download='crop-yantra-photo-context.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  try{const request=makeRequest(context,imageMeta,$('growth-stage').value,$('field-conditions').value);if(root.CropDesktop?.ready){root.CropDesktop.classifyImage(request,objectURL);return;}$('photo-status').textContent='Screening workflow prepared. Disease name: unavailable — no image classifier is connected. The selected context is included, but no image bytes leave your device.';
+   root.PredictionFlow.showImage(request);
   }catch(error){$('photo-error').textContent=error.message;}
  });
  refresh();

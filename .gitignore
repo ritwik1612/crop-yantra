@@ -10,3 +10,6 @@ github/
 APP/prototype/.openai/
 APP/prototype/dist/
 APP/training/runs/
+APP/desktop/releases/
+APP/prototype/.vercel/
+Testing Images/

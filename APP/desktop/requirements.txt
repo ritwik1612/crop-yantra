@@ -1,0 +1,5 @@
+pywebview==6.2.1
+onnxruntime==1.31.0
+numpy==2.4.6
+Pillow==13.0.0
+pyinstaller==6.22.3

@@ -1,0 +1,14 @@
+{
+  "architecture": "EfficientNet-B0",
+  "weights": "IMAGENET1K_V1",
+  "source": "https://download.pytorch.org/models/efficientnet_b0_rwightman-7f5810bc.pth",
+  "checkpoint": "APP\\models\\pretrained\\checkpoints\\efficientnet_b0_rwightman-7f5810bc.pth",
+  "bytes": 21444401,
+  "sha256": "7f5810bc96def8f7552d5b7e68d53c4786f81167d28291b21c0d90e1fca14934",
+  "forward_shape": [
+    1,
+    1000
+  ],
+  "rice_classifier_trained": false,
+  "torch": "2.14.1+cpu"
+}

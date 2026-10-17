@@ -1,5 +1,10 @@
 # Training preparation (no yield training performed yet)
 
+Start with the [shared runbook](START_TRAINING.md) for both yield and image
+training. `python APP/training/run.py` checks both without fitting and writes
+`APP/training/readiness.json`. Training always requires an explicit `--train`.
+The optional [Colab notebook](Train_Both.ipynb) defaults to no training as well.
+
 From the repository root, check the six exported partitions without fitting:
 
 ```bash
@@ -59,8 +64,16 @@ or incompatible hashes and never silently substitutes a demo result.
 python APP/inference/predict.py --features complete_features.json --bundle APP/training/runs/RUN/autoencoder_mlp
 ```
 
-This CLI is prepared but model fitting/loading has not been execution-tested
-in this turn: the current desktop Python runtime lacks torch and sklearn.
+The isolated desktop environment now includes torch and scikit-learn, and the
+tabular check-only command passes. Supervised yield fitting and trained-bundle
+inference have not been run. Verify saved preprocessing package compatibility
+before serving raw-row inference; installed libraries alone do not validate it.
 The browser beta remains browser-local. A weather/area-context service and
 validated browser-to-backend connection must be built before live predictions.
 No feature-attribution, uncertainty, disease detection or early forecast is claimed.
+
+## Auxiliary rice-image classifier
+
+See [image preparation and explicit training commands](images/README.md).
+This separate EfficientNet-B0 classifier uses rice photographs, not tabular yield
+rows. Its check-only entry point never starts supervised training.

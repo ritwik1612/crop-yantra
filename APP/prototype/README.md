@@ -1,14 +1,34 @@
-# Crop Yantra — Rice Yield & Crop Health
+# Paddy — Rice Yield & Crop Health
 
-Small information buttons explain each major section. The results and method
-page include an expandable worked calculation: invented weather inputs, scaling,
-two hidden neurons, a 4.20 t/ha toy output and yield × hectares. The toy is not
-trained inference and is explicitly distinguished from the actual proposed MLP.
+**Current status:** this directory supplies the interactive frontend and exported
+runtime models for the offline Windows application. See ../desktop/README.md.
+The desktop bridge replaces preview outputs with actual local inference. The
+old Vercel project was removed. The remaining preview notes describe the earlier
+browser-only prototype, which is still available when no native bridge is loaded.
 
-Yield inputs, results and crop health now form one page, in that order. The crop
-health navigation scrolls to its section. Season selection is synchronized with
-the yield form; rice illustrations update for season and growth stage without
-implying regional disease prevalence. Rice is the only supported crop.
+The workspace now separates Yield studio, Crop health, Output and Architecture.
+Inputs remain on the workspace; generated previews navigate to Output. Yield
+and photo results each have a collapsed **Show prediction flow** panel with the
+actual input snapshot, available retrieved data, formulas and explicit execution
+status. Overall architecture and the interactive image flow live only in the
+Architecture tab, not on the home page. Photo output no longer auto-downloads
+metadata. No trained inference is enabled by this UI change.
+
+Architecture includes a six-step interactive detection flow, with keyboard step
+navigation and separate district/season advisory context. The image-classifier
+status remains pending training/integration. An influence panel distinguishes
+future model-based image-region explanations from currently unavailable results.
+The yield-output flow shows live +10% yield/area arithmetic sensitivities, not
+invented weather-feature rankings. Both light and dark themes are supported.
+
+Small information buttons explain major sections. Output calculations use the
+actual selected demo yield and hectares, with mass conversion, area scenarios
+and user-price arithmetic. The unrelated toy-network example is not mounted.
+
+Yield inputs, results, crop health and architecture are separate views. Season
+selection is synchronized with the yield form; rice illustrations update for
+season and growth stage without implying regional disease prevalence. Rice is
+the only supported crop.
 
 Charts show labelled yield comparison tracks, a reactive production-versus-area
 line, and historical yield with hover/keyboard observation labels. Missing
@@ -16,7 +36,8 @@ historical values remain unavailable rather than being drawn as zero.
 
 The crop-health tab shares district/season context with the yield form, displays
 clearly labelled illustrative placeholders and previews photos locally. It
-exports metadata only; no classifier, diagnosis or remote photo upload is active.
+shows a metadata/validation output without automatically downloading a file;
+no classifier, diagnosis or remote photo upload is active.
 See the [small South Indian rice-image training plan](../../docs/IMAGE_TRAINING_PLAN.md).
 
 A responsive pretraining webpage with white cartography, state hover lift,

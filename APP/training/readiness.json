@@ -1,0 +1,145 @@
+{
+  "checked_utc": "2026-10-17T17:51:22.896357+00:00",
+  "python": "3.11.0",
+  "supervised_training_started": false,
+  "task": "both",
+  "checks": {
+    "yield": {
+      "status": "data_ready_for_tabular_training",
+      "trained": false,
+      "target": "YIELD",
+      "units": "tonnes/hectare",
+      "missing_training_dependencies": [],
+      "splits": {
+        "train": 1485,
+        "validation": 245,
+        "test": 288
+      },
+      "experiments": [
+        "standard_mlp",
+        "standard_gbdt",
+        "autoencoder_mlp",
+        "autoencoder_gbdt"
+      ],
+      "predictors": {
+        "standard": 28,
+        "autoencoder": 16
+      },
+      "input_sha256": {
+        "standard": {
+          "train": "214f6eb2adc7b819764d0a9a51ef8167130296b1303fd0b733420d7a4aa56899",
+          "validation": "943349ae270d75251ef3b3b1eb267c39aa4029a5e2dab5e0736513b29720aa6e",
+          "test": "347aa7422e0c228ecd8a7aa7e53338db56c6df88e33e26f466212587233b09e2"
+        },
+        "autoencoder": {
+          "train": "a4028a5f029ca92f4d842230972db2038d3285fce4847b8ea3b4d7988d3f0818",
+          "validation": "abbbe9fcdad5822a10df89b2f3c17b1c7db29a77a05576c5b61a27dcd3a1a3d6",
+          "test": "2a4dcf9eee06a0c2f1e70e19b85441122654cadd544eb022c5e6c7a44dc8734b"
+        }
+      },
+      "limitations": [
+        "District-scale data, not farm-scale validation",
+        "Retrospective full-season weather",
+        "Unseen Autumn/Winter categories",
+        "Sequence models not prepared by this runner"
+      ],
+      "saved_preprocessing_reproduces_all_splits": true,
+      "device": "cpu",
+      "device_note": "Small tabular experiments run on CPU; the image runner uses CUDA when available",
+      "model_checks": {
+        "standard": {
+          "preprocessing_max_absolute_difference": {
+            "train": 0.0,
+            "validation": 0.0,
+            "test": 0.0
+          },
+          "mlp_forward_shape": [
+            8
+          ],
+          "tree_class": "HistGradientBoostingRegressor",
+          "tree_fitted": false
+        },
+        "autoencoder": {
+          "preprocessing_max_absolute_difference": {
+            "train": 0.0,
+            "validation": 0.0,
+            "test": 0.0
+          },
+          "mlp_forward_shape": [
+            8
+          ],
+          "tree_class": "HistGradientBoostingRegressor",
+          "tree_fitted": false
+        }
+      },
+      "preprocessing_artifact_sha256": {
+        "standard_preprocessor.pkl": "8dbd22212bcfe9a2182d18cd3999985fd6f9162a356409dd9e8f7dd7f6285eff",
+        "denoising_autoencoder.pt": "23829b804112792a9f0866ae801c9583147970562c8bc55f2825f6436207777c"
+      },
+      "training_source": "Original source-backed chronological exports; neighbour augmentation is not silently substituted"
+    },
+    "images": {
+      "status": "image_data_ready",
+      "trained": false,
+      "crop": "Rice",
+      "classes": [
+        "bacterial_leaf_blight",
+        "blast",
+        "brown_spot",
+        "normal"
+      ],
+      "split_counts": {
+        "train": {
+          "bacterial_leaf_blight": 280,
+          "blast": 280,
+          "brown_spot": 280,
+          "normal": 280
+        },
+        "validation": {
+          "bacterial_leaf_blight": 60,
+          "blast": 60,
+          "brown_spot": 60,
+          "normal": 60
+        },
+        "test": {
+          "bacterial_leaf_blight": 60,
+          "blast": 60,
+          "brown_spot": 60,
+          "normal": 60
+        }
+      },
+      "forward_shape": [
+        1,
+        4
+      ],
+      "sample_tensor_shape": [
+        3,
+        224,
+        224
+      ],
+      "real_image_forward_checked": true,
+      "architecture": "EfficientNet-B0",
+      "pretrained_weights": "ImageNet IMAGENET1K_V1",
+      "device": "cpu",
+      "manifest_sha256": "451c64fbeeaf68aba565aabf2e76e10bcdc083404a256c5063aa74e42c4e5f6d",
+      "regional_validation_complete": false,
+      "paired_with_yield_rows": false,
+      "selected_images": 1600,
+      "prepared_total_bytes": 129477291,
+      "source_archive_crc_record": "passed",
+      "source_archive_note": "CRC was verified at acquisition; current preflight rechecks every selected photo SHA256"
+    }
+  },
+  "errors": {},
+  "device": "cpu",
+  "packages": {
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "numpy": "2.3.5",
+    "pandas": "3.0.1",
+    "scikit-learn": "1.9.1",
+    "Pillow": "12.3.0",
+    "ImageHash": "4.3.2"
+  },
+  "status": "ready"
+}

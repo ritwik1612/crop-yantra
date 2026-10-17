@@ -59,6 +59,7 @@ def metrics(y,pred):
     return {'MAE':float(mean_absolute_error(y,pred)), 'RMSE':float(np.sqrt(mean_squared_error(y,pred))), 'R2':float(r2_score(y,pred))}
 
 def fit_mlp(parts,epochs,seed):
+    import torch
     from torch.utils.data import DataLoader, TensorDataset
     from APP.models.tabular import YieldMLP
     random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
@@ -113,7 +114,6 @@ def main():
                'limitations':['District-scale data, not farm-scale validation','Retrospective full-season weather','Unseen Autumn/Winter categories','Sequence models not prepared by this runner']}
     if not args.train:
         print(json.dumps(readiness,indent=2));return
-    global torch
     import torch
     torch.set_num_threads(1)
     output=args.output or ROOT/'APP/training/runs'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ')
@@ -140,7 +140,9 @@ def main():
             (folder/'bundle.json').write_text(json.dumps(bundle,indent=2),encoding='utf-8')
             results.append({'experiment':f'{arm}_{kind}',**measured})
     winner=min(results,key=lambda item:item['validation']['RMSE'])['experiment']
-    (output/'comparison.json').write_text(json.dumps({'results':results,'selected_by_validation_RMSE':winner,'selection_rule':'Never rank models by test scores','readiness':readiness},indent=2),encoding='utf-8')
+    # A constant baseline is fitted from training labels only, not held-out labels.
+    baseline={arm:{s:metrics(p['y'],np.full(len(p['y']),parts['train']['y'].mean())) for s,p in parts.items()} for arm,parts in arms.items()}
+    (output/'comparison.json').write_text(json.dumps({'results':results,'training_mean_baseline':baseline,'selected_by_validation_RMSE':winner,'selection_rule':'Never rank models by test scores','readiness':readiness},indent=2),encoding='utf-8')
     print(f'Completed experiments in {output}. Selected by validation: {winner}. No app deployment or model activation performed.')
 
 if __name__=='__main__': main()

@@ -1,0 +1,11 @@
+{
+  "python": "3.11.0",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "torch": "2.14.1+cpu",
+  "cuda_available": false,
+  "environment": "OTHER/training_env",
+  "packages": 68,
+  "image_archive_present": true,
+  "image_manifest_present": true,
+  "training_started": false
+}

@@ -1,0 +1,68 @@
+{
+  "recorded_utc": "2026-10-16T08:11:40.466392+00:00",
+  "source": "Paddy Doctor competition train.csv and train_images",
+  "source_url": "https://www.kaggle.com/competitions/paddy-disease-classification/data",
+  "archive_bytes": 1093378623,
+  "archive_sha256": "defc373e450dff931459534e5e10e532a3c61336ab57c02972d6640d33156943",
+  "archive_crc_check": "passed",
+  "archive_member_count": 13878,
+  "source_labelled_images": 10407,
+  "source_class_counts": {
+    "bacterial_leaf_blight": 479,
+    "bacterial_leaf_streak": 380,
+    "bacterial_panicle_blight": 337,
+    "blast": 1738,
+    "brown_spot": 965,
+    "dead_heart": 1442,
+    "downy_mildew": 620,
+    "hispa": 1594,
+    "normal": 1764,
+    "tungro": 1088
+  },
+  "selected_classes": [
+    "bacterial_leaf_blight",
+    "blast",
+    "brown_spot",
+    "normal"
+  ],
+  "selected_images": 1600,
+  "selected_image_bytes": 128435495,
+  "prepared_total_bytes": 129477291,
+  "selected_class_counts": {
+    "bacterial_leaf_blight": 400,
+    "blast": 400,
+    "brown_spot": 400,
+    "normal": 400
+  },
+  "split_counts": {
+    "train": {
+      "bacterial_leaf_blight": 280,
+      "blast": 280,
+      "brown_spot": 280,
+      "normal": 280
+    },
+    "validation": {
+      "bacterial_leaf_blight": 60,
+      "blast": 60,
+      "brown_spot": 60,
+      "normal": 60
+    },
+    "test": {
+      "bacterial_leaf_blight": 60,
+      "blast": 60,
+      "brown_spot": 60,
+      "normal": 60
+    }
+  },
+  "candidate_images": 4946,
+  "perceptual_groups": 4120,
+  "conflicting_groups_excluded": 0,
+  "exclusion_reasons": {},
+  "deduplication": "decoded RGB SHA256 + 64-bit pHash connected groups, Hamming distance <=4; one representative per group",
+  "manifest_sha256": "451c64fbeeaf68aba565aabf2e76e10bcdc083404a256c5063aa74e42c4e5f6d",
+  "reported_collection_region": "Near Tirunelveli, Tamil Nadu, India",
+  "regional_validation_complete": false,
+  "paired_with_yield_rows": false,
+  "training_started": false,
+  "limitation": "No plant/capture-session grouping metadata is supplied; perceptual deduplication cannot establish independent field sessions."
+}
