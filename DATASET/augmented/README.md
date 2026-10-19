@@ -1,5 +1,13 @@
 # District-augmented rice table
 
+**Archived experiment, not the active training table.** This table was built
+from the former 2,018-row master; the active measured master now has 2,642 rows.
+The original manifest is retained unchanged as historical provenance. Its
+source_csv records the path at generation time, not today's file contents.
+The former source is preserved under OTHER/model_archive/yield_before_recent_20261019.
+Current geographic coverage training uses the separate candidates/spatial_coverage
+tables described in ../README.md. Do not concatenate these two experiments.
+
 `rice_master_augmented.csv` is one continuous table with the same **30 columns**
 as the original master. It contains **3,363 rows**: the original 2,018 records
 plus 1,345 nearest-district estimates for 43 previously unrepresented map
@@ -13,7 +21,7 @@ of the target district or evidence of rice cultivation there.
 
 ## Construction
 
-- Start only from the unchanged `merged/rice_master.csv`.
+- Started from the former, unchanged 2,018-row `merged/rice_master.csv` snapshot.
 - For each missing map district and available year/season, select three distinct
   donor districts with the nearest representative coordinates, within 250 km.
 - Donors must be from the same year and season, limited to 2001–2015 and

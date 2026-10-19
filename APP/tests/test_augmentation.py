@@ -19,9 +19,16 @@ def key(row):
 class AugmentationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.headers, cls.original = read(ROOT/'DATASET/merged/rice_master.csv')
         cls.new_headers, cls.output = read(ROOT/'DATASET/augmented/rice_master_augmented.csv')
         cls.manifest = json.loads((ROOT/'DATASET/augmented/generation_manifest.json').read_text())
+        # This is the preserved 2,018-row experiment, not the newer active cohort.
+        cls.source=ROOT/'OTHER/model_archive/yield_before_recent_20261019/rice_master.csv'
+        if cls.source.exists():
+            cls.headers, cls.original = read(cls.source)
+        else:
+            generated={r['record_key'] for r in cls.manifest['generated_records']}
+            cls.headers=cls.new_headers
+            cls.original=[r for r in cls.output if key(r) not in generated]
         cls.base = {key(row): row for row in cls.original}
         cls.mixed = {key(row): row for row in cls.output}
 
@@ -32,7 +39,9 @@ class AugmentationTests(unittest.TestCase):
         self.assertEqual(len(self.mixed), len(self.output))
         for record_key, row in self.base.items():
             self.assertEqual(row, self.mixed[record_key])
-        self.assertEqual(hashlib.sha256((ROOT/'DATASET/merged/rice_master.csv').read_bytes().replace(b'\r\n', b'\n')).hexdigest(), self.manifest['source_sha256'])
+        self.assertEqual(len(self.original),self.manifest['original_rows'])
+        if self.source.exists():
+            self.assertEqual(hashlib.sha256(self.source.read_bytes().replace(b'\r\n', b'\n')).hexdigest(), self.manifest['source_sha256'])
         self.assertEqual(hashlib.sha256((ROOT/'DATASET/augmented/rice_master_augmented.csv').read_bytes()).hexdigest(), self.manifest['output_sha256'])
 
     def test_donors_and_calculations(self):

@@ -1,0 +1,169 @@
+/* Original crop-centred interaction design. Black canvas, one system font. */
+body.paddy-experience{--paper:#030303;--white:#0a0b09;--ink:#e9ebe3;--muted:#919789;--line:#242720;--green:#b7c98e;--lime:#c3d5a1;background:#030303}
+body.paddy-experience main{max-width:1660px;padding:0 4vw 60px}
+body.paddy-experience .topbar{width:92%;max-width:1527px;height:80px;border-color:#242720;background:#030303}
+body.paddy-experience .brand{font-size:30px;font-weight:500;letter-spacing:-1.4px;gap:8px}
+body.paddy-experience .rice-logo{width:33px;height:38px}
+body.paddy-experience .topbar nav{gap:34px}
+body.paddy-experience .nav-link{font-size:12px;letter-spacing:0;padding:29px 0}
+body.paddy-experience .nav-link::after{transition:transform .3s;transform-origin:left}
+body.paddy-experience .nav-link:not(.active)::after{transform:scaleX(0)}
+body.paddy-experience .page-intro{padding:36px 0 25px}
+body.paddy-experience .page-intro h1{font-size:clamp(40px,4vw,64px);letter-spacing:-.055em;font-weight:400}
+body.paddy-experience #health>.page-intro{padding-bottom:14px}
+body.paddy-experience #health>.page-intro h1{font-size:17px;letter-spacing:-.3px;color:#b5bca9}
+body.paddy-experience .workspace-grid{gap:32px;grid-template-columns:minmax(0,1.35fr) minmax(340px,.7fr);align-items:stretch}
+body.paddy-experience .map-card{border-radius:0;border:0;border-right:1px solid #242720;background:#030303;padding-right:32px}
+body.paddy-experience .map-card .card-top{padding:14px 0 10px}
+body.paddy-experience .map-card .card-top h2{font-size:12px;color:#9ba38f;font-weight:400}
+body.paddy-experience .map-stage{background:#030303;min-height:500px}
+body.paddy-experience .map-bottom{border-top:1px solid #242720;background:none;padding:19px 0;color:#b7c98e}
+body.paddy-experience .context-card{border:0;border-radius:0;background:#030303;padding:14px 0 0;overflow:visible}
+body.paddy-experience .form-title{padding:0 0 23px}
+body.paddy-experience .form-title h2{font-size:23px;font-weight:400}
+body.paddy-experience .form-title #prediction-date{color:#737d66}
+.field-steps{display:flex;gap:24px;border-bottom:1px solid #2a2e24;margin:0 0 28px}
+.field-steps button{background:none;border:0;border-bottom:1px solid transparent;border-radius:0;padding:0 0 14px;color:#727b67;font-size:12px;transition:color .2s,border-color .2s}
+.field-steps button:hover{color:#d7e4bc}.field-steps button[aria-pressed=true]{color:#d7e4bc;border-color:#d7e4bc}
+body.paddy-experience .input-group legend{display:none}
+body.paddy-experience .input-group+.input-group{border:0;padding-top:0}
+body.paddy-experience .context-card input:not([type=range]),body.paddy-experience .context-card select{background:#0c0e09;border:1px solid #282e20;border-radius:3px;padding:13px 12px;height:48px}
+body.paddy-experience .context-card .area-fields input{height:83px;font-size:37px;letter-spacing:-1.5px}
+body.paddy-experience .context-card label{font-size:11px;color:#939c85;margin-bottom:21px}
+body.paddy-experience .context-card .area-fields{margin-top:4px}
+body.paddy-experience .context-card .area-fields input::placeholder{color:#444e37;font-size:37px}
+body.paddy-experience .context-card .input-group{min-height:280px;margin-bottom:0}
+body.paddy-experience .field-live{border:0;padding:23px 0;margin-bottom:8px}
+body.paddy-experience .land-meter{height:3px;border-radius:0;background:#242a1d}
+body.paddy-experience .land-meter span{background:#c3d5a1;border-radius:0}
+.field-continue{width:100%;display:flex;justify-content:space-between;align-items:center;border:1px solid #76865f;border-radius:3px;background:#c3d5a1;color:#17200e;padding:18px 20px;font-size:14px;transition:background .2s,transform .2s}
+.field-continue:hover{background:#d8e5bf;transform:translateY(-2px)}.field-continue:active{transform:scale(.99)}
+body.paddy-experience .form-bottom .primary{background:#c3d5a1;border-radius:3px;min-height:58px;font-size:14px;color:#17200e}
+body.paddy-experience #temperature-value{font-size:50px;font-weight:400;letter-spacing:-2px}
+body.paddy-experience #temperature{accent-color:#c3d5a1}
+.botanical-stage{position:relative;display:grid;grid-template-columns:minmax(220px,.85fr) minmax(300px,1.35fr) minmax(240px,.85fr);min-height:640px;isolation:isolate;border-bottom:1px solid #25291f}
+.botanical-stage::before{content:'';position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 52% 53%,#29351b25,transparent 52%);pointer-events:none}
+.botanical-copy{position:relative;z-index:2;align-self:center;padding:20px 0 60px}
+.stage-overline{font-size:9px;letter-spacing:1.7px;color:#859470;display:block;margin-bottom:26px}
+.botanical-copy h2{font-size:clamp(43px,4.9vw,76px);font-weight:400;line-height:.98;letter-spacing:-.06em;margin:0 0 26px;color:#eeefe7}
+.botanical-copy>p{font-size:12px;line-height:1.8;color:#949c87;max-width:245px;min-height:66px;margin:0 0 31px}
+.botanical-modes{display:flex;gap:15px}
+.botanical-modes button{background:none;border:0;padding:0;color:#657052;text-align:center;transition:color .3s;min-width:48px}
+.botanical-modes button svg{display:block;margin:auto;width:49px;height:49px;padding:13px;fill:none;stroke:currentColor;stroke-width:1.1;border:1px solid #36402b;border-radius:50%;transition:border-color .3s,background .3s,transform .3s}
+.botanical-modes button span{display:block;font-size:9px;margin-top:11px}
+.botanical-modes button:hover{color:#d5e4bb}.botanical-modes button:hover svg{transform:translateY(-3px);border-color:#a4bc7a}
+.botanical-modes button[aria-pressed=true]{color:#d5e4bb}.botanical-modes button[aria-pressed=true] svg{border-color:#b2cb87;box-shadow:0 0 0 5px #97b36808;background:#a8c87909}
+.botanical-condition,.wind-explorer{margin-top:28px;max-width:240px}
+.botanical-condition label,.wind-explorer label{font-size:10px;color:#8d997a;display:block;margin-bottom:11px}
+.botanical-condition select{width:100%;font-size:12px;padding:12px;background:#0c1008;border:1px solid #344127;border-radius:2px;color:#ccd9b9}
+.wind-explorer input{display:block;width:100%;accent-color:#b8d093;cursor:ew-resize}.wind-explorer output{float:right;color:#c3d5a1}
+.botanical-canvas-wrap{position:relative;min-width:0;height:640px;overflow:hidden;touch-action:pan-y}
+#rice-canvas{display:block;width:100%;height:100%;cursor:ew-resize}
+.specimen-caption{position:absolute;inset:auto 24px 20px;display:flex;justify-content:space-between;align-items:center;color:#5c6b48;font-size:8px;letter-spacing:1px;pointer-events:none}
+.specimen-caption button{border:1px solid #37432a;border-radius:50%;background:#050803;color:#c0cea9;width:27px;height:27px;pointer-events:auto;font-size:11px;cursor:pointer}
+.specimen-coordinate{position:absolute;top:30px;right:20px;font-size:8px;color:#5c6b48;letter-spacing:1px;writing-mode:vertical-rl}
+.reference-preview{position:absolute;right:18px;top:60px;width:135px;padding:7px;background:#080b05d9;border:1px solid #3a492a;backdrop-filter:blur(12px);animation:paddy-arrive .45s ease}
+.reference-preview img{display:block;width:100%;height:110px;object-fit:cover}.reference-preview>span{display:block;font-size:9px;color:#c4d2ac;margin:9px 0}.reference-preview a{display:block;font-size:8px;line-height:1.6;color:#7c8d65;text-decoration:none}
+.botanical-upload{align-self:center;position:relative;z-index:2;border-left:1px solid #252d1d;padding-left:28px}
+body.paddy-experience .botanical-upload .photo-section{margin:0}
+body.paddy-experience .botanical-upload .photo-card h2{font-size:16px;letter-spacing:-.4px;font-weight:400;margin-bottom:22px}
+body.paddy-experience .botanical-upload .photo-drop{min-height:230px;padding:20px 13px;border:1px dashed #3b462d;border-radius:2px;background:#0a0e06aa;text-align:center}
+body.paddy-experience .botanical-upload .photo-drop:hover{background:#18210e66;border-color:#c1d1a1}
+body.paddy-experience .botanical-upload .photo-drop #photo-empty>span{width:36px;height:36px;font-size:23px;padding:0;background:none;border:0;color:#c3d5a1}
+body.paddy-experience .botanical-upload .photo-drop #photo-empty h3{font-size:18px;letter-spacing:-.5px;font-weight:400;color:#d9e2c8;margin:8px 0 20px}
+body.paddy-experience .botanical-upload .file-label{position:relative;overflow:hidden;display:inline-flex;justify-content:center;align-items:center;border:1px solid #596b40;border-radius:2px;background:none;color:#bcd0a0;padding:10px 16px;font-size:11px;cursor:pointer}
+body.paddy-experience .botanical-upload .file-label input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;padding:0}
+body.paddy-experience .botanical-upload .file-label:focus-within{outline:2px solid #c3d5a1;outline-offset:4px}
+body.paddy-experience .botanical-upload #photo-info{font-size:9px;color:#6c7a58;line-height:1.6;margin-bottom:0}
+body.paddy-experience .botanical-upload .photo-actions{gap:8px;flex-direction:column}
+body.paddy-experience .botanical-upload .photo-actions .primary{min-width:0;width:100%;border-radius:2px;background:#c3d5a1;color:#17200e;font-size:12px;min-height:47px}
+body.paddy-experience .botanical-upload .photo-actions .ghost{border:0;background:none;font-size:10px;min-height:30px;padding:7px;color:#818e6b}
+body.paddy-experience .botanical-upload #photo-preview{max-height:225px;object-fit:contain}
+.botanical-notice{font-size:10px;color:#637052;line-height:1.7;margin:15px 0 25px;max-width:700px}
+body.paddy-experience .reference-library{background:none;border:0;border-top:1px solid #25291f;border-radius:0;padding:23px 0;margin-top:25px}
+body.paddy-experience .reference-library>summary{font-size:13px;color:#a0ac8b}
+body.paddy-experience .health-shared{padding:15px 20px;margin:15px 0;border-radius:2px;background:#10170b}
+body.paddy-experience .health-shared p{margin:0;color:#b8c8a1}
+body.paddy-experience .yield-card{background:radial-gradient(ellipse at 90% 20%,#3e52241c,transparent 65%),#0a0e06!important;border-color:#28331c;border-radius:2px}
+body.paddy-experience .yield-card .big-number{font-weight:400;font-size:clamp(68px,8vw,115px);letter-spacing:-.07em;color:#d6e6ba}
+body.paddy-experience .yield-card .big-number span{font-size:19px;color:#7e9260;letter-spacing:-.5px}
+body.paddy-experience .explanation-card,body.paddy-experience .metric-controls,body.paddy-experience .chart-card,body.paddy-experience .image-output-card{border-radius:2px;background:#080a06;border-color:#282d22}
+body.paddy-experience .output-kpis{border-radius:2px;background:#080a06}
+body.paddy-experience .metric-controls{border:0;border-top:1px solid #282d22;border-bottom:1px solid #282d22;background:none;padding:25px 0}
+body.paddy-experience .architecture-tabs,body.paddy-experience .output-tabs{border:0;border-bottom:1px solid #292e22;border-radius:0;background:none;padding:0;gap:26px}
+body.paddy-experience .architecture-tabs button,body.paddy-experience .output-tabs a{border:0;border-bottom:1px solid transparent;border-radius:0;padding:15px 0;color:#8f9a7e}
+body.paddy-experience .architecture-tabs button[aria-selected=true],body.paddy-experience .output-tabs a[aria-current=page]{border-bottom-color:#c3d5a1;background:none;color:#c3d5a1}
+body.paddy-experience .info-intro h1{font-weight:400;font-size:clamp(38px,4vw,64px)}
+body.paddy-experience .pipeline-workbench{border-radius:2px;background:#060804}
+body.paddy-experience .pipeline-source{border-radius:2px}
+body.paddy-experience .architecture-lane,body.paddy-experience .architecture-contract{border-radius:2px;background:#080b05}
+body.paddy-experience .architecture-lane li{border-radius:2px;background:#11170b}
+.land-composition{padding-top:4px;border-top:1px solid #22291b}.land-composition svg{width:100%;display:block;height:145px}.land-composition #planted-rect{transition:width .5s cubic-bezier(.2,.8,.2,1)}
+body.paddy-experience .model-path{padding:45px 0 20px;border-bottom:1px solid #303927;margin-bottom:22px}.model-path-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px;align-items:stretch}.model-path-steps button{position:relative;text-align:left;min-width:0;min-height:145px;border:1px solid #303927;border-radius:2px;background:#080b05;padding:20px 16px;color:#7d8b6c;transition:border-color .25s,transform .25s,background .25s}.model-path-steps button:not(:last-child)::after{position:absolute;content:'→';right:-18px;top:57px;color:#71865a;font-size:13px}.model-path-steps button>span{display:block;font-size:9px;margin-bottom:24px;color:#5d7049}.model-path-steps button>b{display:block;font-weight:400;font-size:15px;color:#c8d6b3;line-height:1.4;letter-spacing:-.3px}.model-path-steps button>small{display:block;font-size:10px;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}.model-path-steps button:hover{transform:translateY(-5px);border-color:#8da56a}.model-path-steps button[aria-pressed=true]{border-color:#a4bf7b;background:#1c27114d}.model-path-steps button[aria-pressed=true]>span{color:#c2d7a2}.model-path-detail{font-size:11px;color:#91a477;min-height:20px;margin:22px 0 0}.architecture-stage-details>summary{cursor:pointer;color:#b9caa2;font-size:13px}.architecture-stage-details>ol{margin-top:25px}body.paddy-experience .architecture-lane{padding:24px 0;background:none;border:0}body.paddy-experience .architecture-contract{border:0;border-top:1px solid #252e1e;padding:25px 0;background:none}
+@media(max-width:850px){.model-path-steps{grid-template-columns:1fr;gap:12px}.model-path-steps button{min-height:90px;display:grid;grid-template-columns:35px 1fr;gap:7px 12px;padding:16px}.model-path-steps button>span{grid-row:1/3;margin:3px 0}.model-path-steps button>small{margin:0}.model-path-steps button:not(:last-child)::after{content:'↓';right:20px;top:auto;bottom:-13px;background:#030303;font-size:12px}.model-path-steps button:hover{transform:translateX(3px)}body.paddy-experience .model-path{padding-top:20px}.land-composition svg{height:125px}}
+@media(min-width:1600px){body.paddy-experience main{padding-left:4vw;padding-right:4vw}.botanical-stage,.botanical-canvas-wrap{min-height:700px;height:700px}.botanical-copy h2{font-size:84px}.botanical-upload{padding-left:40px}.botanical-copy>p{font-size:13px}}
+@media(max-width:1100px){.botanical-stage{grid-template-columns:minmax(190px,.85fr) minmax(230px,1fr) minmax(200px,.8fr);min-height:585px}.botanical-canvas-wrap{height:585px}.botanical-copy h2{font-size:49px}.botanical-copy>p{font-size:11px;max-width:210px}.botanical-upload{padding-left:20px}.botanical-modes{gap:11px}.botanical-modes button svg{width:44px;height:44px;padding:12px}.reference-preview{width:112px;right:5px;top:45px}.reference-preview img{height:90px}body.paddy-experience .workspace-grid{grid-template-columns:minmax(0,1fr) minmax(300px,.8fr);gap:24px}body.paddy-experience .map-card{padding-right:24px}.botanical-upload .photo-card h2{font-size:15px}}
+@media(max-width:800px){body.paddy-experience main{padding:0 22px 35px}body.paddy-experience .topbar{width:calc(100% - 44px)}body.paddy-experience .topbar nav{gap:20px}.botanical-stage{grid-template-columns:minmax(170px,.7fr) minmax(200px,1.3fr);min-height:0}.botanical-copy{padding-bottom:35px}.botanical-canvas-wrap{height:500px}.botanical-copy h2{font-size:53px}.botanical-upload{grid-column:1/-1;border:0;border-top:1px solid #252d1d;padding:25px 0 30px}.botanical-upload .photo-card{display:grid;grid-template-columns:1fr 1fr;column-gap:25px;align-items:center}.botanical-upload .photo-card h2{grid-column:1/-1}.botanical-upload .photo-drop{grid-column:1}.botanical-upload .photo-actions{grid-column:2;grid-row:2;margin:0!important}.botanical-upload #photo-error{grid-column:1/-1}.botanical-copy>p{font-size:12px}.botanical-notice{font-size:9px}body.paddy-experience .workspace-grid{grid-template-columns:1fr;gap:28px}body.paddy-experience .map-card{padding:0;border:0;border-bottom:1px solid #252d1d}body.paddy-experience .map-stage{min-height:375px;height:375px}body.paddy-experience .context-card{padding:0}body.paddy-experience .context-card .input-group{min-height:0}body.paddy-experience .field-live{padding:17px 0}.field-steps{margin-bottom:22px}}
+@media(max-width:550px){body.paddy-experience main{padding:0 17px 32px}body.paddy-experience .topbar{height:auto;min-height:90px;width:calc(100% - 34px)}body.paddy-experience .topbar nav{gap:20px}body.paddy-experience .nav-link{padding:17px 0}.botanical-stage{grid-template-columns:minmax(130px,.8fr) minmax(150px,1fr)}.stage-overline{font-size:7px;letter-spacing:1px;margin-bottom:24px}.botanical-copy h2{font-size:43px}.botanical-copy>p{font-size:10px;line-height:1.8;margin-bottom:24px;max-width:155px}.botanical-copy{padding:15px 0 35px}.botanical-canvas-wrap{height:440px;margin-right:-10px}.botanical-modes{gap:8px}.botanical-modes button{min-width:37px}.botanical-modes button svg{height:37px;width:37px;padding:10px}.botanical-modes button span{font-size:8px}.specimen-caption{inset:auto 8px 14px;font-size:6px;letter-spacing:.6px;gap:7px}.specimen-coordinate{right:3px;font-size:6px}.specimen-caption button{width:23px;height:23px}.reference-preview{width:93px;top:25px;right:3px}.reference-preview img{height:75px}.reference-preview>span{font-size:8px}.reference-preview a{font-size:6px}.botanical-condition label,.wind-explorer label{font-size:9px}.botanical-condition select{font-size:10px;padding:10px 6px}.botanical-upload .photo-card{grid-template-columns:1fr;gap:0}.botanical-upload .photo-actions{grid-column:auto;grid-row:auto;margin-top:16px!important}body.paddy-experience .botanical-upload .photo-drop{min-height:200px}.botanical-upload .photo-actions .ghost{align-self:center}.botanical-notice{font-size:8px}.botanical-condition,.wind-explorer{margin-top:22px}body.paddy-experience .context-card .area-fields input{height:70px;font-size:32px}}
+.botanical-canvas-wrap{perspective:1100px}
+#rice-canvas{transition:opacity .6s ease;will-change:opacity}
+#rice-canvas{cursor:grab;transform-origin:50% 94%;touch-action:pan-y}
+#rice-canvas.is-turning{cursor:grabbing}
+.specimen-camera{position:absolute;bottom:61px;left:50%;transform:translateX(-50%);display:flex;gap:5px;padding:6px;border:1px solid #3b472d;background:#050803d9;backdrop-filter:blur(10px);border-radius:30px;z-index:2}
+.specimen-camera button{height:29px;width:29px;display:grid;place-items:center;border:0;border-radius:50%;background:none;color:#aabf8a;font-size:16px;transition:color .2s,background .2s,transform .2s}
+.specimen-camera button:hover{background:#b1c88d20;color:#deebc9;transform:translateY(-2px)}
+.botanical-stage[data-mode=leaf] .specimen-camera{display:none}
+.botanical-stage[data-mode=leaf] #rice-canvas{opacity:0}
+.botanical-stage[data-mode=leaf] .specimen-caption{display:none}
+.botanical-stage[data-mode=leaf] .reference-preview{inset:55px 18px 55px;width:auto;padding:0;border:1px solid #354328;background:#070a04;display:flex;flex-direction:column;backdrop-filter:none;animation:symptom-reveal .7s cubic-bezier(.16,1,.3,1);box-shadow:0 18px 70px #0008}
+.symptom-image-viewport{min-height:0;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#080a06;cursor:zoom-in}
+.real-reference-modal .reference-photo-frame{position:relative;width:100%;height:100%;overflow:hidden;transform:scale(var(--reference-zoom,1));transition:transform .25s ease}
+.real-reference-modal .reference-photo-frame.is-panel{width:min(100%,58dvh,520px);height:auto;flex:none}
+.real-reference-modal .reference-photo-frame.is-panel #botanical-reference{position:absolute;max-width:none;max-height:none;object-fit:fill;transform:none;transition:none}
+.botanical-stage[data-mode=leaf] .reference-preview img{height:100%;width:100%;object-fit:contain;transform:scale(var(--reference-zoom,1));transition:transform .35s cubic-bezier(.2,.8,.2,1);display:block}
+.botanical-stage[data-mode=leaf] .reference-preview>span{font-size:10px;margin:0;padding:16px 17px 8px;color:#ccd7ba;border-top:1px solid #2b3522;background:#0a0e06;z-index:1}
+.botanical-stage[data-mode=leaf] .reference-preview a{font-size:9px;line-height:1.6;padding:0 17px 16px;margin:0;color:#8d9f74;background:#0a0e06;z-index:1}
+.symptom-zoom{margin-top:24px}.symptom-zoom label{font-size:10px}.symptom-zoom output{float:right;color:#c3d5a1}.symptom-zoom input{width:100%;accent-color:#c3d5a1;cursor:ew-resize}
+@keyframes symptom-reveal{from{opacity:0;transform:translateY(15px) scale(.97);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+.botanical-stage[data-mode=leaf] #rice-canvas{opacity:1}
+.botanical-stage[data-mode=leaf] .specimen-caption{display:flex}
+.botanical-stage[data-mode=leaf] .specimen-camera{display:flex;bottom:89px}
+.open-real-reference{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:9px;padding:9px 14px;border:1px solid #677c4c;background:#0c1306d9;border-radius:4px;color:#cadaaf;z-index:3;font-size:10px;cursor:pointer;transition:background .2s,box-shadow .2s}
+.open-real-reference svg{width:18px;height:19px;fill:none;stroke:currentColor;stroke-width:1.3}.open-real-reference:hover{background:#25361a;box-shadow:0 4px 24px #77944d1c}
+.symptom-progression{margin-top:24px}.symptom-progression label{font-size:10px}.symptom-progression output{float:right;color:#c6d9a7}.symptom-progression input{width:100%;accent-color:#c6d9a7;cursor:ew-resize}.symptom-progression button{margin-top:10px;padding:6px 0;border:0;border-bottom:1px solid #596b40;background:none;color:#aabe90;font-size:10px}
+.real-reference-modal{position:fixed;inset:0;margin:auto;width:min(88vw,980px);height:min(87dvh,850px);max-width:calc(100% - 28px);max-height:calc(100% - 28px);padding:22px;border:1px solid #52633d;border-radius:9px;background:#080c05;color:#dce8cc;overflow:hidden;box-shadow:0 30px 110px #000c;z-index:100}
+.real-reference-modal[open]{display:flex;flex-direction:column;animation:reference-modal-in .28s cubic-bezier(.2,.8,.2,1)}
+.real-reference-modal::backdrop{background:#000d;backdrop-filter:blur(10px)}
+.reference-modal-close{position:absolute;top:13px;right:13px;border:1px solid #6a7755;background:#030502ed;color:#e8f1dc;width:37px;height:37px;display:grid;place-items:center;border-radius:50%;font-size:25px;line-height:1;z-index:3;cursor:pointer;transition:background .2s,transform .2s}
+.reference-modal-close:hover{background:#364c23;transform:rotate(90deg)}
+.real-reference-modal .reference-preview{position:relative;inset:auto;display:flex;flex-direction:column;flex:1;width:100%;min-height:0;padding:0;border:0;background:none;backdrop-filter:none;box-shadow:none;animation:none}
+.real-reference-modal .symptom-image-viewport{flex:1;min-height:0;width:100%;background:#030502;border-radius:3px}
+.real-reference-modal .reference-preview img{display:block;height:100%;width:100%;object-fit:contain;transform:scale(var(--reference-zoom,1));transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.real-reference-modal .reference-preview>span{margin:0;padding:15px 0 5px;font-size:12px;color:#d8e6c2;z-index:1;background:#080c05}
+.real-reference-modal .reference-preview a{padding:0;font-size:10px;line-height:1.6;background:#080c05;color:#97ad7a;z-index:1}
+.real-reference-modal .symptom-zoom{margin-top:15px}.real-reference-modal .symptom-zoom label{color:#a3b88a;font-size:11px}
+.screening-state{display:none;align-items:center;justify-content:center;gap:10px;color:#bbcda1;font-size:10px;padding:10px 0}
+.is-screening .screening-state{display:flex}.screening-state>span{width:12px;height:12px;border:1px solid #4e5e3d;border-top-color:#c6d9a7;border-radius:50%;animation:screen-spin .8s linear infinite}
+.is-screening #photo-drop{position:relative;overflow:hidden}.is-screening #photo-drop::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(transparent 44%,#adc88522 50%,transparent 56%);transform:translateY(-100%);animation:photo-scan 2s ease-in-out infinite}
+.has-photo #photo-preview{animation:photo-arrive .5s cubic-bezier(.2,.8,.2,1)}
+body.paddy-experience .photo-drop{transition:background .3s,border-color .3s,box-shadow .3s}.has-photo .photo-drop{box-shadow:0 0 30px #8dba5210;border-color:#748d4f!important}
+.botanical-copy h2{animation:paddy-arrive .5s cubic-bezier(.16,1,.3,1)}
+@keyframes reference-modal-in{from{opacity:0;transform:translateY(15px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes photo-arrive{from{opacity:0;filter:blur(5px);transform:scale(.97)}to{opacity:1;filter:none;transform:none}}
+@keyframes screen-spin{to{transform:rotate(360deg)}}
+@keyframes photo-scan{to{transform:translateY(100%)}}
+@media(max-width:550px){.real-reference-modal{padding:14px;width:calc(100vw - 26px);height:80dvh}.reference-modal-close{width:32px;height:32px;font-size:23px}.real-reference-modal .reference-preview a{font-size:8px}.symptom-progression{margin-top:20px}.symptom-progression label{font-size:8px}.open-real-reference{font-size:8px;padding:8px 11px;gap:6px}.open-real-reference svg{width:15px;height:15px}}
+@media(max-width:550px){.botanical-stage[data-mode=leaf] .reference-preview{inset:35px 3px 40px}.botanical-stage[data-mode=leaf] .reference-preview a{font-size:7px;padding:0 10px 12px}.botanical-stage[data-mode=leaf] .reference-preview>span{font-size:8px;padding:12px 10px 7px}.symptom-zoom label{font-size:9px}}
+.organ-label{display:block;min-height:16px;margin:-12px 0 18px;color:#83966d;font-size:9px;letter-spacing:1.3px;text-transform:uppercase}
+.scene-status{position:absolute;left:15%;right:15%;top:45%;text-align:center;font-size:12px;line-height:1.7;color:#a8b397;pointer-events:none}
+#rice-canvas[data-renderer=webgl-3d]{transform:none!important;transform-origin:50% 50%}
+.botanical-stage:not([data-mode=leaf]) .organ-label{visibility:hidden}
+.symptom-signs{max-width:265px;color:#8e9d7b;font-size:11px;line-height:1.8;margin:14px 0 0}
+.symptom-location-rail{position:absolute;right:9px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;z-index:3}
+.symptom-location-rail button{width:7px;height:7px;padding:0;border:1px solid #64734f;border-radius:50%;background:#070907;cursor:pointer;transition:background .25s,transform .25s}
+.symptom-location-rail button:hover,.symptom-location-rail button[aria-pressed=true]{background:#c3d5a1;transform:scale(1.5)}
+.symptom-location-rail button:focus-visible{outline:2px solid #d7e9bb;outline-offset:5px}
+.plant-scroll-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#7d8e68;font-size:8px;letter-spacing:1px;pointer-events:none;white-space:nowrap}
+.botanical-stage[data-mode=leaf] .plant-scroll-hint{bottom:68px}
+@media(max-width:550px){.symptom-signs{font-size:9px;line-height:1.7}.organ-label{font-size:7px;letter-spacing:.7px}.symptom-location-rail{right:2px;gap:10px}.symptom-location-rail button{width:6px;height:6px}.plant-scroll-hint{font-size:6px;bottom:45px}}
+@media(prefers-reduced-motion:reduce){body.paddy-experience *,body.paddy-experience *::before,body.paddy-experience *::after{animation:none!important;transition:none!important}}

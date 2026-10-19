@@ -1,0 +1,42 @@
+{
+  "rows": 2642,
+  "year_counts": {
+    "2001": 82,
+    "2002": 83,
+    "2003": 81,
+    "2004": 82,
+    "2005": 83,
+    "2006": 82,
+    "2007": 84,
+    "2008": 83,
+    "2009": 84,
+    "2010": 83,
+    "2011": 83,
+    "2012": 84,
+    "2013": 99,
+    "2014": 100,
+    "2015": 100,
+    "2016": 100,
+    "2017": 145,
+    "2018": 143,
+    "2019": 145,
+    "2020": 158,
+    "2021": 155,
+    "2022": 166,
+    "2023": 168,
+    "2024": 169
+  },
+  "states": {
+    "Andhra Pradesh": 480,
+    "Karnataka": 933,
+    "Tamil Nadu": 1037,
+    "Telangana": 192
+  },
+  "districts": 68,
+  "calendar": "agricultural start year; Rabi Nov-Apr across boundary; Winter Dec-Mar across boundary; Summer Mar-Jun in following year",
+  "season_windows": "proxies, not measured planting/harvest dates",
+  "weather": "NASA POWER RE: EVLAND is land evaporation (not reference evapotranspiration), RAD kWh/m2/day; VPRES derived hPa",
+  "label": "production tonnes / area hectares; reported UPAg yield kg/ha not directly used",
+  "not_current_forecast_validation": true,
+  "sha256": "3e83f417d018fc8c0212e930596c0ac7c155f61883a2bfb677f69fe7b1f4263a"
+}

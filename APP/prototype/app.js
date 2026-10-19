@@ -2,6 +2,7 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const data = window.RYP_DATA;
+window.PredictionFlow={mode:'yield'};
 if (!data) throw new Error('Map data missing. Run APP/tools/build_ui_data.py.');
 const districts = data.districts, states = [...new Set(districts.map(d=>d.state))];
 const svg = $('district-map'), ns = 'http://www.w3.org/2000/svg';
@@ -28,21 +29,19 @@ function tooltip(event,title,detail){
  tip.style.top=Math.max(8,Math.min(event.clientY-box.top+14,box.height-48))+'px';
 }
 function clearResult(){ $('result').hidden=true;$('empty-result').hidden=false;resultSnapshot=null; }
-function updateDistrictOptions(state){
- $('district').replaceChildren(option('','Choose a district'));
- districts.filter(d=>d.state===state).forEach(d=>$('district').append(option(d.id,d.name)));
- $('district').disabled=!state;
-}
 function updateCoverage(){
- window.CropHealth?.setContext({crop:'Rice',districtId:selected?.id??null,district:selected?.name??null,state:selected?.state??$('state').value,season:$('season').value,year:Number($('year').value),areaHa:$('area').value&&$('area').validity.valid?Number($('area').value):null});
  const el=$('coverage');el.classList.toggle('unsupported',Boolean(selected&&!selected.records));
- if(!selected){el.innerHTML='<b>Start with a location</b>Click a state, then select a district on the map or from the dropdown.';return;}
- let text=selected.records?`${selected.records} historical observations · ${selected.years[0]}–${selected.years.at(-1)}. Coverage does not establish predictive accuracy.`:'No observations for this district in the current cohort. You can preview the interface, but model generalization here has not been established.';
- const historical=selected.historicalStates.filter(s=>s!==selected.state);
- if(historical.length)text+=` Some source records use historical state labels (${historical.join(', ')}).`;
- if(['Autumn','Winter'].includes($('season').value))text+=' This season was unseen during preprocessing fitting.';
- if(Number($('year').value)>2019)text+=' No historical weather/labels are loaded beyond 2019.';
- el.innerHTML=`<b>${selected.records?'Historical cohort available':'Outside the training cohort'}</b>${escapeHTML(text)}`;
+ el.innerHTML=selected?`<b>${escapeHTML(selected.name)}</b>${escapeHTML(selected.state)}`:'<b>Select a location</b>Click a state, then a district on the map.';
+ $('temperature-value').textContent=Number($('temperature').value).toFixed(1)+' °C';
+ const factor=$('area-unit').value==='acre'?.40468564224:1,land=Number($('land-area').value),rice=Number($('area').value);
+ ['land-area','area'].forEach(id=>$(id).min=String(Math.ceil(.01/factor*100)/100));
+ $('area').setCustomValidity(rice>land&&land>0?'Rice-planted area cannot exceed total land size.':'');
+ $('area-summary').textContent=land>0&&rice>0?`${format(rice*factor,2)} ha of rice / ${format(land*factor,2)} ha total land`:'Enter total land and the portion planted with rice.';
+ const validCoverage=land>0&&rice>=0&&rice<=land,percent=validCoverage?rice/land*100:0;
+ $('land-coverage').textContent=validCoverage?format(percent,1)+'%':rice>land&&land>0?'Exceeds land size':'—';
+ $('land-coverage-bar').style.width=percent+'%';
+ document.querySelector('.land-meter').setAttribute('aria-valuenow',String(percent));
+ $('temperature').style.setProperty('--temperature-progress',(($('temperature').value-10)/30*100)+'%');
 }
 function paint(){
  groups.forEach((group,state)=>{
@@ -63,14 +62,14 @@ function paint(){
 }
 function openState(state){
  if(!states.includes(state))return;
- activeState=state;selected=null;$('state').value=state;updateDistrictOptions(state);clearResult();updateCoverage();paint();fitState(state);
+ activeState=state;selected=null;clearResult();updateCoverage();paint();fitState(state);
  $('map-tooltip').hidden=true;
 }
 function selectDistrict(id, focus=false){
  const district=districts.find(d=>d.id===id);if(!district)return;
  const changedState=activeState!==district.state;
- activeState=district.state;selected=district;$('state').value=district.state;
- updateDistrictOptions(district.state);$('district').value=id;clearResult();updateCoverage();paint();
+ activeState=district.state;selected=district;
+ clearResult();updateCoverage();paint();
  if(changedState)fitState(district.state);
  if(focus)paths.get(id).focus({preventScroll:true});
  $('form-error').textContent='';$('map-tooltip').hidden=true;
@@ -87,13 +86,13 @@ states.forEach(state=>{
  surface.addEventListener('pointerleave',()=>$('map-tooltip').hidden=true);
  const layer=document.createElementNS(ns,'g');layer.setAttribute('class','district-layer');
  members.forEach(d=>{
-  const path=document.createElementNS(ns,'path');path.setAttribute('d',d.path);path.setAttribute('fill-rule','evenodd');path.setAttribute('class','district-path'+(d.records?'':' outside'));path.setAttribute('role','button');path.setAttribute('aria-label',`${d.name}, ${d.state}. ${d.records} historical records.`);paths.set(d.id,path);
+  const path=document.createElementNS(ns,'path');path.setAttribute('d',d.path);path.setAttribute('fill-rule','evenodd');path.setAttribute('class','district-path'+(d.records?'':' outside'));path.setAttribute('role','button');path.setAttribute('aria-label',`${d.name}, ${d.state}. Select district.`);paths.set(d.id,path);
   path.addEventListener('click',()=>{if(!suppressClick)selectDistrict(d.id);});
   path.addEventListener('keydown',event=>{
    if(['Enter',' '].includes(event.key)){event.preventDefault();selectDistrict(d.id,true);}
    if(['ArrowRight','ArrowDown','ArrowLeft','ArrowUp'].includes(event.key)){event.preventDefault();const delta=['ArrowRight','ArrowDown'].includes(event.key)?1:-1;const next=members[(members.indexOf(d)+delta+members.length)%members.length];selectDistrict(next.id,true);}
   });
-  path.addEventListener('pointermove',event=>{if(!drag)tooltip(event,d.name,d.records?`${d.records} historical records`:'outside cohort');});
+  path.addEventListener('pointermove',event=>{if(!drag)tooltip(event,d.name,'Select district');});
   path.addEventListener('pointerleave',()=>$('map-tooltip').hidden=true);
   layer.append(path);
  });
@@ -101,11 +100,10 @@ states.forEach(state=>{
  const label=document.createElementNS(ns,'text');label.textContent=state.toUpperCase();label.setAttribute('class','state-label');label.setAttribute('x',members.reduce((v,d)=>v+d.x,0)/members.length);label.setAttribute('y',members.reduce((v,d)=>v+d.y,0)/members.length);$('state-labels').append(label);
 });
 $('district-count').textContent=`${districts.length} DISTRICTS`;
-$('state').append(option('','Choose a state'));states.forEach(state=>$('state').append(option(state,state)));
-updateDistrictOptions('');updateCoverage();paint();
-$('state').addEventListener('change',()=>{if($('state').value)openState($('state').value);else reset();});
-$('district').addEventListener('change',()=>{if($('district').value)selectDistrict($('district').value);else{selected=null;clearResult();updateCoverage();paint();}});
-function reset(){activeState=null;selected=null;$('state').value='';updateDistrictOptions('');updateCoverage();clearResult();paint();camera([...initialView],true);}
+updateCoverage();paint();
+const predictionDate=new Intl.DateTimeFormat('en-GB',{dateStyle:'medium',timeZone:'Asia/Kolkata'}).format(new Date());
+$('prediction-date').textContent=predictionDate;
+function reset(){activeState=null;selected=null;updateCoverage();clearResult();paint();camera([...initialView],true);}
 $('clear-selection').addEventListener('click',reset);
 $('back-map').addEventListener('click',()=>{activeState=null;paint();camera([...initialView],true);});
 function zoom(factor){const width=Math.max(90,Math.min(2000,view[2]*factor)), ratio=width/view[2];camera([view[0]+(view[2]-width)/2,view[1]+(view[3]-view[3]*ratio)/2,width,view[3]*ratio]);}
@@ -119,8 +117,8 @@ svg.addEventListener('pointermove',event=>{
 });
 function endDrag(){drag=null;svg.classList.remove('dragging');setTimeout(()=>suppressClick=false,0);}
 svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);svg.addEventListener('lostpointercapture',()=>{drag=null;});
-['area','year','season','representation','model'].forEach(id=>$(id).addEventListener('input',()=>{clearResult();updateCoverage();}));
-function snapshot(){return {mode:'interface_demo',districtId:selected.id,district:selected.name,state:selected.state,season:$('season').value,year:Number($('year').value),areaHa:Number($('area').value),representation:$('representation').value,proposedModel:$('model').value,illustrativeYieldTPerHa:4.2,modelTrained:false};}
+['area','land-area','area-unit','temperature','season','rainfall','humidity','wind','radiation'].forEach(id=>$(id).addEventListener('input',()=>{clearResult();updateCoverage();}));
+function snapshot(){if(!selected)return null;const factor=$('area-unit').value==='acre'?.40468564224:1;const optional=id=>$(id).value===''?null:Number($(id).value);return {mode:'current_season_scenario',districtId:selected.id,district:selected.name,state:selected.state,season:$('season').value,averageTemperatureC:Number($('temperature').value),landAreaHa:Number($('land-area').value)*factor,areaHa:Number($('area').value)*factor,inputAreaUnit:$('area-unit').value,seasonalRainfallMm:optional('rainfall'),relativeHumidityPct:optional('humidity'),windSpeedMps:optional('wind'),solarRadiationKwhM2Day:optional('radiation')};}
 function baseOutputDashboard(request){
  const summary=RYPOutputs.summarize(request,data.history[request.districtId]);
  const p=summary.productionTonnes, ref=summary.reference, trend=summary.trend;
@@ -198,11 +196,20 @@ function renderResult(request){
  $('sale-price').addEventListener('input',()=>{const input=$('sale-price'),value=Number(input.value);salePrice=input.value!==''&&input.validity.valid&&Number.isFinite(value)?value:null;refreshDerived();});
  $('download-preview').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({...request,outputs:derived(),explanation:'User-selected demo yield assumption multiplied by user area. Gross value uses user-supplied price only. Trend/reference are observed source labels, not forecasts. No trained model inference.'},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='crop-yantra-preview.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 }
-$('yield-form').addEventListener('submit',event=>{event.preventDefault();if(!$('yield-form').reportValidity())return;if(!selected){$('form-error').textContent='Choose a district first.';return;}resultSnapshot=snapshot();if(window.CropDesktop?.ready){window.CropDesktop.predictYield(resultSnapshot);return;}renderResult(resultSnapshot);PredictionFlow.mode='yield';location.hash='results';route();});
+$('yield-form').addEventListener('submit',event=>{event.preventDefault();if(!$('yield-form').reportValidity())return;if(!selected){$('form-error').textContent='Select a district on the map.';return;}resultSnapshot=snapshot();if(window.CropDesktop?.ready){window.CropDesktop.predictYield(resultSnapshot);return;}$('form-error').textContent='Open the Paddy desktop app to run the trained model.';});
 data.manifest.standard.predictor_columns.filter(name=>name.startsWith('numeric__')).forEach(name=>{const tag=document.createElement('span');tag.textContent=name.replace('numeric__','');$('feature-list').append(tag);});
-function route(){const hash=location.hash.slice(1),info=hash==='info'||['sources-section','preprocessing-section','models-section','output-section'].includes(hash),health=hash==='health',architecture=hash==='architecture'||hash==='detection-section',results=hash==='results'||hash==='image-results';$('studio').hidden=info||health||architecture||results;$('info').hidden=!info;$('health').hidden=!health;$('architecture').hidden=!architecture;$('results').hidden=!results;const image=hash==='image-results';document.querySelector('.result-section').hidden=image;$('image-result').hidden=!image;document.querySelectorAll('.output-tabs a').forEach(a=>a.setAttribute('aria-current',a.hash===(image?'#image-results':'#results')?'page':'false'));document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',a.hash===(architecture?'#architecture':results?'#results':health?'#health':info?'#info':'#studio')));if(hash.endsWith('-section'))requestAnimationFrame(()=>$(hash)?.scrollIntoView({block:'start'}));else window.scrollTo({top:0,behavior:'auto'});}
+function route(){
+ const hash=location.hash.slice(1),panes=['sources-section','preprocessing-section','models-section','output-section'];
+ const info=hash==='info'||panes.includes(hash),health=hash==='health',architecture=hash==='architecture'||hash==='detection-section',results=hash==='results'||hash==='image-results';
+ $('studio').hidden=info||health||architecture||results;$('info').hidden=!info;$('health').hidden=!health;$('architecture').hidden=!architecture;$('results').hidden=!results;
+ const image=hash==='image-results';document.querySelector('.result-section').hidden=image;$('image-result').hidden=!image;
+ document.querySelectorAll('.output-tabs a').forEach(a=>a.setAttribute('aria-current',a.hash===(image?'#image-results':'#results')?'page':'false'));
+ document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',a.hash===(architecture?'#architecture':results?'#results':health?'#health':info?'#info':'#studio')));
+ const pane=panes.includes(hash)?hash:'sources-section';panes.forEach(id=>$(id).hidden=id!==pane);
+ document.querySelectorAll('.info-tabs a').forEach(a=>a.setAttribute('aria-current',a.hash==='#'+pane?'page':'false'));
+ window.scrollTo({top:0,behavior:'auto'});
+}
 window.addEventListener('hashchange',route);route();
-const themeButton=$('theme-toggle');
-function setTheme(theme){document.documentElement.dataset.theme=theme;themeButton.setAttribute('aria-pressed',String(theme==='dark'));themeButton.textContent=theme==='dark'?'☀ Switch to light mode':'◐ Switch to dark mode';try{localStorage.setItem('ryp-theme',theme);}catch{/* Storage may be unavailable in private/file contexts. */}}
-try{setTheme(localStorage.getItem('ryp-theme')||'light');}catch{setTheme('light');}
-themeButton.addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+// Dark-only, including when an older installation saved a light preference.
+document.documentElement.dataset.theme='dark';
+try{localStorage.removeItem('ryp-theme');}catch{/* Storage is optional. */}

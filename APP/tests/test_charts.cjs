@@ -23,7 +23,10 @@ assert.match(decodeURIComponent(first),/ILLUSTRATION ONLY/);
 assert.doesNotMatch(decodeURIComponent(illustration('blast','<script>','<script>')),/<script>/);
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'../prototype/index.html'),'utf8');
-assert.ok(html.indexOf('id="result"')<html.indexOf('id="health"'));
+// Health and outputs are separate routed pages, not an inline pretraining layout.
+assert.match(html,/<section id="health" class="page" hidden>/);
+assert.match(html,/<section id="results" class="page" hidden>/);
+assert.match(html,/href="#results"/);assert.match(html,/href="#health"/);
 assert.doesNotMatch(html, /health-teaser|Every harvest starts|Attentive to the leaf/);
 assert.match(html,/id="health-season"/);
 assert.match(html,/src="charts.js"/);
@@ -36,4 +39,4 @@ assert.match(worked,/100 tonnes/);
 const h1=Math.max(0,.4*.5+.2*.5-.2*(-.5)+.1);
 const h2=Math.max(0,-.2*.5+.6*.5+.2*(-.5)+.2);
 assert.ok(Math.abs(3.8+.5*h1+.5*h2-4.2)<1e-10);
-console.log('Chart states, zero yields, reactive illustration variants and inline health layout: passed.');
+console.log('Chart states, zero yields, reactive illustration variants and separate health/results routes: passed.');

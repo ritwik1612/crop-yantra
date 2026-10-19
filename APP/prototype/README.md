@@ -1,126 +1,93 @@
 # Paddy — Rice Yield & Crop Health
 
-**Current status:** this directory supplies the interactive frontend and exported
-runtime models for the offline Windows application. See ../desktop/README.md.
-The desktop bridge replaces preview outputs with actual local inference. The
-old Vercel project was removed. The remaining preview notes describe the earlier
-browser-only prototype, which is still available when no native bridge is loaded.
+## Paddy 0.5.0 — 20 October 2026
 
-Paddy 0.3.0 uses a ten-class EfficientNet-B0 and a selectable Contextual Residual
-MLP / tree yield predictor. Architecture has exclusive Yield Prediction and
-Disease Identification panels. Actual output traces are under Show prediction
-flow. The notes below are historical browser-preview behaviour, not desktop
-model status.
+The crop-health scene is real Three.js geometry, with a local renderer and
+original procedural rice model, textured opaque leaf surfaces, varied shapes,
+branched panicles and 672 individual grains. Camera orbit, wind response and
+leaf-facing symptom inspection are model-space interactions, not image warps.
+Camera/photo controls sit outside the specimen viewport. The JSON model snapshot
+and surface-material provenance are documented in assets/RICE_MODEL.md.
 
-The workspace now separates Yield studio, Crop health, Output and Architecture.
-Inputs remain on the workspace; generated previews navigate to Output. Yield
-and photo results each have a collapsed **Show prediction flow** panel with the
-actual input snapshot, available retrieved data, formulas and explicit execution
-status. Overall architecture and the interactive image flow live only in the
-Architecture tab, not on the home page. Photo output no longer auto-downloads
-metadata. No trained inference is enabled by this UI change.
+Yield, results, method and architecture share the black-only workspace stylesheet.
+Architecture diagrams are selectable and task-exclusive. Actual output audits
+offer four step-by-step stages or an all-steps view; numerical model inputs,
+transformations, logits and calculations remain engine-owned. Yield explanations
+include all model-feature contributions, signed feature groups and a checked
+baseline reconciliation, not causal percentages. Area and price scaling are
+separate from per-hectare yield attribution.
 
-Architecture includes a six-step interactive detection flow, with keyboard step
-navigation and separate district/season advisory context. The image-classifier
-status remains pending training/integration. An influence panel distinguishes
-future model-based image-region explanations from currently unavailable results.
-The yield-output flow shows live +10% yield/area arithmetic sensitivities, not
-invented weather-feature rankings. Both light and dark themes are supported.
+Design influence: Corn Revolution (specimen inspection), Igloo (object/camera
+composition), Lusion and Active Theory (dark spatial presentation), Synchronized
+and Obys Format (type/grid hierarchy). The other supplied references informed
+interaction exploration. No third-party site artwork or 3D assets were copied.
+All ten Real photo views use bundled, attributed photographs. Seven previously
+local-only competition examples have been replaced by labelled panels from a
+CC BY publication. See assets/PHOTO_CREDITS.md. The build checks all ten references
+inside the packaged site before compiling the installer.
 
-Small information buttons explain major sections. Output calculations use the
-actual selected demo yield and hectares, with mass conversion, area scenarios
-and user-price arithmetic. The unrelated toy-network example is not mounted.
+## Run the real local preview
 
-Yield inputs, results, crop health and architecture are separate views. Season
-selection is synchronized with the yield form; rice illustrations update for
-season and growth stage without implying regional disease prevalence. Rice is
-the only supported crop.
+From the project root in PowerShell:
 
-Charts show labelled yield comparison tracks, a reactive production-versus-area
-line, and historical yield with hover/keyboard observation labels. Missing
-historical values remain unavailable rather than being drawn as zero.
-
-The crop-health tab shares district/season context with the yield form, displays
-clearly labelled illustrative placeholders and previews photos locally. It
-shows a metadata/validation output without automatically downloading a file;
-no classifier, diagnosis or remote photo upload is active.
-See the [small South Indian rice-image training plan](../../docs/IMAGE_TRAINING_PLAN.md).
-
-A responsive pretraining webpage with white cartography, state hover lift,
-animated state zoom, clickable district partitions, synchronized form
-controls, pan/zoom and keyboard district navigation. A rice-plant silhouette
-provides the header identity and favicon.
-
-Open index.html directly, or serve from the repository root:
-
-```bash
-python -m http.server 8765 --bind 127.0.0.1 --directory APP/prototype
+```powershell
+& OTHER/desktop_env/Scripts/python.exe APP/desktop/preview.py
 ```
 
-Visit http://127.0.0.1:8765. No Node build, API key, map service or frontend
-dependency installation is needed. Optional Google Fonts have system fallbacks.
+Open http://127.0.0.1:8765/. This loopback server uses the actual offline engine.
+Opening index.html without the desktop bridge is a legacy interface preview,
+not trained inference; do not use that mode for an evaluation demonstration.
 
-1. Click a state (hover enlarges its white silhouette slightly).
-2. Click a district, or use the state/district dropdowns. Back to South India
-   restores the overview. Drag to pan; buttons zoom; Ctrl-scroll zooms.
-3. Set season/year/area and choose a proposed representation/predictor.
-4. Preview the result. Its explanation shows the exact calculation and which
-   stages are proposed rather than executed. Input changes clear stale results.
-5. Project info opens sources, preprocessing, model names and output methodology.
-   Its appearance switch turns **the entire site** black-background dark or light.
-   Theme preference is retained locally where browser storage is available.
+## Current interface
 
-The map exposes **103 source-vintage GADM districts** across AP, Karnataka,
-Tamil Nadu, Telangana, Kerala and Puducherry. All are selectable, but only 60
-have observations in the historical cohort. Dataset boundaries are GADM 4.1;
-they do not include every modern renamed/newly subdivided district. Kerala and
-Puducherry are map context, not newly added training data. Historical-state
-crosswalk records remain labelled with their actual source state.
+- Map-only district selection: hover, state zoom, district selection, pan/zoom
+  and keyboard navigation. GADM 4.1 provides 103 source-vintage districts, not
+  a current administrative registry.
+- Enter season, total land, rice-planted area and average seasonal temperature.
+  Optional rainfall, humidity, wind and radiation override training-reference
+  values. The date is automatic. No year/month or model selector is exposed.
+- Yield output uses the validation-selected HistGradientBoostingRegressor.
+  The Contextual Residual MLP remains an explicitly weaker research comparison.
+  Standard preprocessing has 21 numerical and 9 one-hot features; the older
+  denoising-autoencoder experiment is not the current default route.
+- Results show tonnes/hectare, production, kilograms, optional gross value,
+  reactive area/price scenarios, all feature contributions and actual
+  preprocessing/calculation steps. Contributions are not causal effects.
+- Known district-season pairs use measured training references. Missing pairs
+  use the separate neighbour-augmented model, with synthetic provenance shown
+  in the prediction flow. Transfer accuracy in unobserved districts is unknown.
+- Rice-photo screening runs the ten-class EfficientNet-B0 locally. No district
+  is required. Yield context is linked only on request and never changes logits.
+  Low-confidence screening is not a confirmed diagnosis. Pixel localisation
+  explanations are not implemented; the animated plant is educational only.
+- Architecture has mutually exclusive Yield Prediction and Disease
+  Identification panels, exact model names, input dimensions, split counts,
+  held-out metrics, data sources and inference steps.
+- One black-only visual theme and one UI font. No cloud API or Google Font is
+  required. WebGL/Edge WebView2 hardware acceleration is needed for the 3D view.
 
-## Honest preview output
+## Data and models
 
-The result dashboard includes production (tonnes and kilograms), entered area,
-observed yield reference, demo/observed comparison bars, same-season historical
-yield trend/table, and interactive area scenarios. Historical charts include
-only records through the selected crop year; ambiguous year matches are excluded.
-An optional user-supplied ₹/kg price computes **gross value**, not profit, and
-updates a three-price scenario chart immediately. No
-default market price is assumed. The scenario slider changes arithmetic area,
-not yield, and does not represent an uncertainty interval. Downloaded JSON
-retains these outputs and assumptions. Empty history stays visibly unavailable.
+The current measured master has 2,642 rows, 30 columns and 68 matched districts.
+Train/validation/test: 1,984 / 321 / 337, split chronologically.
+See ../../README.md and ../desktop/README.md for source licences, exact metrics
+and limitations. Dataset CSVs are not loaded into the frontend at prediction time;
+the portable runtime supplies trained models and train-derived references.
 
-Run `node APP/tests/test_outputs.cjs` from the repository root for output logic tests.
+The app's image model is an EfficientNet-B0 fine-tuned on 8,419 duplicate-filtered
+Paddy Doctor photos (5,905 / 1,257 / 1,257). Reference photographs in this UI are
+display assets, not new independent evaluation samples.
 
-Yield starts at **4.20 t/ha as an illustrative placeholder**. Live what-if
-controls let users change this assumption and the cultivation area. Every KPI,
-chart and calculation reacts instantly. Demo production is the chosen demo yield
-× entered hectares; reset restores default yield and the original area. The
-0–12 t/ha slider is an interface range, not a validated agronomic range.
-Representation/model selections change the displayed proposed pipeline,
-not the demo yield. The page runs no neural network, weather
-fetch, preprocessing transform or trained regressor.
+## Checks
 
-When exactly one historical district/year/season observation matches, its actual
-yield and weather summaries are shown separately as **observed, not predicted**.
-Historical district area is distinct from entered area. No missing weather is
-invented. Download JSON records inputs, demo mode and the calculation explicitly.
-No confidence interval or feature-contribution values are fabricated.
-
-## Data asset reproducibility
-
-The checked-in data.js loads without fetch, so the beta also works via file://.
-It includes source-derived display geometry and historical context, not model
-weights or secrets. Rebuild it only when preserved source/master data changes:
-
-```bash
-python -m pip install -r APP/tools/requirements.txt
-python APP/tools/build_ui_data.py
+```powershell
+node APP/tests/test_reference_photos.cjs
+node APP/tests/test_architecture.cjs
+node APP/tests/test_input_effects.cjs
+node APP/tests/test_rice_model.mjs
+& OTHER/training_env/Scripts/python.exe -m unittest APP.tests.test_desktop APP.tests.test_recent_yield APP.tests.test_spatial_coverage
 ```
 
-The builder reads boundary/district/master CSVs unchanged, dissolves district
-rings into state outlines for overview, and keeps district rings for zoom view.
-GADM attribution/usage terms apply: https://gadm.org/license.html.
-
-See ../training/README.md for training readiness, four future experiments,
-saved-model contracts and outstanding live-inference work. No yield training
-has been performed as part of this UI update.
+The installer build also runs the reference-photo test against its staged site.
+Credentials, raw competition photographs, virtual environments, training runs
+and private demo photos must never be bundled or committed.

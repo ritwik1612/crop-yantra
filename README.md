@@ -1,307 +1,122 @@
 # Paddy — Rice Yield & Crop Health
 
-**Current application:** offline Windows desktop app. See
-[installation and build instructions](APP/desktop/README.md).
-The previous Crop Yantra Vercel project was removed at the user's request.
-The name Paddy and elegant rice-plant logo are confirmed for the Windows release.
+Offline Windows research application by **R Ritwik (23BAI0037)** and
+**Joshith G (23BAI0075)**. No Vercel deployment or cloud inference.
 
-District-season rice yield estimation using government crop statistics, GADM
-district locations and NASA POWER weather. This repository includes preserved
-source data, one merged master, two model-ready representations, fitted
-Denoising Autoencoder preprocessing, trained yield/image models and a
-green/off-white interactive desktop app.
+[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.5.0/Paddy-Setup-0.5.0.exe)
+· [Desktop build instructions](APP/desktop/README.md)
+· [Dataset guide](DATASET/README.md)
 
-**Team:** R Ritwik (23BAI0037) and Joshith G (23BAI0075).
+## Version 0.5.0
 
-**Windows setup:** [Download Paddy Setup](https://github.com/ritwik1612/crop-yantra/releases/download/v0.3.0/Paddy-Setup-0.3.0.exe)
-Defaults to Program Files, allows another folder, and creates a Paddy Start menu
-shortcut for Windows Search. Windows 10/11 x64 with Edge WebView2 is required.
-The academic installer is unsigned; Windows may show an unknown-publisher warning.
-**GitHub:** https://github.com/ritwik1612/crop-yantra
+The local review preview now uses a true WebGL rice model, not photographic
+billboards: connected culms, curved leaf surfaces and branched grain heads.
+Dragging orbits in 3D; scrolling focuses an attached leaf, and the camera faces
+its surface. Symptom shaders are educational, separate from photo inference.
+See [model details](APP/prototype/assets/RICE_MODEL.md). Results and architecture
+use consistent typography, live model specifications and step-by-step input audits.
+All ten Real photo references are bundled offline with source attribution;
+see [photo credits](APP/prototype/assets/PHOTO_CREDITS.md).
 
-**Main task: rice yield prediction.** The tabular dataset has no disease labels.
-The auxiliary crop-health section provides handbook references and local
-ten-class rice-condition screening, not confirmed diagnosis. Low estimated yield
-cannot establish disease.
+- Select location only through the reactive state/district map.
+- Select season, average seasonal temperature (10–40 °C) and cultivation area.
+  Today's date is automatic; there is no year/month selector.
+- Run a **current-season scenario**, not a lookup of an old yield label.
+  Missing weather inputs use training-season medians. This is **not a validated
+  live-weather or farm-level forecast**. Temperature modifies actual model
+  features and dependent scenario quantities, not merely the displayed text.
+- Show calculation, transformed inputs and feature contributions on the output
+  page. Area and optional price update production/mass/value immediately.
+- Photo-only screening requires **no district**. Use “Analyse crop health” from
+  a yield result to explicitly link its context; context never changes image logits.
+- Architecture has separate, mutually exclusive yield and image tabs.
+- All 103 map districts and five seasons have an estimate route. Missing local
+  references use a separately trained neighbour-augmented tree model, with a
+  visible neighbour-based status and donor details in the prediction flow.
+  These estimates are synthetic geographic transfers, not measured local labels.
 
-Image component: 8,419 duplicate-filtered Paddy Doctor rice photos collected near
-Tirunelveli, Tamil Nadu (5,905 train / 1,257 validation / 1,257 test), with trained
-ImageNet-initialized EfficientNet-B0 weights. Held-out accuracy: **85.04%**;
-macro-F1: **83.59%**. All exported test predictions match the original checkpoint.
-Yield studio selects the trained **Contextual Residual MLP** (weather network
-28 → 64 → 32 → 1 plus a learned district-season offset and year trend) or the
-original **HistGradientBoostingRegressor** benchmark. Neural test MAE: **0.486**,
-RMSE: **0.677 t/ha**, R²: 0.447. Original MLP MAE/RMSE: 0.560/0.733;
-tree benchmark: 0.532/0.672. The neural model adds explicit context inputs, so
-this is not a same-feature architecture comparison or proof of farm-level
-accuracy. Models run locally; no cloud inference is used.
-The ten-class image files occupy about 660 MB; the official source ZIP is 1.09 GB.
+### Geographic coverage training
 
-EfficientNet-B0 was selected over MobileNetV3-Small using validation macro-F1
-(81.12% vs 79.04%). MobileNet test accuracy/macro-F1 are 79.16%/77.82%.
-The lowest selected-model class recall is 67.21% for bacterial leaf blight.
-Supported labels also include pest symptoms and normal plants; this is not
-confirmed diagnosis, unknown-crop rejection or independent regional validation.
-Ten-class results are not directly comparable to the preserved four-class baseline.
-See [image setup and commands](APP/training/images/README.md) and
-[regional fit, size and training plan](docs/IMAGE_TRAINING_PLAN.md).
+`APP/training/train_spatial_coverage.py` builds 3,094 deterministic synthetic
+training rows from three geographically nearest same-season, same-year donors
+from 2001–2020 only. It trains a separate HistGradientBoostingRegressor using
+1,984 measured rows plus the downweighted synthetic rows. Four configurations
+are selected using measured 2021–2022 validation only. Selected synthetic sample
+weight: 0.1. The original measured-data predictor remains active for known pairs.
 
-## Start here
+The coverage model's measured 2023–2024 test MAE is 0.4403 t/ha, RMSE 0.5547,
+R² 0.3093. This does **not** measure accuracy in missing districts, and it is
+not used to claim improvement in current-season forecasts. Cross-state donors
+are used where nearest same-season records require them. The map is GADM 4.1,
+not a current administrative district registry.
 
-- [Both-model training runbook](APP/training/START_TRAINING.md): original baseline commands and input contracts. See [current model and export instructions](APP/desktop/README.md) for the trained Paddy 0.3.0 models.
+## Measured yield data and evaluation
 
-- [District-augmented CSV](DATASET/augmented/rice_master_augmented.csv): one 30-column table, 3,363 rows. Read the [construction and training-use notes](DATASET/augmented/README.md). Original master and existing training splits are unchanged.
+The current master contains **2,642 rows, 30 columns and 68 matched districts**
+across Andhra Pradesh, Karnataka, Tamil Nadu and Telangana, with crop-start
+years 2001–2024 (through agricultural year 2024–25).
 
-- [Faculty proposal](docs/Preprocessing_Proposal.pdf): sources, features, preprocessing and model plan.
-- [Project architecture diagrams](docs/architecture/README.md).
-- [Detailed source selection and merge](docs/figures/Raw_Data_Feature_Selection_and_Merge.svg).
-- [Complete preprocessing notebook in Colab](https://colab.research.google.com/github/ritwik1612/crop-yantra/blob/main/pre-processing/Crop_Preprocessing.ipynb).
-- [Beta application](APP/prototype/README.md) and [model registry](docs/MODEL_REGISTRY.md).
-- [Changelog](CHANGELOG.md).
+Sources are original government area/production statistics, the
+[UPAg/DES dataset mirrored by India Data Portal](https://ckandev.indiadataportal.com/dataset/area-production-yield-apy),
+[GADM boundaries](https://gadm.org/data.html), and
+[NASA POWER weather](https://power.larc.nasa.gov/docs/services/api/temporal/daily/).
+The UPAg mirror carries the Open Data Commons Attribution License. Preserve
+the individual sources' terms, including [GADM's license](https://gadm.org/license.html).
 
-## What works now
+Recent source yield is reported in kg/ha; training yield is calculated consistently
+as production tonnes / area hectares. Exact normalized same-state district joins
+exclude unmatched/newly split districts rather than assigning a parent's label.
+Season windows are proxies, not measured sowing dates. Rabi and Winter cross
+the agricultural-year boundary; Summer uses March–June of the following year.
+Only complete weather windows are retained. NASA EVLAND is land evaporation,
+not FAO-56 reference evapotranspiration; radiation uses kWh/m²/day.
 
-| Component | Status |
-| --- | --- |
-| Source-derived master and chronological splits | Built and verified |
-| SimpleImputer, StandardScaler and OneHotEncoder | Fitted on training observations |
-| Denoising Autoencoder (DAE) | Fitted; checkpoint and learned features included |
-| MLP and HistGradientBoostingRegressor | Definitions included; supervised training not performed |
-| LSTM and 1D CNN | Definitions included; sequence preparation and training are future work |
-| RYP beta | White state/district map, dark theme, methodology and explicitly illustrative results |
-| Yield accuracy improvement | Not established; requires the proposed experiments |
+Train: **1,984 rows (2001–2020)**; validation: **321 (2021–2022)**;
+test: **337 (2023–2024)**. Fit imputation/scaling/encoding only on training data;
+select configurations using validation, then evaluate held-out test. These scores
+are retrospective full-season district estimates, not live forecast accuracy.
 
-![Data and preprocessing architecture](docs/architecture/01_data_preprocessing.png)
+| Predictor | Test MAE t/ha | Test RMSE t/ha | Test R² | Deployment |
+| --- | ---: | ---: | ---: | --- |
+| HistGradientBoostingRegressor | 0.454 | 0.571 | 0.269 | Default, selected by validation RMSE |
+| Contextual Residual MLP | 0.605 | 0.819 | −0.506 | Research comparison, not a user selector |
 
-## Repository layout
+The neural candidate did **not** outperform the tree. Its weather branch is
+30 → 64 → 32 → 1 with GELU/dropout and a learned district-season offset.
+Validation selected the no-year-trend candidate; its exported graph retains a
+constant-zero year slot for compatibility. Standard features are 21 numerical
+and 9 one-hot indicators. Production and YIELD are excluded from predictors.
+DAE is a preserved older comparison, not the deployed preprocessing route.
+New scores are not directly comparable to the old 2018–2019 evaluation because
+the cohort, chronology, district matching and weather alignment changed.
 
-```text
-APP/
-  prototype/                 Static beta frontend
-  models/                    Tabular and temporal yield model definitions
-  training/                  Check-only readiness and explicit future training
-  inference/                 Saved-preprocessing/model inference contract
-  tools/                     Reproducible source-derived browser map export
-  tests/                     Data readiness and map-export checks
-DATASET/
-  raw/                       Government, boundary CSVs and daily weather
-  merged/                    rice_master.csv
-  training/
-    standard/                Conventional train, validation and test CSVs
-    autoencoder/             DAE train, validation and test CSVs
-    manifest.json            Exact allowed predictors and target
-pre-processing/              Pipeline, visible-code notebook and saved transforms
-docs/
-  architecture/              Editable vector diagrams and PNG previews
-  figures/                   Actual EDA and preprocessing plots
-  preprocessing/             Run history, comparisons and validation evidence
-  presentations/             Dataset feature-transition decks
-  reference_papers/          Reference PDFs
-  source/                    Document and diagram source files
-```
+## Image model
 
-Temporary builds, caches, nested Git checkouts and historical local archives are
-not part of this published workflow.
+**EfficientNet-B0**, ImageNet initialized and fine-tuned on 8,419 duplicate-filtered
+Paddy Doctor rice images: 5,905 train / 1,257 validation / 1,257 test.
+Test accuracy **85.04%**, macro-F1 **83.59%**. Ten labels include disease,
+pest-symptom and normal classes. Unsupported crops/conditions are not reliably
+rejected; model scores are not calibrated diagnostic confidence. District/season
+are not classifier inputs. No disease-related yield loss is inferred.
 
-## Original datasets and provenance
+## Files and reproducibility
 
-There are **three source families**, not a collection of independently collected
-yield, area and fraction datasets. The two boundary CSVs represent one source.
+- `APP/`: application, training and data-maintenance code.
+- `DATASET/raw/`: unchanged original sources, recent UPAg source CSV and NASA responses.
+- `DATASET/merged/rice_master.csv`: current measured-source master.
+- `DATASET/training/recent/standard/`: active train/validation/test CSVs.
+- `APP/training/runs/recent_yield_20261019/`: fitted recent preprocessor and checkpoints.
+- `APP/prototype/runtime/`: verified portable models and inference metadata.
+- `Testing Images/`: 332 local demonstration photos; not a new independent test set.
+- `OTHER/model_archive/`: rollback assets and rejected experiments, not training inputs.
 
-| Source | Published files | Contents and role |
-| --- | --- | --- |
-| Government crop-statistics distribution originally named APY.csv | `DATASET/raw/government/crop_statistics.csv` | State, district, crop, crop year, season, area, production and source yield; supplies rice area and the yield label |
-| GADM 4.1 administrative level 2 | `DATASET/raw/boundaries/india_districts.csv` and `boundary_coordinates.csv` | 676 district records with names, administrative codes and representative coordinates; second CSV preserves ordered polygon vertices |
-| NASA POWER Daily API extract | `DATASET/raw/weather/daily_weather.csv` | District-date identifiers and ten daily weather variables; supplies seasonal weather summaries |
+Acquisition: `APP/tools/download_recent_yield.py`; weather/merge:
+`APP/tools/extend_yield_data.py`; fitting: `APP/training/train_recent_yield.py`;
+verified activation: `APP/tools/activate_recent_yield.py`.
+Training deliberately refuses to overwrite a completed candidate checkpoint.
+The older `pre-processing/run_pipeline.py` requires `--legacy-baseline` so it
+cannot silently overwrite the newer master. Old standard/DAE partitions and
+neighbour-generated experiments remain separate; they are not the active inputs.
 
-Sources: [government district-season crop statistics](https://data.gov.in/resource/district-wise-season-wise-crop-production-statistics-1997),
-[GADM](https://gadm.org/data.html), [GADM license](https://gadm.org/license.html),
-[NASA POWER Daily API](https://power.larc.nasa.gov/docs/services/api/temporal/daily/).
-
-The weather CSV is an assembled API extract with derived vapour pressure, not
-untouched API JSON. District CSVs are conversions of the original GADM geometry,
-not an additional independent dataset. Preserve these input files unchanged.
-See [raw source notes](DATASET/raw/README.md) and [boundary notes](DATASET/raw/boundaries/README.md).
-
-### How the master is assembled
-
-1. Keep valid crop records from Andhra Pradesh, Karnataka, Tamil Nadu and Telangana; select rice/paddy.
-2. Normalize state/district names and match GADM district records; use the documented unique-district historical-state crosswalk where applicable.
-3. Create project `IDREGION` identifiers; calculate `YIELD = production / rice area` and district share of state-year-season rice area.
-4. Align daily weather to the district and crop season. Aggregate means, totals and growing degree days.
-5. Join on district identifier, crop year and season; retain matched locations, finite yield and at least 60 complete weather days.
-6. Save one master: **2,018 rows x 30 columns**, covering 2001-2019.
-
-Fixed seasonal windows: Kharif June-November; Rabi previous November-April;
-Summer March-June; Autumn September-December; Winter previous December-March.
-These are project assumptions, not observed district-specific crop calendars.
-No simulated crop observations were added. The dataset is constructed from
-recorded crop statistics and source-derived weather, not synthetic new samples.
-
-| State | Master observations |
-| --- | ---: |
-| Karnataka | 722 |
-| Tamil Nadu | 612 |
-| Andhra Pradesh | 572 |
-| Telangana | 112 |
-
-## Features and target
-
-| Role | Columns |
-| --- | --- |
-| Crop area and location inputs | `CROP_AREA`, `AREA_FRACTION`, `CENTROID_X`, `CENTROID_Y` |
-| Weather coverage and temperature inputs | `WEATHER_DAY_COUNT`, `TMAX_MEAN`, `TMIN_MEAN`, `TAVG_MEAN` |
-| Atmospheric inputs | `VPRES_MEAN`, `WSPD_MEAN`, `RELH_MEAN`, `PS_MEAN` |
-| Seasonal totals | `PREC_TOTAL`, `ET0_TOTAL`, `RAD_TOTAL` |
-| Engineered numerical inputs | `GDD_BASE10`, `TEMP_RANGE_MEAN`, `WATER_BALANCE_PROXY`, `RAIN_PER_GDD`, `RADIATION_PER_GDD`, `CROP_AREA_LOG1P` |
-| Encoded categorical inputs | `STATE`, `SEASON` |
-| Supervised target | `YIELD`, in tonnes per hectare |
-| Preserved but not predictor inputs | `CROP`, `IDREGION`, `DISTRICT`, `FYEAR`, `MATCH_STATUS`, `PRODUCTION_TONNES` |
-
-The 21 numerical features reflect area, location, weather and derived context.
-Selection follows domain relevance and leakage prevention; no experiment has
-proved every feature necessary. `PRODUCTION_TONNES` is excluded because it
-directly determines yield together with area. Identifiers remain metadata;
-`FYEAR` determines the split rather than being a current predictor.
-
-Important units and assumptions:
-
-- Area is hectares; yield is t/ha; temperatures are degrees Celsius.
-- `CENTROID_X/Y` average boundary vertices; they are **not area-weighted centroids**.
-- `ET0_TOTAL` retains a legacy name but contains NASA **EVLAND land evaporation**, not FAO-56 reference evapotranspiration.
-- NASA RE-community radiation is kWh/m²/day; `RAD_TOTAL` is kWh/m².
-- `AREA_FRACTION` needs state-year-season total rice-area context at inference.
-- `WATER_BALANCE_PROXY` is rainfall minus the evaporation proxy, not measured soil moisture.
-- GDD accumulates temperature above 10°C; derived rain/radiation ratios use this heat accumulation.
-
-## Preprocessing and training data
-
-Split **before** fitting transforms. Fit numerical medians, scaling, category
-mapping and DAE weights on training observations only; reuse them on held-out
-data without refitting. Validation selects the DAE checkpoint.
-
-| Partition | Years | Rows | Use |
-| --- | --- | ---: | --- |
-| Training | 2001-2015 | 1,485 | Fit preprocessing and future yield models |
-| Validation | 2016-2017 | 245 | Select checkpoint and tune model settings |
-| Test | 2018-2019 | 288 | Final held-out yield evaluation |
-
-| Representation | Predictors | Stored columns |
-| --- | --- | ---: |
-| Standard | 21 scaled numerical + 7 one-hot indicators = **28** | 34 |
-| Autoencoder | 8 latent + 7 indicators + reconstruction MSE = **16** | 22 |
-
-Stored columns also include the target and five metadata fields. Both versions
-use identical rows, labels and splits. **Train from `train.csv`, not all three
-partitions concatenated.** Use [the manifest](DATASET/training/manifest.json) to
-select exact predictor columns and keep `YIELD` separate.
-
-DAE means **Denoising Autoencoder**. Architecture: 21 -> 64 -> 32 -> 8 -> 32 -> 64 -> 21.
-Gaussian input corruption has standard deviation 0.05; clean standardized inputs
-are reconstruction targets. GELU, encoder BatchNorm, dropout 0.1, AdamW and MSE
-are used. The saved run completed 180 epochs; epoch 178 had validation
-reconstruction MSE **0.07724**. This is **not yield accuracy**. The DAE uses no yield labels.
-
-The master has no missing cells or duplicate district-year-season keys. Exported
-predictors are finite and the saved checkpoint reproduces latent exports.
-Autumn/Winter are unseen in training and map to all-zero season indicators;
-report these cases separately. [Verification evidence](docs/preprocessing/output_validation.json).
-
-![Model architecture](docs/architecture/02_models_training.png)
-
-## Yield model plan
-
-- **MLP regressor:** 28 or 16 inputs -> 64 -> 32 -> one yield estimate; GELU and dropout 0.2. Proposed MSE/AdamW supervised training.
-- **HistGradientBoostingRegressor:** boosted-tree comparison; initial factory uses 200 iterations, 15 leaves and learning rate 0.05. Tune on the chronological validation set.
-- **LSTM regressor:** future two-layer 64-unit weather-sequence model with a static/context head.
-- **1D CNN regressor:** future 10-channel weather sequences -> 32/64 convolution channels -> pooling -> context head.
-
-Compare MLP and boosted trees on each representation (four experiments), repeat
-neural-network seeds, and ablate the reconstruction score (15 DAE inputs).
-Report MAE, RMSE and R², residuals and state/season breakdowns. Fewer features
-do not guarantee better prediction; improved accuracy remains a hypothesis.
-LSTM/CNN require temporal tensor preparation; the current seasonal tables are
-not those sequence inputs.
-
-## Run the preprocessing notebook or pipeline
-
-Use a compatible Python environment with the pinned dependencies. Python 3.12
-was used for the recorded local verification. Model artifacts are version-dependent;
-load pickle/PyTorch objects only from a trusted copy.
-
-```bash
-git clone https://github.com/ritwik1612/crop-yantra.git
-cd crop-yantra
-python -m pip install -r pre-processing/requirements.txt
-python pre-processing/run_pipeline.py --epochs 180
-python pre-processing/verify_outputs.py
-```
-
-Already generated datasets and artifacts are included; rerunning the full
-pipeline retrains the DAE and updates generated outputs. A GPU is not required
-for the recorded CPU run. The [Colab notebook](https://colab.research.google.com/github/ritwik1612/crop-yantra/blob/main/pre-processing/Crop_Preprocessing.ipynb)
-contains visible implementation code, saved previews and seven actual graphs.
-It writes its displayed modules before running them and checks output schemas.
-
-## APP pretraining prototype
-
-```bash
-python -m http.server 8765 --directory APP/prototype
-```
-
-Open **http://localhost:8765**. **RYP — Rice Yield Prediction** includes a white
-South India map with state hover lift, click-to-zoom state outlines, 103 selectable
-source-vintage districts, search, linked dropdowns, pan/zoom and a rice-plant logo.
-The Info page explains sources, preprocessing and named models, and provides a
-persistent global black-background dark theme. It also opens directly from
-`APP/prototype/index.html` without a frontend build.
-
-**The beta starts with illustrative 4.20 t/ha and supports live what-if controls.** It does not
-fetch weather, run saved preprocessing, or call a trained yield model. Production
-is the chosen demo yield multiplied by entered rice area. Production/kg cards,
-comparison bars, area scenarios, source-observed history and optional user-price
-gross-value charts make outputs visual. Changes to demo yield, area or supplied
-price update derived displays instantly. No scenario changes observed labels.
-The result explanation
-shows that formula and distinguishes proposed computation from executed steps.
-Observed historical data is labelled separately. All 103 districts in the six-state/
-UT GADM source subset are selectable; 60 have the 2,018 historical rows. Kerala
-and Puducherry are context, not added training data. Modern district subdivisions
-are not claimed. Optional external fonts have
-system fallbacks. This is a presentation prototype, not a prediction service.
-
-Run `python APP/training/train.py` for check-only readiness. Supervised fitting
-requires an explicit `--train`; it has not been run. See
-[training preparation](APP/training/README.md) for future MLP/tree experiments,
-requirements and inference limitations. Current desktop verification covers data
-readiness and the webpage; fitting/inference need compatible torch/sklearn.
-
-![RYP preview](docs/figures/RYP_Preview.png)
-![Interactive RYP output charts](docs/figures/RYP_Outputs.png)
-![Proposed application architecture](docs/architecture/03_application.png)
-
-## Research scope and limitations
-
-Reference: Paudel et al. (2023), [Interpretability of deep learning models for crop yield forecasting](https://doi.org/10.1016/j.compag.2023.107663).
-The paper uses European wheat/maize, LSTM/1D CNN and additional inputs.
-Our Indian rice tabular study is an adaptation, not exact replication.
-[European sample dataset](https://doi.org/10.5281/zenodo.5561113) is background;
-its rows are not included. DAE follows the established
-[Vincent et al. (2008) method](https://doi.org/10.1145/1390156.1390294).
-
-The 2,018 rows have related district observations and uneven state coverage.
-Chronological testing does not establish generalization to unseen states or
-districts. Full-season weather currently supports retrospective estimation;
-early forecasts require rebuilding features using only data available by the
-forecast date. No NDVI/FAPAR, WOFOST, soil or disease measurements are fabricated.
-See [the contribution statement](docs/PREPROCESSING_CONTRIBUTION.md).
-
-## Data rights and documentation
-
-Follow each original provider's terms; no blanket license is asserted over
-third-party datasets or reference papers. Attribution and GADM restrictions
-must be reviewed before redistribution or commercial use. Historical changes
-remain recoverable through Git history; local archives are not uploaded.
-
-[Documentation](docs/README.md) | [Preprocessing code](pre-processing/README.md) |
-[Dataset stages](DATASET/README.md) | [Delivery checklist](docs/COMPLETION_CHECKLIST.md)
+Use GitHub Releases for installers; do not commit binaries, credentials, virtual
+environments or private demo photos. Raw image archives are not bundled in the app.

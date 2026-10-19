@@ -5,9 +5,10 @@ from APP.models.tabular import YieldMLP
 
 
 class ContextualYield(nn.Module):
-    def __init__(self, district_count, dropout=.35):
+    def __init__(self, district_count, dropout=.35, input_count=28):
         super().__init__()
-        self.weather=YieldMLP(28)
+        self.input_count=input_count
+        self.weather=YieldMLP(input_count)
         self.weather.network[2].p=dropout
         self.district=nn.Embedding(district_count+1,1,padding_idx=0)
         self.trend=nn.Linear(1,1,bias=False)
@@ -17,4 +18,5 @@ class ContextualYield(nn.Module):
     def forward(self, inputs):
         # Index zero is an explicit unknown-district reference. Year uses
         # train-only centering/scaling, not a future yield statistic.
-        return self.weather(inputs[:,:28])+self.district(inputs[:,29].long()).squeeze(-1)+self.trend(inputs[:,28:29]).squeeze(-1)
+        n=self.input_count
+        return self.weather(inputs[:,:n])+self.district(inputs[:,n+1].long()).squeeze(-1)+self.trend(inputs[:,n:n+1]).squeeze(-1)

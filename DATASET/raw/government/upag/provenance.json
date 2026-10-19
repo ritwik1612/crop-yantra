@@ -1,0 +1,317 @@
+{
+  "retrieved_utc": "2026-10-19T17:01:17.677532+00:00",
+  "publisher": "India Data Portal; source DES district data via UPAg, Ministry of Agriculture and Farmers Welfare",
+  "package_url": "https://ckandev.indiadataportal.com/api/3/action/package_show?id=area-production-yield-apy",
+  "resource": {
+    "additional_info": "Area is recorded in hectares, production in tonnes and yield in kilograms per hectare. Cotton, Jute, Sannhemp and Mesta production, originally reported in bales, have been standardized to tonnes using their respective bale weights (170 kg for Cotton; 180 kg for Jute, Sannhemp and Mesta). Crop codes are the National Sample Survey (NSS) crop codes used in the Situation Assessment of Agricultural Households (Schedule 33).",
+    "cache_last_updated": null,
+    "cache_url": null,
+    "created": "2026-09-29T09:05:12.280976",
+    "data_extraction_page": "https://upag.gov.in/dash-reports/desdistrictwisecompletedatasetreport?rtab=Area%2C+Production+%26+Yield&rtype=reports",
+    "data_insights": "This dataset enables analysis of cropping patterns and agricultural performance at the district level across India. It can be used to compare area, production and yield across crops, seasons, states and districts, track how these have changed over the 2013-14 to 2024-25 period, and identify regional specialization in specific crops. It also supports comparisons of productivity (yield) across regions and over time, helping distinguish growth driven by area expansion from growth driven by productivity gains, and can inform crop planning, resource allocation and policy targeting at the district or state level.",
+    "data_last_updated": "06-10-2026",
+    "data_retreival_date": "06-10-2026",
+    "datastore_active": true,
+    "description": "The Crop-wise Area, Production & Yield (UPAG) dataset reports agricultural area, crop production and yield at the district level, sourced from Directorate of Economics & Statistics (DES) district-wise data via UPAG (Unified Portal for Agricultural Statistics), Ministry of Agriculture & Farmers Welfare, Government of India. It covers 30 crops across the Kharif, Rabi and Summer seasons, with annual observations across states and districts in India from 2013-14 to 2024-25. The dataset records cultivated area in hectares, production in tonnes and yield in kilograms per hectare. It supports the assessment of crop production patterns, regional agricultural performance and changes in crop productivity, informing agricultural planning and policy.",
+    "format": "CSV",
+    "frequency": "Yearly",
+    "granularity": "District",
+    "hash": "",
+    "id": "6f70d961-3a4f-4caa-b08f-f72f708791e1",
+    "idp_ready": true,
+    "indicators": [],
+    "last_modified": "2026-10-12T06:37:12.425876",
+    "lgd_mapping": "yes",
+    "mapping_status": 100,
+    "metadata_modified": "2026-10-12T06:42:38.025524",
+    "mimetype": "text/csv",
+    "mimetype_inner": null,
+    "name": "Crop-wise Area, Production & Yield (UPAG)",
+    "no_indicators": 3,
+    "package_id": "f2bbc28c-6c7c-462b-9064-ea4c4213d466",
+    "position": 1,
+    "resource_type": null,
+    "similar_datasets": [],
+    "similar_resources": "",
+    "size": 16945448,
+    "sku": "moafw-apy_upag-dt-yr-ghf",
+    "state": "active",
+    "states_uts_no": 34,
+    "tags": [
+      "UPAg",
+      "District-Level Crop Statistics",
+      "Crop-wise Area",
+      "Agricultural Production",
+      "Crop Yield"
+    ],
+    "url": "https://ckandev.indiadataportal.com/dataset/f2bbc28c-6c7c-462b-9064-ea4c4213d466/resource/6f70d961-3a4f-4caa-b08f-f72f708791e1/download/cropwise-area-production-yield-upag.csv",
+    "url_type": "upload",
+    "village_no": null,
+    "years_covered": "2013-2014 to 2024-2025"
+  },
+  "license": "Open Data Commons Attribution License",
+  "license_id": "Open Data Commons Attribution License",
+  "package_notes": "This package contains two district-level datasets on agricultural Area, Production and Yield in India, drawn from different government sources. Crop-wise Area, Production & Yield is sourced from DES (Directorate of Economics & Statistics) and covers a wider range of crops, including horticultural crops such as fruits, vegetables and spices, alongside field crops. Crop-wise Area, Production & Yield (UPAG) is sourced from DES district-wise data published via UPAG (Unified Portal for Agricultural Statistics), Ministry of Agriculture & Farmers Welfare, Government of India, and covers field crops such as cereals, pulses, oilseeds and fibre crops across the Kharif, Rabi and Summer seasons from 2013-14 to 2024-25. Together, the two datasets allow comparison of crop coverage, production patterns and productivity trends across states and districts in India, drawn from complementary government sources spanning different crop ranges and time periods.",
+  "units": {
+    "_id": null,
+    "id": "",
+    "year": "",
+    "state_name": "",
+    "state_code": "",
+    "district_name": "",
+    "district_code": "",
+    "season": "",
+    "crop_category": "",
+    "crop_name": "",
+    "crop_code": "",
+    "area": "Hectares",
+    "production": "Tonnes",
+    "yield": "Kg per Hectare"
+  },
+  "sha256": "1318e848ef00bfb7e268930145a779054b8b4b5ea2f9bb2765c538fd5152cf6c",
+  "bytes": 16945448,
+  "four_state_rice_rows": 2815,
+  "counts": [
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2013-2014",
+      "rows": 26
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2014-2015",
+      "rows": 26
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2015-2016",
+      "rows": 26
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2016-2017",
+      "rows": 26
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2017-2018",
+      "rows": 26
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2018-2019",
+      "rows": 26
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2019-2020",
+      "rows": 26
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2020-2021",
+      "rows": 26
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2021-2022",
+      "rows": 26
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2022-2023",
+      "rows": 52
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2023-2024",
+      "rows": 52
+    },
+    {
+      "state": "Andhra Pradesh",
+      "agricultural_year": "2024-2025",
+      "rows": 52
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2013-2014",
+      "rows": 69
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2014-2015",
+      "rows": 68
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2015-2016",
+      "rows": 70
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2016-2017",
+      "rows": 71
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2017-2018",
+      "rows": 69
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2018-2019",
+      "rows": 67
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2019-2020",
+      "rows": 66
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2020-2021",
+      "rows": 66
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2021-2022",
+      "rows": 66
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2022-2023",
+      "rows": 84
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2023-2024",
+      "rows": 85
+    },
+    {
+      "state": "Karnataka",
+      "agricultural_year": "2024-2025",
+      "rows": 87
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2013-2014",
+      "rows": 31
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2014-2015",
+      "rows": 31
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2015-2016",
+      "rows": 31
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2016-2017",
+      "rows": 31
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2017-2018",
+      "rows": 86
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2018-2019",
+      "rows": 90
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2019-2020",
+      "rows": 90
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2020-2021",
+      "rows": 109
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2021-2022",
+      "rows": 106
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2022-2023",
+      "rows": 108
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2023-2024",
+      "rows": 111
+    },
+    {
+      "state": "Tamil Nadu",
+      "agricultural_year": "2024-2025",
+      "rows": 111
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2013-2014",
+      "rows": 18
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2014-2015",
+      "rows": 18
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2015-2016",
+      "rows": 18
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2016-2017",
+      "rows": 60
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2017-2018",
+      "rows": 60
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2018-2019",
+      "rows": 64
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2019-2020",
+      "rows": 64
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2020-2021",
+      "rows": 64
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2021-2022",
+      "rows": 64
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2022-2023",
+      "rows": 64
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2023-2024",
+      "rows": 64
+    },
+    {
+      "state": "Telangana",
+      "agricultural_year": "2024-2025",
+      "rows": 64
+    }
+  ],
+  "training_status": "source acquired; district, seasonal-calendar and weather joins require validation; deployed data unchanged"
+}

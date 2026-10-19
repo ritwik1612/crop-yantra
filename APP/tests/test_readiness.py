@@ -27,7 +27,10 @@ class ReadinessTests(unittest.TestCase):
         ids=[d['id'] for d in data['districts']]
         self.assertEqual(len(ids),len(set(ids)))
         self.assertEqual(len(ids),103)
-        self.assertEqual(sum(d['records'] for d in data['districts']),2018)
+        import csv
+        with (ROOT/'DATASET/merged/rice_master.csv').open(encoding='utf-8-sig',newline='') as stream:
+            expected=sum(1 for _ in csv.DictReader(stream))
+        self.assertEqual(sum(d['records'] for d in data['districts']),expected)
         self.assertEqual(len(data['stateShapes']),6)
         self.assertTrue(all(d['path'].startswith('M') for d in data['districts']))
         for d in data['districts']:

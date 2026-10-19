@@ -1,6 +1,6 @@
 ; Approved Paddy identity; green and off-white desktop visual language.
 #define AppName "Paddy"
-#define AppVersion "0.3.0"
+#define AppVersion "0.5.0"
 #define AppExeName "Paddy.exe"
 
 [Setup]
@@ -41,7 +41,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Shortcuts:"; Flags: unchecked
 
 [Files]
-Source: "..\..\OTHER\paddy_build_0_3_0\dist\Paddy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\OTHER\paddy_build_0_5_0\dist\Paddy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; AppUserModelID: "Paddy.Desktop.1"

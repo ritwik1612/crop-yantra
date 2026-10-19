@@ -37,9 +37,10 @@ def main():
     class API:
         def status(self): return engine.status()
         def predict_yield(self, request): return engine.predict_yield(request)
+        def predict_seasonal_yield(self, request): return engine.predict_seasonal_yield(request)
         def classify_image(self, encoded): return engine.classify_image(encoded)
-    window = webview.create_window('Paddy QA' if qa else 'Paddy', str(assets/'index.html'), js_api=API(),
-                                  width=1340,height=900,min_size=(880,650),background_color='#f6f8f0')
+    window = webview.create_window('Paddy', str(assets/'index.html'), js_api=API(),
+                                  width=1340,height=900,min_size=(880,650),background_color='#030303')
     try:
         webview.start(gui='edgechromium',private_mode=False,storage_path=str(profile),debug=False)
     finally:

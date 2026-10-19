@@ -20,7 +20,7 @@
   return catalogue.map(d=>({...d,source,
    stageMatch:d.stages.includes(stage),conditionMatch:d.conditions.includes(conditions),
    geographicEvidence:'general_rice_handbook_not_district_outbreak',
-   reason:context?.district?`Selected: ${context.district}, ${context.state} · ${context.season} ${context.year}. No verified district/season outbreak record is connected.`:'Choose a district in the yield workspace. These are general rice references, not local outbreak alerts.'
+   reason:context?.district?`Yield context: ${context.district}, ${context.state} · ${context.season}. No local outbreak feed is connected.`:'General rice reference; not a local outbreak alert.'
   })).sort((a,b)=>(Number(b.stageMatch)+Number(b.conditionMatch))-(Number(a.stageMatch)+Number(a.conditionMatch)));
  }
  function validateFile(meta,bytes){
@@ -31,10 +31,9 @@
   return null;
  }
  function makeRequest(context,image,stage,conditions){
-  if(!context?.district)throw new Error('Select a district in the yield workspace first.');
   if(!image)throw new Error('Choose a supported photo first.');
   return {schemaVersion:1,mode:'pretraining_photo_workflow',crop:'Rice',
-   context:{districtId:context.districtId,state:context.state,district:context.district,season:context.season,year:context.year,areaHa:context.areaHa},
+   context:context?.district?{districtId:context.districtId,state:context.state,district:context.district,season:context.season,predictionDate:context.predictionDate,areaHa:context.areaHa}:null,
    userReported:{growthStage:stage,conditions},image:{mimeType:image.mimeType,bytes:image.bytes,width:image.width,height:image.height},
    imageIncluded:false,photoTransmitted:false,imageClassifierConnected:false,diseaseName:null,
    result:'No diagnosis: image model not connected',
@@ -59,12 +58,15 @@
  const $=id=>document.getElementById(id),esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let context=null,imageMeta=null,objectURL=null,selectionVersion=0;
  function refresh(){
-  $('health-context').textContent=context?.district?`${context.district}, ${context.state} · ${context.season} ${context.year} · ${context.areaHa??'—'} ha · Rice`:'No district selected. Choose one in the yield workspace; context will appear here automatically.';
+  $('health-context').textContent=context?.district?`${context.district}, ${context.state} · ${context.season} · ${context.areaHa??'—'} ha`:'';
+  $('health-context').closest('.health-shared').hidden=!context?.district;
   $('health-cards').innerHTML=advisories(context,$('growth-stage').value,$('field-conditions').value).map(d=>`<article class="disease-card">${imageCard(d,$('health-season').value,$('growth-stage').value)}<div class="disease-body"><span class="small-badge">DISEASE REFERENCE</span><h3>${d.name}</h3><p>${d.symptoms}</p><details><summary>Conditions and source</summary><p>${esc(d.reason)}</p><p>${d.favourable}</p><p>${d.stageMatch?'Growth stage matches the reference.':'No growth-stage match.'} ${d.conditionMatch?'Reported conditions match the reference.':'No condition match.'}</p></details><a href="${d.source}" target="_blank" rel="noopener">TNAU reference ↗</a></div></article>`).join('');
-  $('prepare-screening').disabled=!imageMeta||!context?.district;
+  $('prepare-screening').disabled=!imageMeta;
   if(imageMeta)$('photo-status').textContent=root.CropDesktop?.ready?'Ready for offline rice screening. The photo is not uploaded.':'Photo stays on your device. Current context is linked; no disease classifier is connected.';
  }
  root.CropHealth.setContext=value=>{context=value;if(value?.season)$('health-season').value=value.season;refresh();};
+ $('clear-health-context').addEventListener('click',()=>root.CropHealth.setContext(null));
+ document.addEventListener('click',event=>{if(event.target.closest('nav[aria-label="Main"] a[href="#health"]'))root.CropHealth.setContext(null);});
  $('health-cards').addEventListener('click',event=>{
   const button=event.target.closest('.disease-flip');if(!button)return;
   const flipped=button.getAttribute('aria-pressed')!=='true';
@@ -79,7 +81,7 @@
  $('health-cards').addEventListener('pointerover',event=>{const button=event.target.closest('.disease-flip');if(button&&event.pointerType==='mouse'&&button.getAttribute('aria-pressed')!=='true'&&!button.contains(event.relatedTarget))button.classList.add('hover-preview');});
  $('health-cards').addEventListener('pointerout',event=>{const button=event.target.closest('.disease-flip');if(button&&!button.contains(event.relatedTarget))button.classList.remove('hover-preview');});
  ['growth-stage','field-conditions','health-crop'].forEach(id=>$(id).addEventListener('change',refresh));
- $('health-season').addEventListener('change',()=>{$('season').value=$('health-season').value;$('season').dispatchEvent(new Event('input',{bubbles:true}));});
+ $('health-season').addEventListener('change',refresh);
  function clearPhoto(){selectionVersion++;if(objectURL)URL.revokeObjectURL(objectURL);objectURL=null;imageMeta=null;$('crop-photo').value='';$('photo-preview').removeAttribute('src');$('photo-preview').hidden=true;$('photo-empty').hidden=false;$('photo-info').textContent='JPEG / PNG / WebP · up to 10 MB';$('photo-status').textContent='No image selected. No photos are uploaded or stored by this demo.';$('photo-error').textContent='';$('prepare-screening').disabled=true;}
  $('remove-photo').addEventListener('click',clearPhoto);
  async function loadPhoto(file){

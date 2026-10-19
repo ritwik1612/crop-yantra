@@ -1,0 +1,100 @@
+/* Presentation only. Numerical outputs and audit tables remain engine-owned. */
+(function(root){
+ 'use strict';
+ const $=id=>document.getElementById(id),style=document.createElement('link');style.rel='stylesheet';style.href='workspace.css';document.head.append(style);
+ const e=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const svg=(content,label)=>`<svg viewBox="0 0 1000 450" role="group" aria-label="${label}" class="system-canvas">${content}</svg>`;
+ const node=(id,x,y,w,title,sub)=>`<g data-system-node="${id}" role="button" tabindex="0" aria-label="${e(title)}"><rect x="${x}" y="${y}" width="${w}" height="86" rx="5"/><text x="${x+18}" y="${y+31}" class="system-node-title">${e(title)}</text><text x="${x+18}" y="${y+58}" class="system-node-sub">${e(sub)}</text></g>`;
+ const path=(d,extra='')=>`<path d="${d}" class="system-wire ${extra}"/>`;
+ let runtime={};
+ const format=(value,digits=3)=>Number.isFinite(value)?value.toFixed(digits):'Not available';
+ function mountArchitecture(panel,kind){
+  if(!panel||panel.querySelector('.system-explorer'))return;
+  const count=Number(panel.textContent.match(/(\d+) standard inputs/)?.[1])||30;
+  const yieldNodes=[['Field inputs','District, season, weather','Land area controls production. The map supplies district and state; supplied weather replaces matching reference features.'],['Saved transforms','Training-only fitted preprocessing',`SimpleImputer fills numerical missing values. StandardScaler applies training means and deviations. OneHotEncoder encodes state and season. ${count} standard predictors enter the current models.`],['HistGradientBoostingRegressor','Deployed default','The validation-selected tree estimates yield. Missing local references use a separate neighbour-augmented tree. Tree-path contributions explain this result, not causality.'],['Yield → harvest','t/ha × hectares → tonnes','The model estimates yield per hectare. Multiply by user hectares for tonnes, by 1,000 for kilograms and by an optional user price for gross value.'],['Contextual Residual MLP','Research comparison',`${count} → 64 → 32 → 1 weather network, GELU and learned district-season offsets. The selected recent candidate disables year trend. It is weaker than the default tree; the app does not average their outputs.`],['Comparison output','Evaluated separately','Use chronological validation and held-out evaluation to compare models. This output is not fused with the deployed tree result.']];
+  const imageNodes=[['Rice photograph','Pixel input only','File format, dimensions, orientation and basic contrast, blur and lighting checks. District, season and weather are not classifier inputs.'],['Image transforms','RGB · 256 → 224²','Correct orientation, convert to RGB, bicubic-resize shorter edge to 256, centre crop 224 × 224 and apply ImageNet channel normalization.'],['EfficientNet-B0','Transfer-learned CNN','Stem → seven MBConv stage groups → 1,280-channel head → global pooling → dropout → linear ten-class head. Fine-tuning adapts the final two backbone blocks and classifier.'],['Ten logits → scores','Softmax','pᵢ = exp(zᵢ − max(z)) / Σ exp(zⱼ − max(z)). These are model scores, not calibrated diagnostic confidence.'],['Screening result','Candidate or uncertain','The score/quality guard can flag an uncertain result. Ten supported labels include diseases, pest symptoms and normal. Unsupported conditions are not reliably rejected.']];
+  const data=kind==='yield'?yieldNodes:imageNodes;
+  let graph;
+  if(kind==='yield')graph=path('M185 165H235')+path('M405 165H430V108H465')+path('M405 165H430V323H465','comparison')+path('M705 108H755')+path('M705 323H755','comparison')+
+   '<text x="465" y="43" class="system-route">DEPLOYED ROUTE</text><text x="465" y="256" class="system-route">SEPARATE NEURAL EXPERIMENT</text>'+
+   node(0,20,122,165,'Field inputs','Location / weather')+node(1,235,122,170,'Preprocessing',count+' predictors')+node(2,465,65,240,'Gradient-boosted trees','HistGradientBoostingRegressor')+node(3,755,65,225,'Yield → harvest','t/ha → t → kg')+node(4,465,280,240,'Residual MLP',count+' → 64 → 32 → 1')+node(5,755,280,225,'Comparison only','No output averaging');
+  else{
+   graph=path('M175 173H210')+path('M380 173H415')+path('M680 173H720')+path('M850 173H895')+
+    node(0,10,130,165,'Rice photo','Pixels only')+node(1,210,130,170,'Preprocessing','RGB / 224 × 224')+
+    '<g data-system-node="2" role="button" tabindex="0" aria-label="EfficientNet-B0"><rect x="415" y="65" width="265" height="245" rx="5"/>'+
+    [16,24,40,80,112,192,320].map((v,i)=>`<rect class="conv-block" x="${438+i*30}" y="${180-(35+i*12)/2}" width="20" height="${35+i*12}"/><text class="conv-label" x="${448+i*30}" y="265" text-anchor="middle">${v}</text>`).join('')+
+    '<text x="435" y="96" class="system-node-title">EfficientNet-B0</text><text x="435" y="291" class="system-node-sub">MBConv stages → head 1280</text></g>'+
+    node(3,720,130,130,'Softmax','10 scores')+node(4,895,130,95,'Result','Guard')+
+    '<text x="416" y="357" class="system-route">FEATURE EXTRACTION</text><text x="416" y="382" class="system-node-sub">Convolution → pooling → ten-class head</text>';
+  }
+  const explorer=document.createElement('article');explorer.className='system-explorer';
+  explorer.innerHTML='<div class="system-heading"><span>'+ (kind==='yield'?'01 / TABULAR MODEL':'02 / IMAGE MODEL')+'</span><span>SELECT A STAGE ↗</span></div>'+svg(graph,kind==='yield'?'Yield architecture with separate default and neural comparison routes':'Image transforms, EfficientNet backbone and screening output')+'<div class="system-detail" aria-live="polite"><span class="system-detail-index"></span><div><h3></h3><p class="system-subtitle"></p><p class="system-detail-copy"></p></div></div>';
+  function choose(index){const item=data[index];explorer.querySelectorAll('[data-system-node]').forEach(g=>g.setAttribute('aria-pressed',String(Number(g.dataset.systemNode)===index)));explorer.querySelector('.system-detail-index').textContent=String(index+1).padStart(2,'0');explorer.querySelector('h3').textContent=item[0];explorer.querySelector('.system-subtitle').textContent=item[1];explorer.querySelector('.system-detail-copy').textContent=item[2];}
+  explorer.querySelectorAll('[data-system-node]').forEach(g=>{g.addEventListener('click',()=>choose(Number(g.dataset.systemNode)));g.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose(Number(g.dataset.systemNode));}});});
+  panel.prepend(explorer);choose(0);
+  const specs=document.createElement('section');specs.className='architecture-specs';
+  if(kind==='yield'){
+   const ds=runtime.yieldDataset,metrics=runtime.yieldTest,cfg=runtime.yieldConfiguration;
+   specs.innerHTML='<h2>Model specification</h2><dl class="spec-grid"><div><dt>Deployed predictor</dt><dd>HistGradientBoostingRegressor</dd></div><div><dt>Input representation</dt><dd>21 numerical + '+(count-21)+' category indicators</dd></div><div><dt>Target</dt><dd>Rice yield · tonnes per hectare</dd></div><div><dt>Selection</dt><dd>Chronological validation RMSE</dd></div><div><dt>Training label</dt><dd>Observed production ÷ cultivated area</dd></div><div><dt>Inference</dt><dd>Local saved tree traversal · no cloud call</dd></div></dl>'+
+    (ds?'<div class="evaluation-strip"><div><span>Training</span><b>'+ds.split_rows.train+'</b><small>2001–2020</small></div><div><span>Validation</span><b>'+ds.split_rows.validation+'</b><small>2021–2022</small></div><div><span>Held-out test</span><b>'+ds.split_rows.test+'</b><small>2023–2024</small></div></div>':'')+
+    (metrics?'<h3>Retrospective test performance</h3><dl class="spec-grid"><div><dt>Mean absolute error</dt><dd>'+format(metrics.MAE)+' t/ha</dd></div><div><dt>Root mean squared error</dt><dd>'+format(metrics.RMSE)+' t/ha</dd></div><div><dt>R²</dt><dd>'+format(metrics.R2)+'</dd></div></dl><p>These district-scale retrospective scores are not prediction intervals or validated current-season forecasting accuracy.</p>':'')+
+    '<details class="neural-spec"><summary>Neural comparison · Contextual Residual MLP</summary><div class="neural-layer-flow">'+[count,64,32,1].map((v,i)=>'<div><span>'+['Input vector','Hidden layer','Hidden layer','Yield output'][i]+'</span><b>'+v+'</b><small>'+['Standard features','Linear · GELU · Dropout','Linear · GELU','Linear regression head'][i]+'</small></div>').join('')+'</div><p>Weather features pass through the MLP; a learned district-season embedding supplies a context offset. Training uses AdamW and mean squared error. The recent selected candidate has no year trend.</p>'+(cfg?'<p>Held-out MAE '+format(cfg.test.MAE)+' t/ha; RMSE '+format(cfg.test.RMSE)+'; R² '+format(cfg.test.R2)+'. This comparison is weaker than the deployed tree and is not combined with its output.</p>':'')+'</details>';
+  }else{
+   const metrics=runtime.imageTest;
+   specs.innerHTML='<h2>Network specification</h2><dl class="spec-grid"><div><dt>Backbone</dt><dd>EfficientNet-B0 · ImageNet initialization</dd></div><div><dt>Tensor input</dt><dd>1 × 3 × 224 × 224 · RGB</dd></div><div><dt>Feature head</dt><dd>1,280 channels → global average pooling</dd></div><div><dt>Classification head</dt><dd>Dropout → Linear(1280, 10)</dd></div><div><dt>Output</dt><dd>10 logits → softmax scores</dd></div><div><dt>Screening guard</dt><dd>65% score threshold + image quality checks</dd></div></dl><div class="evaluation-strip"><div><span>Training photos</span><b>5,905</b><small>Duplicate-safe split</small></div><div><span>Validation photos</span><b>1,257</b><small>Checkpoint selection</small></div><div><span>Test photos</span><b>1,257</b><small>Held-out evaluation</small></div></div>'+
+    (metrics?'<dl class="spec-grid"><div><dt>Ten-class test accuracy</dt><dd>'+format(metrics.accuracy*100,2)+'%</dd></div><div><dt>Macro-F1</dt><dd>'+format(metrics.macro_F1*100,2)+'%</dd></div><div><dt>Weakest class recall</dt><dd>67.21% · bacterial leaf blight</dd></div></dl>':'')+
+    '<h3>Supported labels</h3><div class="supported-labels">'+(runtime.imageClasses||[]).map(label=>'<span>'+e(label.replaceAll('_',' '))+'</span>').join('')+'</div><p>District, season and weather are not image-classifier inputs. Scores are not calibrated diagnostic confidence, and unsupported crops or conditions are not reliably rejected.</p>';
+  }
+  explorer.after(specs);
+  const lane=panel.querySelector('.architecture-lane'),list=lane?.querySelector('ol');
+  if(list){const details=document.createElement('details');details.className='architecture-stage-details';details.innerHTML='<summary>Full model specification</summary>';details.append(list);lane.querySelector('h2').hidden=true;lane.append(details);}
+ }
+ function enhanceAudit(host){
+  const names={CROP_AREA:'District crop-area reference',CENTROID_X:'Longitude',CENTROID_Y:'Latitude',PS_MEAN:'Surface pressure',WATER_BALANCE_PROXY:'Water balance proxy',TMIN_MEAN:'Minimum temperature',TMAX_MEAN:'Maximum temperature',TAVG_MEAN:'Average temperature',PREC_TOTAL:'Seasonal rainfall',RELH_MEAN:'Relative humidity',GDD_BASE10:'Growing degree days'};
+  host.querySelectorAll('.local-influences>div').forEach(row=>{const label=row.querySelector('span'),value=row.querySelector('b');if(label&&!label.dataset.rawFeature){const raw=label.textContent;label.dataset.rawFeature=raw;label.title=raw;label.textContent=names[raw]||(raw.startsWith('STATE_')?'State indicator · '+raw.slice(6):raw.startsWith('SEASON_')?'Season indicator · '+raw.slice(7):raw.replaceAll('_',' '));}if(value)row.dataset.direction=value.textContent.trim().startsWith('-')?'negative':'positive';});
+  host.querySelectorAll('.prediction-audit').forEach(audit=>{
+   if(audit.querySelector('.audit-stage-nav'))return;
+   const list=audit.querySelector('.request-flow'),items=Array.from(list?.children||[]);if(!items.length)return;
+   const image=host.id==='image-result',labels=image?['Photo','Transforms','Network','Screening']:['Your inputs','References','Model','Calculations'];
+   const nav=document.createElement('div');nav.className='audit-stage-nav';nav.setAttribute('aria-label','Prediction calculation steps');
+   const all=document.createElement('button');all.type='button';all.className='audit-show-all';all.textContent='Show all steps';all.setAttribute('aria-pressed','false');
+   function choose(index){items.forEach((item,i)=>item.hidden=index!==null&&i!==index);Array.from(nav.children).forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));all.setAttribute('aria-pressed',String(index===null));all.textContent=index===null?'Step-by-step view':'Show all steps';}
+   items.forEach((item,i)=>{const button=document.createElement('button');button.type='button';button.innerHTML='<span>'+String(i+1).padStart(2,'0')+'</span><b>'+e(labels[i]||'Output')+'</b><span aria-hidden="true">→</span>';button.addEventListener('click',()=>choose(i));nav.append(button);});
+   all.addEventListener('click',()=>choose(all.getAttribute('aria-pressed')==='true'?0:null));list.before(nav,all);choose(0);
+  });
+ }
+ function enhanceInfo(){
+  const models=$('models-section');
+  if(models.querySelectorAll(':scope>h3').length&&!models.querySelector('.method-model-grid')){
+   const grid=document.createElement('div');grid.className='method-model-grid';let card=null,index=0;
+   Array.from(models.children).filter(el=>el.tagName!=='H2').forEach(el=>{if(el.tagName==='H3'){card=document.createElement('article');card.className='method-model';const number=document.createElement('span');number.className='method-index';number.textContent=String(++index).padStart(2,'0');card.append(number);grid.append(card);}if(card)card.append(el);});models.append(grid);
+  }
+  const output=$('output-section');if(output.querySelector('p')&&!output.querySelector('.output-equation')){
+   const diagram=document.createElement('div');diagram.className='output-equation';diagram.innerHTML='<span><small>MODEL OUTPUT</small><b>Yield</b><em>t / ha</em></span><i>×</i><span><small>YOUR INPUT</small><b>Rice area</b><em>ha</em></span><i>=</i><span><small>DERIVED</small><b>Production</b><em>tonnes</em></span>';output.querySelector('h2').after(diagram);
+  }
+ }
+ function renderContributions(host,result,request){
+  const model=root.PaddyInputEffects.groupEffects(result);if(!model)return;
+  const card=host.querySelector('.charts-grid .chart-card:last-child');if(!card)return;
+  const max=Math.max(...model.groups.map(g=>Math.abs(g.value)),.001),signed=value=>(value>=0?'+':'−')+Math.abs(value).toFixed(4);
+  const supplied=result.suppliedWeather||{};
+  const sources={location:'Map selection + coordinate reference',season:'Selected season',temperature:'Supplied temperature + derived features',rainfall:supplied.seasonalRainfallMm!==undefined?'Supplied rain + reference evaporation':'Saved rainfall / evaporation references',humidity:supplied.relativeHumidityPct!==undefined?'Supplied humidity':'Saved humidity reference',wind:supplied.windSpeedMps!==undefined?'Supplied wind speed':'Saved wind reference',radiation:supplied.solarRadiationKwhM2Day!==undefined?'Supplied radiation':'Saved radiation reference',shared:'Combined temperature, moisture and radiation',reference:'District area, season length and other references'};
+  card.classList.add('input-effects-card');
+  card.innerHTML='<h3>Input contributions</h3><p>Signed tree-path contributions to yield, in t/ha. Not causal effects or the change from moving a slider.</p><div class="group-effects">'+model.groups.map(g=>`<div class="group-effect" data-sign="${g.value<0?'negative':'positive'}"><div><b>${e(g.label)}</b><span>${signed(g.value)} t/ha</span></div><div class="effect-axis"><span style="width:${Math.abs(g.value)/max*48}%;${g.value<0?'right:50%':'left:50%'}"></span></div><small>${e(sources[g.id])}</small></div>`).join('')+'</div><div class="effect-reconciliation"><span>Baseline '+model.baseline.toFixed(6)+'</span><b>+ signed effects '+model.sum.toFixed(6)+'</b><span>≈ '+model.prediction.toFixed(6)+' t/ha</span></div><details class="all-feature-effects"><summary>All '+result.contributions.length+' model-feature contributions</summary><table><thead><tr><th>Feature</th><th>Contribution t/ha</th></tr></thead><tbody>'+result.contributions.map(row=>'<tr><td>'+e(row.feature)+'</td><td>'+signed(row.contribution)+'</td></tr>').join('')+'</tbody></table></details>';
+  const roles=document.createElement('section');roles.className='input-roles';roles.innerHTML='<h3>Inputs outside the yield model</h3><div><b>Rice-planted area</b><span>Scales production, not t/ha. Each additional hectare adds '+result.yieldTPerHa.toFixed(4)+' tonnes at this fixed yield.</span></div><div><b>Total land size</b><span>Validates planted area and shows land coverage; not a yield predictor.</span></div><div><b>Prediction date</b><span>Labels this request; the deployed tree has no year-trend input.</span></div><div><b>Assumed selling price</b><span>Scales gross value only; does not change yield or production.</span></div><p>Shared weather features combine multiple inputs and are not assigned to a single user variable. Location selects reference data too, so these grouped feature contributions are not a complete counterfactual location effect.</p>';
+  host.querySelector('.prediction-audit').before(roles);
+ }
+ function renderRunSummary(host,result,request){
+  const section=document.createElement('section');section.className='result-run-summary';
+  const weather=Object.keys(result.suppliedWeather||{}).length,neighbours=result.referenceKind==='synthetic_neighbour_transfer';
+  section.innerHTML='<h2>How to read this result</h2><p>The model estimates a yield rate, not the total harvest. Your rice-planted area scales that rate into production. Changing area or price on this page does not re-run the yield model; edit the field inputs to run a new prediction.</p><dl class="spec-grid"><div><dt>Model used</dt><dd>'+e(result.model)+'</dd></div><div><dt>Weather supplied</dt><dd>'+weather+' inputs; remaining fields use saved references</dd></div><div><dt>Reference source</dt><dd>'+(neighbours?'Neighbour-derived synthetic transfer':'Local training-season references')+'</dd></div><div><dt>Reference records</dt><dd>'+result.referenceCount+' seasonal rows</dd></div><div><dt>Retrospective MAE</dt><dd>'+format(result.testMetrics.MAE)+' t/ha</dd></div><div><dt>Retrospective RMSE / R²</dt><dd>'+format(result.testMetrics.RMSE)+' t/ha / '+format(result.testMetrics.R2)+'</dd></div></dl><p class="result-caveat">'+(neighbours?'The evaluation uses measured test records, not missing districts. Local accuracy for this geographic transfer is unmeasured.':'Evaluation uses held-out district-season records. It does not establish current-season or farm-level accuracy.')+' These metrics are not confidence bounds for this result.</p>';
+  host.querySelector('.metric-controls').before(section);
+ }
+ const pageLabels={studio:['01 / FIELD','Yield estimate'],health:['02 / SPECIMEN','Crop health'],results:['03 / OUTPUT','Results'],architecture:['04 / SYSTEM','Architecture'],info:['05 / METHOD','Method and models']};
+ for(const [id,[label]]of Object.entries(pageLabels)){const intro=$(id)?.querySelector('.page-intro,.info-intro');if(intro){const tag=document.createElement('span');tag.className='page-index';tag.textContent=label;intro.prepend(tag);}}
+ function route(){const title=$('results').querySelector('h1');title.textContent=location.hash==='#image-results'?'Image screening result':'Yield result';document.body.dataset.workspacePage=Object.keys(pageLabels).find(id=>!$(id).hidden)||'studio';}
+ addEventListener('hashchange',route);route();
+ for(const id of ['result','image-result']){const host=$(id);new MutationObserver(()=>enhanceAudit(host)).observe(host,{childList:true});enhanceAudit(host);}
+ for(const id of ['models-section','output-section'])new MutationObserver(enhanceInfo).observe($(id),{childList:true});enhanceInfo();
+ root.PaddyWorkspace={mountArchitecture,renderContributions,renderRunSummary,configure(status){runtime=status;}};
+})(window);

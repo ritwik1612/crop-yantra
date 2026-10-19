@@ -4,6 +4,7 @@ import io
 import json
 import math
 import threading
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageOps, UnidentifiedImageError
@@ -19,6 +20,8 @@ class Engine:
         self.history = read('historical.json')
         self.trees = read('yield.json')
         self.meta = read('metadata.json')
+        coverage_path=self.directory/'spatial-coverage.json'
+        self.coverage=read('spatial-coverage.json') if coverage_path.exists() else None
         self.session = None
         self.yield_session = None
         self.session_lock = threading.Lock()
@@ -27,10 +30,13 @@ class Engine:
         return {'ok': True, 'version': self.meta['version'], 'offline': True,
                 'yieldModel': self.meta['yield_model'], 'imageModel': self.meta['image_model'],
                 'yieldConfiguration': self.meta.get('yield_mlp'),
+                'yieldDefaultModel':self.meta.get('yield_default_model','mlp'),
+                'yieldDataset':self.meta.get('yield_dataset'), 'yieldTest':self.meta.get('yield_test'),
+                'yieldCoverage':self.coverage['metadata'] if self.coverage else None,
                 'imageClasses': self.meta['classes'],
                 'imageTest': {'accuracy':self.meta['image_test_accuracy'],'macro_F1':self.meta['image_test_macro_f1']}}
 
-    def predict_yield(self, request):
+    def predict_yield(self, request, *, _row=None, _tree_model=None):
         try:
             area = float(request['areaHa'])
             year = int(request['year'])
@@ -39,7 +45,7 @@ class Engine:
             if str(year) != str(request['year']):
                 raise ValueError('Crop year must be a whole number.')
             key = f"{request['districtId']}|{year}|{request['season']}"
-            row = self.history.get(key)
+            row = _row if _row is not None else self.history.get(key)
             if row is None:
                 raise ValueError('No complete historical inputs for this district, season and year. Choose an available 2001–2019 record. No weather is invented.')
             raw = row['numeric']
@@ -50,9 +56,10 @@ class Engine:
             if not all(math.isfinite(v) for v in x):
                 raise ValueError('Historical inputs contain invalid values.')
             contributions = np.zeros(len(x))
-            prediction = self.trees['baseline']
+            tree_model=self.trees if _tree_model is None else _tree_model
+            prediction = tree_model['baseline']
             root_offset = 0.0
-            for tree in self.trees['trees']:
+            for tree in tree_model['trees']:
                 index = 0
                 root_offset += tree[0][0]
                 while not tree[index][5]:
@@ -63,7 +70,7 @@ class Engine:
                 prediction += tree[index][0]
             if prediction < 0 or not math.isfinite(prediction):
                 raise ValueError('Model returned an invalid yield estimate.')
-            baseline = self.trees['baseline'] + root_offset
+            baseline = tree_model['baseline'] + root_offset
             assert abs(baseline+sum(contributions)-prediction) < 1e-8
             kind = request.get('proposedModel', 'gbdt')
             if kind not in ('mlp', 'gbdt'):
@@ -90,7 +97,8 @@ class Engine:
                     context_key = row['state']+'|'+row['district']
                     if config.get('season_context'):context_key += '|'+request['season']
                     district_index = config['district_vocabulary'].get(context_key,0)
-                    inputs = np.append(inputs,[(year-config['year_mean'])/config['year_scale'],district_index]).astype(np.float32)
+                    scaled_year=(year-config['year_mean'])/config['year_scale'] if config.get('use_year_trend',True) else 0
+                    inputs = np.append(inputs,[scaled_year,district_index]).astype(np.float32)
                 batches = [inputs.copy()]
                 groups = [(name.replace('numeric__',''), [i]) for i,name in enumerate(self.prep['predictors'][:len(numeric)])]
                 offset = len(numeric)
@@ -101,7 +109,7 @@ class Engine:
                     groups.append((name, indexes))
                     offset += len(choices)
                 if context:
-                    groups += [('CROP_YEAR',[28]),('DISTRICT_CONTEXT',[29])]
+                    groups += [('CROP_YEAR',[len(x)]),('DISTRICT_CONTEXT',[len(x)+1])]
                 for name,indexes in groups:
                     variant = inputs.copy()
                     variant[indexes] = 0
@@ -110,7 +118,7 @@ class Engine:
                         reference = self.meta['yield_mlp']['category_reference'][name]
                         variant[indexes[self.prep['categories'][category_index].index(reference)]] = 1
                         if context and name == 'SEASON' and config.get('season_context'):
-                            variant[29] = config['district_vocabulary'].get(row['state']+'|'+row['district']+'|'+reference,0)
+                            variant[len(x)+1] = config['district_vocabulary'].get(row['state']+'|'+row['district']+'|'+reference,0)
                     batches.append(variant)
                 outputs = self.yield_session.run(None, {'features': np.stack(batches)})[0]
                 prediction = float(outputs[0])
@@ -147,10 +155,96 @@ class Engine:
                     'explanationMethod': explanation, 'normalizedNetworkOutput': network_output,
                     'networkConfiguration': self.meta.get('yield_mlp') if kind == 'mlp' else None,
                     'contextInputs': {'year': year, 'district_index': district_index,
-                        'scaled_year': float(inputs[28])} if kind == 'mlp' and context else None,
+                        'scaled_year': float(inputs[len(x)])} if kind == 'mlp' and context else None,
                     'testMetrics': test_metrics, 'scope': 'historical_district_estimate'}
         except (KeyError, TypeError, ValueError, OverflowError) as error:
             return {'ok': False, 'error': str(error) if isinstance(error, ValueError) else 'Invalid prediction inputs.'}
+
+    def predict_seasonal_yield(self, request):
+        """Current-season what-if inference; never relabel a historic record.
+
+        Only training-split covariates form the default seasonal reference.
+        User temperature is a scenario assumption, not a measured weather feed.
+        The result is explicitly outside retrospective test validation.
+        """
+        try:
+            if 'year' in request or 'month' in request:
+                raise ValueError('Select a season; separate year/month inputs are not supported.')
+            rice_area=float(request['areaHa'])
+            land_area=float(request.get('landAreaHa',rice_area))
+            if isinstance(request.get('landAreaHa'),bool) or not math.isfinite(land_area) or not .01<=land_area<=1_000_000:
+                raise ValueError('Total land size must be between 0.01 and 1,000,000 hectares.')
+            if rice_area>land_area:
+                raise ValueError('Rice-planted area cannot exceed total land size.')
+            temperature = float(request['averageTemperatureC'])
+            if isinstance(request['averageTemperatureC'],bool) or not math.isfinite(temperature) or not 10 <= temperature <= 40:
+                raise ValueError('Average seasonal temperature must be between 10 and 40 °C.')
+            season = request['season']
+            if season not in self.prep['categories'][1]:
+                raise ValueError('This season is not supported by the trained yield model.')
+            prefix = str(request['districtId'])+'|'
+            references = [(k,r) for k,r in self.history.items()
+                          if k.startswith(prefix) and k.endswith('|'+season) and r['split']=='train']
+            spatial=False
+            if not references:
+                stored=self.coverage['references'].get(str(request['districtId'])+'|'+season,[]) if self.coverage else []
+                references=[(prefix+str(r['year'])+'|'+season,r) for r in stored]
+                spatial=bool(references)
+            if not references:
+                raise ValueError('This location is not in the supported map coverage.')
+            values = np.asarray([r['numeric'] for _,r in references],dtype=np.float64)
+            raw = np.nanmedian(values,axis=0).tolist()
+            fields = dict(zip(self.prep['numeric'],raw))
+            shift = temperature-fields['TAVG_MEAN']
+            fields['TAVG_MEAN'] = temperature
+            fields['TMAX_MEAN'] += shift
+            fields['TMIN_MEAN'] += shift
+            supplied={'averageTemperatureC':temperature}
+            optional_specs=[('seasonalRainfallMm','PREC_TOTAL',0,10000),('relativeHumidityPct','RELH_MEAN',0,100),
+                            ('windSpeedMps','WSPD_MEAN',0,30),('solarRadiationKwhM2Day','RAD_TOTAL',0,12)]
+            for name,feature,lower,upper in optional_specs:
+                value=request.get(name)
+                if value is None or value=='':continue
+                number=float(value)
+                if isinstance(value,bool) or not math.isfinite(number) or not lower<=number<=upper:
+                    raise ValueError(f'{name} must be between {lower} and {upper}.')
+                fields[feature]=number*fields['WEATHER_DAY_COUNT'] if name=='solarRadiationKwhM2Day' else number
+                supplied[name]=number
+            fields['VPRES_MEAN'] = 6.108*math.exp(17.27*temperature/(temperature+237.3))*fields['RELH_MEAN']/100
+            fields['GDD_BASE10'] = max(temperature-10,0)*fields['WEATHER_DAY_COUNT']
+            fields['TEMP_RANGE_MEAN'] = fields['TMAX_MEAN']-fields['TMIN_MEAN']
+            fields['WATER_BALANCE_PROXY'] = fields['PREC_TOTAL']-fields['ET0_TOTAL']
+            fields['RAIN_PER_GDD'] = fields['PREC_TOTAL']/fields['GDD_BASE10'] if fields['GDD_BASE10'] else 0
+            fields['RADIATION_PER_GDD'] = fields['RAD_TOTAL']/fields['GDD_BASE10'] if fields['GDD_BASE10'] else 0
+            fields['CROP_AREA_LOG1P'] = math.log1p(fields['CROP_AREA'])
+            now = datetime.now(timezone(timedelta(hours=5,minutes=30)))
+            year = now.year if now.month >= 6 else now.year-1
+            row = {**references[0][1], 'numeric':[fields[n] for n in self.prep['numeric']],
+                   'observed':None,'split':'scenario'}
+            result = self.predict_yield({**request,'year':year,'proposedModel':'gbdt' if spatial else self.meta.get('yield_default_model','gbdt')},
+                                        _row=row,_tree_model=self.coverage['model'] if spatial else None)
+            if not result['ok']:return result
+            result.update({'scope':'current_season_scenario','predictionDate':now.date().isoformat(),
+                           'referenceYears':sorted(int(k.split('|')[1]) for k,_ in references),
+                           'referenceCount':len(references), 'averageTemperatureC':temperature,
+                           'landAreaHa':land_area,'suppliedWeather':supplied,
+                           'inputProvenance':{n:('user input / derived from user input' if n in {'TAVG_MEAN','TMIN_MEAN','TMAX_MEAN','VPRES_MEAN','GDD_BASE10','TEMP_RANGE_MEAN','RAIN_PER_GDD','RADIATION_PER_GDD'} or
+                              any(k in supplied and feature==n for k,feature,_,_ in optional_specs) or (n=='WATER_BALANCE_PROXY' and 'seasonalRainfallMm' in supplied)
+                              else 'training-season reference / derived reference') for n in self.prep['numeric']},
+                           'observedYield':None,'testMetricsApplyToThisForecast':False,
+                           'warnings':['Current-season scenario, not a validated live forecast. Other weather and district-area inputs use training-season medians.' + (' Neural year trend is extrapolated beyond training.' if result['modelKind']=='mlp' and self.meta['yield_mlp'].get('use_year_trend',True) else '')],
+                           'temperatureMethod':'Shift reference Tmin/Tmax by the user-average change; vapour pressure from assumed relative humidity; GDD approximately max(Tavg−10,0) × reference season days. Not daily measured GDD.'})
+            result['referenceKind']='synthetic_neighbour_transfer' if spatial else 'measured_training_reference'
+            if spatial:
+                result['model']=self.coverage['metadata']['model_name']
+                result['testMetrics']=self.coverage['metadata']['test']
+                result['neighbourMethod']=self.coverage['metadata']['method']
+                result['neighbourReferences']=[{'year':r['year'],'donors':r['donors']} for _,r in references]
+                result['warnings'].append('Neighbour-derived synthetic reference. Local accuracy is not measured; donors may cross state boundaries.')
+                result['inputProvenance']={n:v.replace('training-season reference','neighbour-derived synthetic reference') for n,v in result['inputProvenance'].items()}
+            return result
+        except (KeyError, TypeError, ValueError, OverflowError) as error:
+            return {'ok':False,'error':str(error) if isinstance(error,ValueError) else 'Invalid seasonal inputs.'}
 
     @staticmethod
     def image_tensor(photo):

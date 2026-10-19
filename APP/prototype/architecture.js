@@ -4,13 +4,14 @@
  const step=(title,text)=>`<li><b>${title}</b><span>${text}</span></li>`;
  function markup(offline=false,configuration=null){
   const context=configuration?.model_kind==='contextual_mlp';
+  const count=configuration?.architecture?.[0]||28, categories=count-21, dataset=configuration?.dataset;
   const yieldSteps=[
-   ['Inputs','Select district, historical crop year, season and cultivation area.'],
-   ['Historical feature lookup','Rice crop records + district coordinates + NASA POWER seasonal weather. No matching record → no prediction.'],
-   ['SimpleImputer → StandardScaler → OneHotEncoder','Training medians fill missing numbers; numerical fields are standardized. State and season become indicators: 21 numerical + 7 indicators = 28 inputs.'],
-   [context?'Contextual Residual MLP regressor · neural network':'MLP regressor · neural network',context?'Weather branch: 28 → Linear(64) → GELU → Dropout(0.5) → Linear(32) → GELU → Linear(1). Add a learned district-season embedding and a linear crop-year trend. Together: 30 input fields. Initialize regional offsets on training data, then jointly train with AdamW + MSE; validation selects the checkpoint.':'28 → Linear(64) → GELU → Dropout(0.2) → Linear(32) → GELU → Linear(1). Training uses AdamW and mean squared error; validation selects the epoch.'],
-   ['HistGradientBoostingRegressor · comparison','An alternative trained tree model receives the same 28 inputs. Select the predictor in Yield studio; the two predictions are not averaged.'],
-   ['Yield and derived outputs',`${context?'Normalized neural yield = weather branch + learned district offset + year-trend term. ':''}Neural output × training-target standard deviation + training-target mean → t/ha. Yield × entered hectares → tonnes; tonnes × 1,000 → kg; kg × optional price → gross value.`]
+   ['Inputs','Map-selected district → season → average seasonal temperature → cultivation area. Prediction date is automatic; no year/month selector.'],
+   ['Seasonal reference construction','Use local training-season references where available. Otherwise, use synthetic references from three nearest same-season/year training districts and a separately trained neighbour-augmented HistGradientBoostingRegressor. Donors never use validation/test years. Apply supplied weather and recompute dependent features.'],
+   ['SimpleImputer → StandardScaler → OneHotEncoder',`Reuse training-only transforms: 21 numerical + ${categories} state/season indicators = ${count} standard inputs.`],
+   [context?'Contextual Residual MLP regressor · neural network':'MLP regressor · neural network',`Weather branch: ${count} → Linear(64) → GELU → Dropout → Linear(32) → GELU → Linear(1). ${context?'Add a learned district-season embedding. '+(configuration?.use_year_trend===false?'Year trend is disabled in this selected candidate.':'Add a learned linear crop-year trend; extrapolation is unvalidated.') :''} AdamW + MSE; validation selects the checkpoint. This neural route is experimental, not the default.`],
+   ['HistGradientBoostingRegressor · default',`Receives ${count} standard inputs. Selected as default by validation RMSE; predictions are not averaged with the neural model.`],
+   ['Yield and derived outputs',`The default tree returns yield directly in t/ha. The separate neural comparison is converted back using training-target standard deviation and mean; it is not part of the default tree calculation. Yield × entered rice-planted hectares → tonnes; tonnes × 1,000 → kg; kg × optional price → gross value.`]
   ];
   const imageSteps=[
    ['Input · rice photograph','JPEG, PNG or WebP. Check dimensions, contrast, blur and lighting before inference.'],
@@ -26,7 +27,7 @@
    </div>
    <section id="architecture-yield-panel" role="tabpanel" aria-labelledby="architecture-yield-tab" tabindex="0">
     <article class="architecture-lane"><h2>Yield Prediction</h2><ol>${yieldSteps.map(v=>step(...v)).join('')}</ol></article>
-    <div class="architecture-contract"><b>How the model learns</b><p>1,485 training records (2001–2015), 245 validation records (2016–2017), 288 test records (2018–2019). The label is observed rice yield in tonnes/hectare; it is never a predictor. Preprocessing is fitted on training rows only.</p><p>The Denoising Autoencoder (DAE) is a separate representation experiment: 21 numerical inputs → 8 latent features + reconstruction error, plus 7 category indicators. It is not a required step in the standard MLP route.</p><p>Feature sensitivities explain model behaviour, not causation. Historical district estimates are not live farm forecasts. Image predictions do not alter yield.</p></div>
+    <div class="architecture-contract"><b>Training and evaluation</b><p>${dataset?`${dataset.rows} measured source-derived records, through agricultural year ${dataset.last_agricultural_year}. Train ${dataset.split_rows.train} (2001–2020), validation ${dataset.split_rows.validation} (2021–2022), test ${dataset.split_rows.test} (2023–2024).`:'Chronological training, validation and held-out test partitions.'} The label is production divided by area, in tonnes/hectare; production and yield are never predictors. Fit preprocessing on training rows only.</p><p>Denoising Autoencoder (DAE) is a preserved older representation experiment, not the deployed preprocessing route. Current training uses standard scaling and category encoding.</p><p>Retrospective scores use complete seasonal weather. They do not establish current-season or farm-level forecasting accuracy. Image screening does not alter yield.</p></div>
    </section>
    <section id="architecture-disease-panel" role="tabpanel" aria-labelledby="architecture-disease-tab" tabindex="0" hidden>
     <article class="architecture-lane"><h2>Disease Identification</h2><ol>${imageSteps.map(v=>step(...v)).join('')}</ol></article>

@@ -1,0 +1,57 @@
+{
+  "predictor_columns": [
+    "numeric__CROP_AREA",
+    "numeric__CENTROID_X",
+    "numeric__CENTROID_Y",
+    "numeric__WEATHER_DAY_COUNT",
+    "numeric__TMAX_MEAN",
+    "numeric__TMIN_MEAN",
+    "numeric__TAVG_MEAN",
+    "numeric__VPRES_MEAN",
+    "numeric__WSPD_MEAN",
+    "numeric__PREC_TOTAL",
+    "numeric__ET0_TOTAL",
+    "numeric__RAD_TOTAL",
+    "numeric__RELH_MEAN",
+    "numeric__PS_MEAN",
+    "numeric__GDD_BASE10",
+    "numeric__AREA_FRACTION",
+    "numeric__TEMP_RANGE_MEAN",
+    "numeric__WATER_BALANCE_PROXY",
+    "numeric__RAIN_PER_GDD",
+    "numeric__RADIATION_PER_GDD",
+    "numeric__CROP_AREA_LOG1P",
+    "categorical__STATE_Andhra Pradesh",
+    "categorical__STATE_Karnataka",
+    "categorical__STATE_Tamil Nadu",
+    "categorical__STATE_Telangana",
+    "categorical__SEASON_Autumn",
+    "categorical__SEASON_Kharif",
+    "categorical__SEASON_Rabi",
+    "categorical__SEASON_Summer",
+    "categorical__SEASON_Winter",
+    "FYEAR_scaled",
+    "district_index"
+  ],
+  "split_rows": {
+    "train": 1984,
+    "validation": 321,
+    "test": 337
+  },
+  "split_years": {
+    "train": [
+      2001,
+      2020
+    ],
+    "validation": [
+      2021,
+      2022
+    ],
+    "test": [
+      2023,
+      2024
+    ]
+  },
+  "source_master_sha256": "3e83f417d018fc8c0212e930596c0ac7c155f61883a2bfb677f69fe7b1f4263a",
+  "scope": "Retrospective seasonal district yield, not a validated current-season farm forecast."
+}
