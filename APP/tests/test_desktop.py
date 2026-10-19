@@ -32,6 +32,19 @@ class DesktopTests(unittest.TestCase):
         req['areaHa']=24;b=self.engine.predict_yield(req)
         self.assertEqual(a['yieldTPerHa'],b['yieldTPerHa'])
         self.assertAlmostEqual(a['productionTonnes']*2,b['productionTonnes'])
+    def test_neural_network_yield(self):
+        request={**self.request(),'proposedModel':'mlp'}
+        a=self.engine.predict_yield(request)
+        self.assertTrue(a['ok'],a)
+        self.assertIn('MLP',a['model'])
+        self.assertEqual(a['explanationMethod'],'reference_occlusion_sensitivity')
+        self.assertIsNone(a['baseline'])
+        self.assertEqual(len(a['contributions']),25 if a['contextInputs'] else 23)
+        cfg=a['networkConfiguration']
+        self.assertAlmostEqual(a['yieldTPerHa'],a['normalizedNetworkOutput']*cfg['target_scale']+cfg['target_mean'])
+        b=self.engine.predict_yield({**request,'areaHa':24})
+        self.assertEqual(a['yieldTPerHa'],b['yieldTPerHa'])
+        self.assertAlmostEqual(a['productionTonnes']*2,b['productionTonnes'])
     def test_missing_and_invalid_inputs(self):
         for override in [{'districtId':'unknown'},{'year':2026},{'areaHa':-1},{'areaHa':float('nan')},{'areaHa':True},{'year':2019.5}]:
             self.assertFalse(self.engine.predict_yield({**self.request(),**override})['ok'])
@@ -40,14 +53,30 @@ class DesktopTests(unittest.TestCase):
             stream=io.BytesIO();Image.new('RGB',(256,256),color).save(stream,format='PNG')
             self.assertFalse(self.engine.classify_image(base64.b64encode(stream.getvalue()).decode())['ok'])
         self.assertFalse(self.engine.classify_image('not valid base64')['ok'])
-    def test_real_photo_has_four_scores(self):
-        manifest=json.loads((ROOT/'DATASET/images/prepared/paddy_doctor_4class/manifest.json').read_text())
-        row=next(r for r in manifest['images'] if r['split']=='test' and r['class']=='normal')
-        photo=(ROOT/'DATASET/images/prepared/paddy_doctor_4class'/row['path']).read_bytes()
-        r=self.engine.classify_image(base64.b64encode(photo).decode())
-        self.assertTrue(r['ok'],r)
-        self.assertEqual(len(r['scores']),4)
-        self.assertAlmostEqual(sum(v['score'] for v in r['scores']),1,places=5)
+    def test_real_photo_from_each_class_has_ten_ordered_scores(self):
+        directory=ROOT/'DATASET/images/prepared/paddy_doctor_10class'
+        manifest=json.loads((directory/'manifest.json').read_text())
+        for label in self.engine.meta['classes']:
+            row=next(r for r in manifest['images'] if r['split']=='test' and r['class']==label)
+            photo=(directory/row['path']).read_bytes()
+            r=self.engine.classify_image(base64.b64encode(photo).decode())
+            self.assertTrue(r['ok'],r)
+            self.assertEqual(len(r['scores']),10)
+            self.assertEqual([s['label'] for s in r['scores']],manifest['classes'])
+            self.assertAlmostEqual(sum(v['score'] for v in r['scores']),1,places=5)
+            self.assertIn(r['candidate'],manifest['classes'])
+            self.assertAlmostEqual(r['testMetrics']['accuracy'],.8504375497215593)
+    def test_model_and_class_metadata_mismatch_rejected(self):
+        directory=ROOT/'DATASET/images/prepared/paddy_doctor_10class'
+        manifest=json.loads((directory/'manifest.json').read_text())
+        row=next(r for r in manifest['images'] if r['split']=='test')
+        photo=base64.b64encode((directory/row['path']).read_bytes()).decode()
+        original=self.engine.meta['classes']
+        try:
+            self.engine.meta['classes']=original[:4]
+            result=self.engine.classify_image(photo)
+            self.assertFalse(result['ok']);self.assertIn('inconsistent',result['error'])
+        finally:self.engine.meta['classes']=original
     def test_pixel_transform_matches_training(self):
         from torchvision.models import EfficientNet_B0_Weights
         transform=EfficientNet_B0_Weights.IMAGENET1K_V1.transforms()

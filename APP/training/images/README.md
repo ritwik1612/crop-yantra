@@ -1,5 +1,31 @@
 # Image training preparation
 
+## Ten-class expansion
+
+**Completed and integrated in Paddy 0.3.0:** 8,419 duplicate-filtered images;
+5,905 train / 1,257 validation / 1,257 test. EfficientNet-B0 validation macro-F1
+0.8112 versus MobileNetV3-Small 0.7904; EfficientNet is selected by validation.
+Its held-out accuracy/macro-F1 are 85.04%/83.59%. Every test prediction has been
+checked against the exported ONNX graph. The lowest class recall is 67.21%
+(bacterial leaf blight). Independent regional field validation is not complete.
+
+The complete labelled source is already downloaded; no larger unrelated crop
+dataset is substituted. Prepare all eligible representatives with:
+
+```powershell
+python APP/training/images/prepare_data.py --all-classes --per-class 0 --output DATASET/images/prepared/paddy_doctor_10class
+python APP/training/images/train.py --data DATASET/images/prepared/paddy_doctor_10class --train --epochs 15 --head-epochs 5
+```
+
+Preparation groups decoded-pixel duplicates and perceptually similar photos
+before splitting; conflicting-label groups are excluded. The trainer supports
+the ten-class manifest and uses training-count inverse-frequency class weights.
+Validation loss selects the checkpoint; the test split is evaluated afterward.
+The original four-class checkpoint is preserved, but the desktop now uses the
+validated ten-class export. The old four-class scores are not directly comparable.
+Source capture-session identities are unavailable, so duplicate separation does
+not establish independent farm/plant sampling or validation across South India.
+
 Local environment: `OTHER/training_env` (Python 3.11, CPU PyTorch).
 The installed libraries include torch, torchvision, scikit-learn, NumPy,
 pandas, Pillow, ImageHash, matplotlib, seaborn, Kaggle CLI and pytest.
@@ -9,7 +35,7 @@ The official ImageNet EfficientNet-B0 checkpoint is cached under
 forward check are recorded in `APP/models/pretrained/backbone_manifest.json`.
 This is not a rice-trained classifier.
 
-## Verified local data
+## Original four-class baseline inventory (preserved)
 
 The account holder authorized Kaggle CLI OAuth locally. The official ZIP was
 downloaded and its full CRC check passed. Credentials remain outside the project;

@@ -6,6 +6,39 @@ versioning.
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-10-19
+
+- Integrated the validation-selected ten-class EfficientNet-B0: 85.04% held-out
+  test accuracy, 83.59% macro-F1; 8,419 duplicate-filtered source photos.
+- Compared against trained MobileNetV3-Small using validation, not test selection.
+- Verified all 1,257 test-photo transforms, ONNX logits and class predictions;
+  preserved the previous four-class checkpoint/runtime archive.
+- Updated ten-class score labels, actual-logit output flow, architecture panels,
+  supported-condition descriptions and limits. Guarded against model/label drift.
+- Included the improved residual neural yield predictor and actual context-input
+  audit in the green/off-white Windows installer with Start menu registration.
+- No cloud deployment, synthetic measurements or new human-facing reports.
+
+### 2026-10-19 — Neural yield prediction and separate architecture tabs
+
+- Added selectable trained Contextual Residual MLP yield inference, using the
+  original 28 standard predictors plus explicit year and district-season context.
+  Training-only context vocabulary/scaling; no validation/test labels as inputs.
+- Validation-selected residual network: test MAE 0.486, RMSE 0.677 t/ha,
+  R² 0.447. Original MLP MAE 0.560, RMSE 0.733; original tree benchmark MAE
+  0.532, RMSE 0.672. Feature sets differ; this is not a same-input model ablation.
+- Added ONNX parity verification across all 2,018 rows and non-additive input
+  occlusion sensitivities; retained the tree benchmark and its additive path audit.
+- Architecture now switches between Yield Prediction and Disease Identification;
+  only one panel is visible. Added keyboard navigation and exclusivity tests.
+- Styled the destination-selectable Windows installer in Paddy green/off-white.
+  Installed and verified Paddy 0.2.1 and its Windows Search Start menu registration.
+- Prepared 8,419 duplicate-filtered Paddy Doctor images across ten classes
+  (5,905 train / 1,257 validation / 1,257 test). Expanded EfficientNet-B0 and
+  MobileNetV3-Small training runs are in progress; the original validated
+  four-class EfficientNet remains active until replacement evaluation succeeds.
+- No new user-facing reports, fabricated observations or cloud deployments.
+
 ### 2026-10-18 — Paddy offline Windows application
 
 - Confirmed Paddy as the new application name; created editable name/logo options.

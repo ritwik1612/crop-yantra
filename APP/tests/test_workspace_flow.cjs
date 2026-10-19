@@ -1,5 +1,6 @@
 const assert=require('node:assert/strict');
 require('../prototype/detection-flow.js');
+require('../prototype/architecture.js');
 const {architectureMarkup,yieldPanel,imagePanel}=require('../prototype/workspace-flow.js');
 const request={district:'Mandya <test>',state:'Karnataka',season:'Kharif',year:2019,areaHa:12,illustrativeYieldTPerHa:4.2,representation:'autoencoder',proposedModel:'mlp'};
 let panel=yieldPanel(request,null);

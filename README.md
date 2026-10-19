@@ -13,7 +13,7 @@ green/off-white interactive desktop app.
 
 **Team:** R Ritwik (23BAI0037) and Joshith G (23BAI0075).
 
-**Windows setup:** [Download Paddy Setup](https://github.com/ritwik1612/crop-yantra/releases/download/v0.1.0/Paddy-Setup-0.1.0.exe)
+**Windows setup:** [Download Paddy Setup](https://github.com/ritwik1612/crop-yantra/releases/download/v0.3.0/Paddy-Setup-0.3.0.exe)
 Defaults to Program Files, allows another folder, and creates a Paddy Start menu
 shortcut for Windows Search. Windows 10/11 x64 with Edge WebView2 is required.
 The academic installer is unsigned; Windows may show an unknown-publisher warning.
@@ -21,21 +21,34 @@ The academic installer is unsigned; Windows may show an unknown-publisher warnin
 
 **Main task: rice yield prediction.** The tabular dataset has no disease labels.
 The auxiliary crop-health section provides handbook references and local
-four-class rice-photo screening, not confirmed diagnosis. Low estimated yield
+ten-class rice-condition screening, not confirmed diagnosis. Low estimated yield
 cannot establish disease.
 
-Image component: a prepared Tamil Nadu Paddy Doctor subset of 1,600 images
-(400 per class; 1,120 train / 240 validation / 240 test), with trained
-ImageNet-initialized EfficientNet-B0 weights. Held-out accuracy: 86.25%.
-The selected yield model is standard-preprocessed HistGradientBoostingRegressor;
-held-out MAE: 0.532 t/ha. Models run locally; no cloud inference is used.
-The prepared image subset occupies 129.48 MB including its manifest.
+Image component: 8,419 duplicate-filtered Paddy Doctor rice photos collected near
+Tirunelveli, Tamil Nadu (5,905 train / 1,257 validation / 1,257 test), with trained
+ImageNet-initialized EfficientNet-B0 weights. Held-out accuracy: **85.04%**;
+macro-F1: **83.59%**. All exported test predictions match the original checkpoint.
+Yield studio selects the trained **Contextual Residual MLP** (weather network
+28 → 64 → 32 → 1 plus a learned district-season offset and year trend) or the
+original **HistGradientBoostingRegressor** benchmark. Neural test MAE: **0.486**,
+RMSE: **0.677 t/ha**, R²: 0.447. Original MLP MAE/RMSE: 0.560/0.733;
+tree benchmark: 0.532/0.672. The neural model adds explicit context inputs, so
+this is not a same-feature architecture comparison or proof of farm-level
+accuracy. Models run locally; no cloud inference is used.
+The ten-class image files occupy about 660 MB; the official source ZIP is 1.09 GB.
+
+EfficientNet-B0 was selected over MobileNetV3-Small using validation macro-F1
+(81.12% vs 79.04%). MobileNet test accuracy/macro-F1 are 79.16%/77.82%.
+The lowest selected-model class recall is 67.21% for bacterial leaf blight.
+Supported labels also include pest symptoms and normal plants; this is not
+confirmed diagnosis, unknown-crop rejection or independent regional validation.
+Ten-class results are not directly comparable to the preserved four-class baseline.
 See [image setup and commands](APP/training/images/README.md) and
 [regional fit, size and training plan](docs/IMAGE_TRAINING_PLAN.md).
 
 ## Start here
 
-- [Both-model training runbook](APP/training/START_TRAINING.md): verified inputs, model names, no-fitting preflight, local launch commands and optional Colab notebook. Supervised training has not started.
+- [Both-model training runbook](APP/training/START_TRAINING.md): original baseline commands and input contracts. See [current model and export instructions](APP/desktop/README.md) for the trained Paddy 0.3.0 models.
 
 - [District-augmented CSV](DATASET/augmented/rice_master_augmented.csv): one 30-column table, 3,363 rows. Read the [construction and training-use notes](DATASET/augmented/README.md). Original master and existing training splits are unchanged.
 

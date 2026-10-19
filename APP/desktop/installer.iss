@@ -1,6 +1,6 @@
-; Draft branding. Final name/logo must be approved before GitHub publication.
+; Approved Paddy identity; green and off-white desktop visual language.
 #define AppName "Paddy"
-#define AppVersion "0.1.0"
+#define AppVersion "0.3.0"
 #define AppExeName "Paddy.exe"
 
 [Setup]
@@ -20,6 +20,10 @@ SetupIconFile=branding\paddy.ico
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
+DisableWelcomePage=no
+WizardImageFile=branding\installer-panel.png
+WizardSmallImageFile=branding\installer-mark.png
+WizardImageStretch=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=admin
@@ -37,7 +41,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Shortcuts:"; Flags: unchecked
 
 [Files]
-Source: "..\..\OTHER\paddy_build_0_1_0\dist\Paddy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\OTHER\paddy_build_0_3_0\dist\Paddy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; AppUserModelID: "Paddy.Desktop.1"
@@ -45,3 +49,14 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; WorkingDir: "
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "Open {#AppName}"; Flags: nowait postinstall skipifsilent runasoriginaluser
+
+[Code]
+procedure InitializeWizard;
+begin
+  WizardForm.Font.Name := 'Segoe UI';
+  WizardForm.Font.Color := $00353F17;
+  WizardForm.Color := $00F0F8F6;
+  WizardForm.MainPanel.Color := $00F0F8F6;
+  WizardForm.WelcomeLabel1.Font.Color := $00353F17;
+  WizardForm.FinishedHeadingLabel.Font.Color := $00353F17;
+end;

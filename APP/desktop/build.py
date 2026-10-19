@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DESKTOP = ROOT/'APP/desktop'
-WORK = ROOT/'OTHER/paddy_build_0_1_0'
+WORK = ROOT/'OTHER/paddy_build_0_3_0'
 OUTPUT = ROOT/'APP/desktop/releases'
 
 def main():
@@ -56,6 +56,6 @@ def main():
     if not compiler.exists():
         raise FileNotFoundError('Install Inno Setup 6 from jrsoftware.org to build Setup.exe.')
     subprocess.run([str(compiler),str(DESKTOP/'installer.iss')],check=True,cwd=DESKTOP)
-    print('Local draft installer:',OUTPUT/'Paddy-Setup-0.1.0.exe')
+    print('Installer:',OUTPUT/'Paddy-Setup-0.3.0.exe')
 
 if __name__=='__main__': main()

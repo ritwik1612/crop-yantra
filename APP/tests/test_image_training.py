@@ -13,7 +13,7 @@ from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'APP/training/images'))
-from prepare_data import CLASSES,HashTree,prepare
+from prepare_data import CLASSES,ALL_CLASSES,HashTree,prepare
 from train import inspect_data,build_model
 
 def test_hash_tree_matches_brute_force():
@@ -55,3 +55,6 @@ def test_cached_backbone_forward_without_training():
     torch.set_num_threads(2);model,_=build_model();model.eval()
     with torch.inference_mode():result=model(torch.zeros(1,3,224,224))
     assert list(result.shape)==[1,4]
+    model,_=build_model(ALL_CLASSES);model.eval()
+    with torch.inference_mode():result=model(torch.zeros(1,3,224,224))
+    assert list(result.shape)==[1,10]

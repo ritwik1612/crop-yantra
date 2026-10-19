@@ -1,4 +1,4 @@
-"""Model definitions for future supervised yield training; no fitted yield weights yet."""
+"""Supervised yield model definitions; fitted checkpoints live in training/runs."""
 from sklearn.ensemble import HistGradientBoostingRegressor
 from torch import nn
 

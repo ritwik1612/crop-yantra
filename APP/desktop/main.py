@@ -15,8 +15,13 @@ def main():
         district,year,season = row.split('|')
         result = engine.predict_yield({'districtId': district,'year': int(year),'season': season,'areaHa': 12})
         assert result['ok'] and result['yieldTPerHa'] > 0
+        neural = engine.predict_yield({'districtId': district,'year': int(year),'season': season,'areaHa': 12,'proposedModel':'mlp'})
+        assert neural['ok'] and neural['modelKind'] == 'mlp' and neural['yieldTPerHa'] > 0
         import onnxruntime as ort
-        assert ort.InferenceSession(str(assets/'runtime/rice.onnx'),providers=['CPUExecutionProvider'])
+        image_session=ort.InferenceSession(str(assets/'runtime/rice.onnx'),providers=['CPUExecutionProvider'])
+        import numpy as np
+        logits=image_session.run(None,{'image':np.zeros((1,3,224,224),dtype=np.float32)})[0]
+        assert logits.shape==(1,len(engine.meta['classes'])) and len(engine.meta['classes'])==10
         return
     import webview
     ctypes.windll.kernel32.CreateMutexW.restype = ctypes.c_void_p

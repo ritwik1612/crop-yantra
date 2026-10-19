@@ -6,6 +6,12 @@ The desktop bridge replaces preview outputs with actual local inference. The
 old Vercel project was removed. The remaining preview notes describe the earlier
 browser-only prototype, which is still available when no native bridge is loaded.
 
+Paddy 0.3.0 uses a ten-class EfficientNet-B0 and a selectable Contextual Residual
+MLP / tree yield predictor. Architecture has exclusive Yield Prediction and
+Disease Identification panels. Actual output traces are under Show prediction
+flow. The notes below are historical browser-preview behaviour, not desktop
+model status.
+
 The workspace now separates Yield studio, Crop health, Output and Architecture.
 Inputs remain on the workspace; generated previews navigate to Output. Yield
 and photo results each have a collapsed **Show prediction flow** panel with the

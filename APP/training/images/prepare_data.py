@@ -1,4 +1,8 @@
-"""Prepare at most 1,600 genuine rice photos from an authorized competition ZIP."""
+"""Prepare genuine rice photos with duplicate-safe splits from the authorized ZIP.
+
+Default: balanced 1,600-photo four-class subset. --all-classes --per-class 0
+uses every eligible duplicate-group representative from all ten labels.
+"""
 import argparse
 import csv
 import hashlib
@@ -14,6 +18,7 @@ import imagehash
 
 ROOT=Path(__file__).resolve().parents[3]
 CLASSES=['bacterial_leaf_blight','blast','brown_spot','normal']
+ALL_CLASSES=['bacterial_leaf_blight','bacterial_leaf_streak','bacterial_panicle_blight','blast','brown_spot','dead_heart','downy_mildew','hispa','normal','tungro']
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 
@@ -36,7 +41,7 @@ class HashTree:
             node=node[2][distance]
 
 def prepare(archive,output,cap=400,seed=42):
-    if cap<3 or cap>400:raise ValueError('Choose 3–400 images per class.')
+    if cap!=0 and (cap<3 or cap>400):raise ValueError('Choose 3–400 images per class, or 0 for all available images.')
     if output.exists():raise FileExistsError('Output exists; use a new output directory to preserve previous splits.')
     candidates=[];excluded=[];members={}
     with zipfile.ZipFile(archive) as zipped:
@@ -100,7 +105,8 @@ def prepare(archive,output,cap=400,seed=42):
             representatives.append(representative)
         selected=[]
         for label in CLASSES:
-            available=sorted((r for r in representatives if r['class']==label),key=lambda r:sha(f"{seed}|{r['image_id']}".encode()))[:cap]
+            available=sorted((r for r in representatives if r['class']==label),key=lambda r:sha(f"{seed}|{r['image_id']}".encode()))
+            if cap:available=available[:cap]
             if len(available)<3:raise ValueError(f'Insufficient unique groups for {label}')
             random.Random(seed).shuffle(available)
             validation=max(1,int(len(available)*.15));test=max(1,int(len(available)*.15));train=len(available)-validation-test
@@ -135,10 +141,14 @@ def prepare(archive,output,cap=400,seed=42):
     print(json.dumps({key:manifest[key] for key in ['classes','split_counts','bytes','candidate_images','conflicting_groups_excluded']},indent=2))
 
 def main():
+    global CLASSES
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--archive',type=Path,required=True)
     parser.add_argument('--output',type=Path,default=ROOT/'DATASET/images/prepared/paddy_doctor_4class')
     parser.add_argument('--per-class',type=int,default=400)
-    args=parser.parse_args();prepare(args.archive,args.output,args.per_class)
+    parser.add_argument('--all-classes',action='store_true',help='Use all ten official labels, preserving the original four-class subset.')
+    args=parser.parse_args()
+    if args.all_classes:CLASSES=ALL_CLASSES
+    prepare(args.archive,args.output,args.per_class)
 
 if __name__=='__main__':main()

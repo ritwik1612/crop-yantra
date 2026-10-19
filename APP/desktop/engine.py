@@ -20,11 +20,15 @@ class Engine:
         self.trees = read('yield.json')
         self.meta = read('metadata.json')
         self.session = None
+        self.yield_session = None
         self.session_lock = threading.Lock()
 
     def status(self):
         return {'ok': True, 'version': self.meta['version'], 'offline': True,
-                'yieldModel': self.meta['yield_model'], 'imageModel': self.meta['image_model']}
+                'yieldModel': self.meta['yield_model'], 'imageModel': self.meta['image_model'],
+                'yieldConfiguration': self.meta.get('yield_mlp'),
+                'imageClasses': self.meta['classes'],
+                'imageTest': {'accuracy':self.meta['image_test_accuracy'],'macro_F1':self.meta['image_test_macro_f1']}}
 
     def predict_yield(self, request):
         try:
@@ -61,9 +65,69 @@ class Engine:
                 raise ValueError('Model returned an invalid yield estimate.')
             baseline = self.trees['baseline'] + root_offset
             assert abs(baseline+sum(contributions)-prediction) < 1e-8
+            kind = request.get('proposedModel', 'gbdt')
+            if kind not in ('mlp', 'gbdt'):
+                raise ValueError('Choose MLP or HistGradientBoostingRegressor.')
+            explanation = 'tree_path_contributions'
+            model_name = self.meta['yield_model']
+            test_metrics = self.meta['yield_test']
+            network_output = None
+            if kind == 'mlp':
+                with self.session_lock:
+                    if self.yield_session is None:
+                        import onnxruntime as ort
+                        options = ort.SessionOptions()
+                        options.intra_op_num_threads = 1
+                        self.yield_session = ort.InferenceSession(str(self.directory/'yield-mlp.onnx'), options,
+                                                                 providers=['CPUExecutionProvider'])
+                # Occlude one numerical feature or an entire categorical group
+                # to its training reference. Effects are NOT additive attribution.
+                inputs = np.asarray(x, dtype=np.float32)
+                config = self.meta['yield_mlp']
+                context = config.get('model_kind') == 'contextual_mlp'
+                district_index = 0
+                if context:
+                    context_key = row['state']+'|'+row['district']
+                    if config.get('season_context'):context_key += '|'+request['season']
+                    district_index = config['district_vocabulary'].get(context_key,0)
+                    inputs = np.append(inputs,[(year-config['year_mean'])/config['year_scale'],district_index]).astype(np.float32)
+                batches = [inputs.copy()]
+                groups = [(name.replace('numeric__',''), [i]) for i,name in enumerate(self.prep['predictors'][:len(numeric)])]
+                offset = len(numeric)
+                for name, choices in zip(('STATE','SEASON'), self.prep['categories']):
+                    # Use the observed training-mode category, avoiding invalid
+                    # fractional one-hot vectors in the occlusion reference.
+                    indexes = list(range(offset, offset+len(choices)))
+                    groups.append((name, indexes))
+                    offset += len(choices)
+                if context:
+                    groups += [('CROP_YEAR',[28]),('DISTRICT_CONTEXT',[29])]
+                for name,indexes in groups:
+                    variant = inputs.copy()
+                    variant[indexes] = 0
+                    if name in ('STATE','SEASON'):
+                        category_index = 0 if name == 'STATE' else 1
+                        reference = self.meta['yield_mlp']['category_reference'][name]
+                        variant[indexes[self.prep['categories'][category_index].index(reference)]] = 1
+                        if context and name == 'SEASON' and config.get('season_context'):
+                            variant[29] = config['district_vocabulary'].get(row['state']+'|'+row['district']+'|'+reference,0)
+                    batches.append(variant)
+                outputs = self.yield_session.run(None, {'features': np.stack(batches)})[0]
+                prediction = float(outputs[0])
+                contributions = [float(prediction-value) for value in outputs[1:]]
+                influence = sorted([{'feature': name, 'contribution': value} for (name,_),value in zip(groups,contributions)],
+                                   key=lambda r: abs(r['contribution']), reverse=True)
+                explanation = 'reference_occlusion_sensitivity'
+                model_name = config['model']
+                test_metrics = self.meta['yield_mlp']['test']
+                network_output = (prediction-self.meta['yield_mlp']['target_mean'])/self.meta['yield_mlp']['target_scale']
+                baseline = None
+                if prediction < 0 or not math.isfinite(prediction):
+                    raise ValueError('Neural network returned an invalid yield estimate.')
             feature_rows = [{'name': name, 'raw': value, 'imputed': numeric[i], 'scaled': scaled[i]}
                             for i,(name,value) in enumerate(zip(self.prep['numeric'],raw))]
-            influence = sorted([{'feature': name.replace('numeric__','').replace('categorical__',''),
+            if kind == 'gbdt':
+                influence = sorted([{'feature': name.replace('numeric__','').replace('categorical__',''),
                                  'contribution': float(value)} for name,value in zip(self.prep['predictors'],contributions)],
                                key=lambda r: abs(r['contribution']), reverse=True)
             warnings = []
@@ -71,14 +135,20 @@ class Engine:
                 warnings.append('Season not seen while fitting preprocessing; its one-hot indicators are all zero.')
             if row['split'] != 'test':
                 warnings.append(f"This record belongs to the {row['split']} split, not the independent test split.")
-            return {'ok': True, 'model': self.meta['yield_model'], 'version': self.meta['version'],
+            if kind == 'mlp' and context and district_index == 0:
+                warnings.append('District context was unseen during training; the reference embedding is used. Spatial transfer is not validated.')
+            return {'ok': True, 'model': model_name, 'modelKind': kind, 'version': self.meta['version'],
                     'yieldTPerHa': prediction, 'productionTonnes': prediction*area,
                     'areaHa': area, 'observedYield': row['observed'], 'split': row['split'],
                     'sourceState': row['state'], 'district': row['district'], 'year': year,
                     'season': request['season'], 'features': feature_rows,
                     'encodedCategories': dict(zip(self.prep['predictors'][len(numeric):],x[len(numeric):])),
                     'baseline': baseline, 'contributions': influence, 'warnings': warnings,
-                    'testMetrics': self.meta['yield_test'], 'scope': 'historical_district_estimate'}
+                    'explanationMethod': explanation, 'normalizedNetworkOutput': network_output,
+                    'networkConfiguration': self.meta.get('yield_mlp') if kind == 'mlp' else None,
+                    'contextInputs': {'year': year, 'district_index': district_index,
+                        'scaled_year': float(inputs[28])} if kind == 'mlp' and context else None,
+                    'testMetrics': test_metrics, 'scope': 'historical_district_estimate'}
         except (KeyError, TypeError, ValueError, OverflowError) as error:
             return {'ok': False, 'error': str(error) if isinstance(error, ValueError) else 'Invalid prediction inputs.'}
 
@@ -128,6 +198,8 @@ class Engine:
                     self.session = ort.InferenceSession(str(self.directory/'rice.onnx'),options,
                                                         providers=['CPUExecutionProvider'])
             logits = self.session.run(None, {'image': self.image_tensor(photo)})[0][0]
+            if len(logits)!=len(self.meta['classes']) or not np.isfinite(logits).all():
+                raise ValueError('Image model and class metadata are inconsistent. Reinstall Paddy.')
             scores = np.exp(logits-logits.max()); scores /= scores.sum()
             best = int(scores.argmax()); threshold = self.meta['image_abstention_threshold']
             uncertain = float(scores[best]) < threshold or bool(quality_warnings)
@@ -137,6 +209,7 @@ class Engine:
                     'scores': [{'label': c, 'score': float(s)} for c,s in zip(self.meta['classes'],scores)],
                     'logits': [float(v) for v in logits], 'width': photo.width, 'height': photo.height,
                     'threshold': threshold, 'warnings': quality_warnings,
-                    'notice': 'Four-class rice screening only. Scores are not calibrated confidence; unsupported plants or diseases may still receive a high score. Confirm symptoms with an agricultural expert.'}
+                    'testMetrics': {'accuracy':self.meta['image_test_accuracy'],'macro_F1':self.meta['image_test_macro_f1']},
+                    'notice': f"{len(self.meta['classes'])}-class rice condition screening only. Scores are not calibrated confidence; unsupported plants or diseases may still receive a high score. Confirm symptoms with an agricultural expert."}
         except (ValueError, UnidentifiedImageError, OSError, Image.DecompressionBombError) as error:
             return {'ok': False, 'error': str(error) if isinstance(error,ValueError) else 'Cannot decode this photo safely.'}
