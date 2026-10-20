@@ -1,12 +1,12 @@
-# Paddy for Windows — 0.5.1
+# Paddy for Windows — 0.6.0
 
 Offline rice yield scenarios and rice-photo screening by R Ritwik (23BAI0037)
 and Joshith G (23BAI0075).
 
 ## Install
 
-Run `releases/Paddy-Setup-0.5.1.exe`, or download it from
-[GitHub Releases](https://github.com/ritwik1612/crop-yantra/releases/tag/v0.5.1).
+Run `releases/Paddy-Setup-0.6.0.exe`, or download it from
+[GitHub Releases](https://github.com/ritwik1612/crop-yantra/releases/tag/v0.6.0).
 The green/off-white installer uses the approved rice silhouette, defaults to
 Program Files, permits another destination and creates a Paddy Start menu
 shortcut for Windows Search. Administrator approval is required. A desktop
@@ -14,6 +14,14 @@ shortcut is optional. Windows 10/11 x64 and Edge WebView2 are required.
 The academic installer is unsigned; security warnings require user review.
 
 ## Use
+
+On Results, **Export PDF** offers Yield prediction, Crop health and uploaded
+photo, or a combined document when both results exist. Choose a file location
+in the native Save dialog. PDFs use selectable text, structured tables and
+the original oriented screening photo, not app screenshots. The adjusted output
+area/price are included; exporting does not re-run the models. Edited inputs or
+replaced photos must be predicted/screened again before exporting that result.
+No photo is uploaded; saving a health report embeds it in the selected PDF.
 
 1. Select a state and district on the reactive map. There are no duplicate
    State/District dropdowns.
@@ -62,7 +70,8 @@ node APP/tests/test_architecture.cjs
 & OTHER/desktop_env/Scripts/python.exe APP/desktop/build.py
 node APP/tests/test_reference_photos.cjs
 & OTHER/desktop_env/Scripts/python.exe -m unittest APP.tests.test_branding
-& OTHER/paddy_build_0_5_1/dist/Paddy/Paddy.exe --self-test
+& OTHER/desktop_env/Scripts/python.exe -m unittest APP.tests.test_reporting
+& OTHER/paddy_build_0_6_0/dist/Paddy/Paddy.exe --self-test
 ```
 
 Build uses PyInstaller and Inno Setup 6. Only allowlisted app assets and verified

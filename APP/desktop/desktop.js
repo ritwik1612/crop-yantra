@@ -26,7 +26,7 @@
    const result=await root.pywebview.api.predict_seasonal_yield(request);
    if(version!==yieldVersion||JSON.stringify(request)!==JSON.stringify(snapshot()))return;
    if(!result.ok)throw new Error(result.error);
-   renderYield(request,result);root.PredictionFlow.mode='yield';location.hash='results';
+   renderYield(request,result);native.yieldExportId=result.exportId;root.PredictionFlow.mode='yield';location.hash='results';
   }catch(error){$('form-error').textContent=error.message||'Local inference failed. Try again.';}
   finally{button.disabled=false;button.innerHTML=original;}
  };
@@ -105,15 +105,52 @@
    if(!result.ok)throw new Error(result.error);
    const r=result,linkedContext=request.context;
    request={...request,context:linkedContext||{}};
-   $('image-result').innerHTML=`<article class="image-output-card"><p class="eyebrow">OFFLINE RICE SCREENING</p><h2>${r.uncertain?'Result uncertain':esc(labels[r.label])}</h2><p>${r.uncertain?'Use a clearer photo and seek expert confirmation. Highest-scoring candidate: '+esc(labels[r.candidate])+'.':'Candidate classification, not a confirmed diagnosis.'}</p><div class="screening-grid"><img class="screening-photo" src="${esc(url)}" alt="Selected rice photo"><div>${r.scores.map(row=>`<div class="score-row"><span>${esc(labels[row.label])}</span><b>${n(row.score*100,1)}%</b><meter min="0" max="1" value="${row.score}"></meter></div>`).join('')}<p>Model scores, not diagnostic confidence.</p></div></div>${r.warnings.map(w=>`<p class="error">${esc(w)}</p>`).join('')}<p>${esc(r.notice)}</p><p>Context: ${esc(request.context.district)}, ${esc(request.context.state)} · ${esc(request.context.season)}. Context does not change the pixel-based class or predicted yield.</p><a href="#health" class="inline-link">Screen another photo →</a></article><details class="prediction-audit"><summary>Show prediction flow <span>Photo · image transforms · model scores</span></summary><div class="prediction-audit-body"><ol class="request-flow"><li><b>1. Validate the rice photo</b><p>${r.width} × ${r.height} pixels; ${n(request.image.bytes/1024,1)} KB. File format, dimensions, contrast and basic blur/lighting checks. Nothing is uploaded or stored as a photo.</p></li><li><b>2. Prepare the pixels</b><code>Orientation correction → RGB → shorter edge 256 → centre crop 224 × 224<br>Channel = (pixel / 255 − mean) / standard deviation<br>Mean [0.485, 0.456, 0.406], std [0.229, 0.224, 0.225]</code></li><li><b>3. EfficientNet-B0 → logits → softmax</b><code>pᵢ = exp(zᵢ − max(z)) / Σ exp(zⱼ − max(z))</code>${table(['Class','Actual logit','Model score'],r.scores.map((s,i)=>[labels[s.label],n(r.logits[i],6),n(s.score*100,3)+'%']))}</li><li><b>4. Apply the screening guard</b><p>Abstain when the highest score is below ${n(r.threshold*100,0)}% or basic quality warnings occur. This threshold is a conservative heuristic, not clinically or agronomically calibrated. Unsupported crops and diseases are not reliably rejected.</p><p>Image regions are not attributed. Weather inputs do not explain the class. Held-out ten-class test accuracy: ${n(r.testMetrics.accuracy*100,2)}%; macro-F1: ${n(r.testMetrics.macro_F1*100,2)}%. These describe all test classifications before the optional screening guard.</p></li></ol></div></details>`;
+   $('image-result').innerHTML=`<article class="image-output-card"><p class="eyebrow">OFFLINE RICE SCREENING</p><h2>${r.uncertain?'Result uncertain':esc(labels[r.label])}</h2><p>${r.uncertain?'Use a clearer photo and seek expert confirmation. Highest-scoring candidate: '+esc(labels[r.candidate])+'.':'Candidate classification, not a confirmed diagnosis.'}</p><div class="screening-grid"><img class="screening-photo" src="${esc(url)}" alt="Selected rice photo"><div>${r.scores.map(row=>`<div class="score-row"><span>${esc(labels[row.label])}</span><b>${n(row.score*100,1)}%</b><meter min="0" max="1" value="${row.score}"></meter></div>`).join('')}<p>Model scores, not diagnostic confidence.</p></div></div>${r.warnings.map(w=>`<p class="error">${esc(w)}</p>`).join('')}<p>${esc(r.notice)}</p><p>Context: ${esc(request.context.district)}, ${esc(request.context.state)} · ${esc(request.context.season)}. Context does not change the pixel-based class or predicted yield.</p><a href="#health" class="inline-link">Screen another photo →</a></article><details class="prediction-audit"><summary>Show prediction flow <span>Photo · image transforms · model scores</span></summary><div class="prediction-audit-body"><ol class="request-flow"><li><b>1. Validate the rice photo</b><p>${r.width} × ${r.height} pixels; ${n(request.image.bytes/1024,1)} KB. File format, dimensions, contrast and basic blur/lighting checks. Processing stays on this PC. The photo is saved only when you export it inside a PDF.</p></li><li><b>2. Prepare the pixels</b><code>Orientation correction → RGB → shorter edge 256 → centre crop 224 × 224<br>Channel = (pixel / 255 − mean) / standard deviation<br>Mean [0.485, 0.456, 0.406], std [0.229, 0.224, 0.225]</code></li><li><b>3. EfficientNet-B0 → logits → softmax</b><code>pᵢ = exp(zᵢ − max(z)) / Σ exp(zⱼ − max(z))</code>${table(['Class','Actual logit','Model score'],r.scores.map((s,i)=>[labels[s.label],n(r.logits[i],6),n(s.score*100,3)+'%']))}</li><li><b>4. Apply the screening guard</b><p>Abstain when the highest score is below ${n(r.threshold*100,0)}% or basic quality warnings occur. This threshold is a conservative heuristic, not clinically or agronomically calibrated. Unsupported crops and diseases are not reliably rejected.</p><p>Image regions are not attributed. Weather inputs do not explain the class. Held-out ten-class test accuracy: ${n(r.testMetrics.accuracy*100,2)}%; macro-F1: ${n(r.testMetrics.macro_F1*100,2)}%. These describe all test classifications before the optional screening guard.</p></li></ol></div></details>`;
    if(!linkedContext)Array.from($('image-result').querySelectorAll('p')).find(p=>p.textContent.startsWith('Context:'))?.remove();
+   native.healthExport={id:r.exportId,url};
    root.PredictionFlow.mode='image';location.hash='image-results';$('photo-status').textContent='Screening completed locally. Photo not uploaded.';
   }catch(error){$('photo-error').textContent=error.message||'Local image screening failed.';}
   finally{button.disabled=$('photo-preview').hidden;button.textContent='Screen rice photo →';document.querySelector('.botanical-stage')?.classList.remove('is-screening');}
  };
+ function mountPDFExport(){
+  if($('export-pdf'))return;
+  const open=document.createElement('button');open.id='export-pdf';open.type='button';open.className='pdf-export-button';open.textContent='Export PDF';
+  $('results').querySelector('.page-intro').append(open);
+  const status=document.createElement('p');status.id='pdf-export-status';status.className='pdf-export-status';status.setAttribute('role','status');open.after(status);
+  const dialog=document.createElement('dialog');dialog.className='pdf-export-dialog';dialog.setAttribute('aria-labelledby','pdf-export-title');
+  dialog.innerHTML='<button type="button" class="pdf-close" aria-label="Close PDF export">×</button><h2 id="pdf-export-title">Export report</h2><p>Select the results to include.</p><fieldset><legend>Report contents</legend><label><input type="radio" name="pdf-mode" value="yield">Yield prediction</label><label><input type="radio" name="pdf-mode" value="health">Crop health and uploaded photo</label><label><input type="radio" name="pdf-mode" value="combined">Yield and crop health</label></fieldset><p class="pdf-export-message" role="status"></p><button type="button" class="primary" id="save-pdf">Save PDF</button>';
+  document.body.append(dialog);
+  dialog.querySelector('.pdf-close').addEventListener('click',()=>dialog.close());
+  open.addEventListener('click',()=>{
+   const hasYield=Boolean(native.yieldExportId&&!$('result').hidden),hasHealth=Boolean(native.healthExport?.id&&!$('photo-preview').hidden&&$('photo-preview').src===native.healthExport.url);
+   const allowed={yield:hasYield,health:hasHealth,combined:hasYield&&hasHealth};
+   dialog.querySelectorAll('[name="pdf-mode"]').forEach(input=>{input.disabled=!allowed[input.value];input.checked=false;});
+   const preferred=location.hash==='#image-results'?'health':'yield',selected=allowed[preferred]?preferred:hasYield?'yield':hasHealth?'health':null;
+   if(!selected){status.textContent='Run a yield prediction or screen a photo first.';return;}
+   dialog.querySelector('[value="'+selected+'"]').checked=true;dialog.querySelector('.pdf-export-message').textContent='';dialog.showModal();
+  });
+  $('save-pdf').addEventListener('click',async()=>{
+   const button=$('save-pdf'),message=dialog.querySelector('.pdf-export-message');button.disabled=true;message.textContent='Preparing PDF…';
+   try{
+    const area=$('season-area'),price=$('season-price');
+    const mode=dialog.querySelector('[name="pdf-mode"]:checked')?.value;
+    const options={mode,yieldId:native.yieldExportId,healthId:native.healthExport?.id};
+    if(mode!=='health'){
+     if(!area?.value||!area.validity.valid||price?.value&&!price.validity.valid)throw new Error('Correct the area or price on the result page before exporting.');
+     options.scenario={areaHa:Number(area.value),priceINRPerKg:price?.value!==''?Number(price.value):null};
+    }
+    const result=await root.pywebview.api.export_pdf(options);
+    if(result.cancelled){message.textContent='Save cancelled.';return;}
+    if(!result.ok)throw new Error(result.error||'The PDF could not be saved.');
+    if(result.pdfBase64){const bytes=Uint8Array.from(atob(result.pdfBase64),c=>c.charCodeAt(0)),url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),link=document.createElement('a');link.href=url;link.download=result.filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+    status.textContent='Saved '+result.filename;dialog.close();
+   }catch(error){message.textContent=error.message||'PDF export failed. Please try again.';}
+   finally{button.disabled=false;}
+  });
+ }
  async function initialize(){
   if(native.ready)return;
-  try{const status=await root.pywebview.api.status();if(!status.ok)return;native.ready=true;
+  try{const status=await root.pywebview.api.status();if(!status.ok)return;native.ready=true;if(status.pdfExportAvailable)mountPDFExport();
    document.querySelector('.status').innerHTML='<i></i> Local models';
    document.querySelector('#studio h1').textContent='Yield estimate';
    document.querySelector('#studio .intro-copy').textContent='Choose a district on the map, then set your season, temperature and area.';
@@ -124,7 +161,7 @@
    document.querySelector('#studio .intro-note').innerHTML='<span class="leaf">↗</span><b>Runs on your PC</b><span>Trained yield model.<br>Rice-photo screening.</span>';
    document.querySelector('#health .intro-copy').textContent='Rice disease references and offline photo screening.';
    document.querySelector('.health-disclaimer').textContent='Illustrations and photographs are general references. No local outbreak data or confirmed diagnosis. Consult an agricultural expert for symptoms.';
-   document.querySelector('.photo-card > p:not(.eyebrow)').textContent='Choose a clear rice-leaf photo. Screening runs on this PC. Photos are not uploaded or saved by the app.';
+   document.querySelector('.photo-card > p:not(.eyebrow)').textContent='Choose a clear rice-leaf photo. Screening runs on this PC. Photos are not uploaded. PDF export saves your chosen photo inside the report.';
    document.querySelector('.photo-card .eyebrow').textContent='OFFLINE IMAGE MODEL';
    $('prepare-screening').textContent='Screen rice photo →';
    $('photo-status').textContent='Select a rice photo. Nothing is uploaded.';

@@ -3,8 +3,10 @@ import ctypes
 import json
 import os
 import sys
+import tempfile
 from pathlib import Path
 from engine import Engine
+from reporting import ReportSession
 
 def main():
     bundle = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parent))
@@ -13,6 +15,7 @@ def main():
     if not icon.is_file():
         raise FileNotFoundError('Paddy application icon is missing from the installation.')
     engine = Engine(assets/'runtime')
+    reports = ReportSession(engine,assets/'assets/paddy-logo.png' if getattr(sys,'frozen',False) else bundle/'branding/paddy.png')
     if '--self-test' in sys.argv:
         row = next((key for key in engine.history if '|2019|' in key),None)
         district,year,season = row.split('|')
@@ -25,6 +28,13 @@ def main():
         import numpy as np
         logits=image_session.run(None,{'image':np.zeros((1,3,224,224),dtype=np.float32)})[0]
         assert logits.shape==(1,len(engine.meta['classes'])) and len(engine.meta['classes'])==10
+        import base64
+        y=reports.predict_seasonal_yield({'districtId':district,'district':'Self-test','season':season,
+                                        'areaHa':12,'landAreaHa':15,'averageTemperatureC':27})
+        h=reports.classify_image(base64.b64encode((assets/'assets/blast-real.jpg').read_bytes()).decode('ascii'))
+        assert y['ok'] and h['ok']
+        pdf=reports.create({'mode':'combined','yieldId':y['exportId'],'healthId':h['exportId']})
+        assert pdf.startswith(b'%PDF-') and b'/Subtype /Image' in pdf
         return
     # Establish taskbar identity before the GUI runtime creates any windows.
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('Paddy.Desktop.1')
@@ -39,10 +49,27 @@ def main():
     profile = Path(os.environ.get('LOCALAPPDATA',str(Path.home()))) / 'Paddy' / ('QAWebView' if qa else 'WebView')
     profile.mkdir(parents=True,exist_ok=True)
     class API:
-        def status(self): return engine.status()
+        def status(self): return {**engine.status(),'pdfExportAvailable':True}
         def predict_yield(self, request): return engine.predict_yield(request)
-        def predict_seasonal_yield(self, request): return engine.predict_seasonal_yield(request)
-        def classify_image(self, encoded): return engine.classify_image(encoded)
+        def predict_seasonal_yield(self, request): return reports.predict_seasonal_yield(request)
+        def classify_image(self, encoded): return reports.classify_image(encoded)
+        def export_pdf(self, options):
+            temporary=None
+            try:
+                data=reports.create(options)
+                selected=window.create_file_dialog(webview.FileDialog.SAVE,
+                  save_filename='Paddy-'+options['mode']+'.pdf',file_types=('PDF document (*.pdf)',))
+                if not selected:return {'ok':False,'cancelled':True}
+                target=Path(selected[0] if isinstance(selected,(tuple,list)) else selected)
+                if target.suffix.lower()!='.pdf':raise ValueError('Save the report with a .pdf extension.')
+                with tempfile.NamedTemporaryFile(dir=target.parent,prefix='.paddy-',suffix='.tmp',delete=False) as stream:
+                    temporary=Path(stream.name);stream.write(data)
+                os.replace(temporary,target);temporary=None
+                return {'ok':True,'filename':target.name,'path':str(target)}
+            except Exception as error:
+                return {'ok':False,'error':str(error) if isinstance(error,ValueError) else 'The PDF could not be saved. Choose a writable folder and try again.'}
+            finally:
+                if temporary is not None:temporary.unlink(missing_ok=True)
     window = webview.create_window('Paddy', str(assets/'index.html'), js_api=API(),
                                   width=1340,height=900,min_size=(880,650),background_color='#030303')
     try:

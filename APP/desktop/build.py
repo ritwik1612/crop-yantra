@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DESKTOP = ROOT/'APP/desktop'
-WORK = ROOT/'OTHER/paddy_build_0_5_1'
+WORK = ROOT/'OTHER/paddy_build_0_6_0'
 OUTPUT = ROOT/'APP/desktop/releases'
 
 def main():
@@ -34,7 +34,7 @@ def main():
         shutil.copy2(DESKTOP/filename,stage/filename)
     # Preserve upstream license notices with the distributed runtime.
     for package in ['pywebview','onnxruntime','numpy','Pillow','pythonnet','clr_loader',
-                    'bottle','proxy_tools','typing_extensions','cffi','pycparser','pyinstaller']:
+                    'bottle','proxy_tools','typing_extensions','cffi','pycparser','pyinstaller','reportlab','charset-normalizer']:
         distribution = importlib.metadata.distribution(package)
         for file in distribution.files or []:
             if ('dist-info' in str(file) and ('license' in str(file).lower() or 'copying' in str(file).lower())):
@@ -51,6 +51,7 @@ def main():
         raise FileNotFoundError('Render the existing rice mark to branding/paddy.ico first.')
     # The native window and shortcuts need an actual ICO file at runtime too.
     shutil.copy2(icon,stage/'assets/paddy.ico')
+    shutil.copy2(DESKTOP/'branding/paddy.png',stage/'assets/paddy-logo.png')
     if args.assets_only:
         if not (WORK/'dist/Paddy/Paddy.exe').exists():raise FileNotFoundError('Run a full build first')
         shutil.copytree(stage,WORK/'dist/Paddy/_internal/site',dirs_exist_ok=True)
@@ -58,7 +59,7 @@ def main():
       subprocess.run([sys.executable,'-m','PyInstaller','--noconfirm','--clean','--windowed',
         '--name','Paddy','--icon',str(icon),'--distpath',str(WORK/'dist'),
         '--workpath',str(WORK/'pyinstaller'),'--specpath',str(WORK),
-        '--add-data',f'{stage}{os.pathsep}site','--collect-all','onnxruntime',
+        '--add-data',f'{stage}{os.pathsep}site','--collect-all','onnxruntime','--collect-data','reportlab',
         '--exclude-module','torch','--exclude-module','torchvision',
         '--exclude-module','sklearn','--exclude-module','pandas',
         str(DESKTOP/'main.py')],check=True,cwd=DESKTOP)
@@ -68,6 +69,6 @@ def main():
     if not compiler.exists():
         raise FileNotFoundError('Install Inno Setup 6 from jrsoftware.org to build Setup.exe.')
     subprocess.run([str(compiler),str(DESKTOP/'installer.iss')],check=True,cwd=DESKTOP)
-    print('Installer:',OUTPUT/'Paddy-Setup-0.5.1.exe')
+    print('Installer:',OUTPUT/'Paddy-Setup-0.6.0.exe')
 
 if __name__=='__main__': main()

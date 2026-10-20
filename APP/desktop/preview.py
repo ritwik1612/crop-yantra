@@ -4,18 +4,21 @@ Bind loopback only. Accept JSON POSTs from this exact origin; expose only public
 UI assets, never the model directory, project files or arbitrary filesystem paths.
 """
 import json
+import base64
 import mimetypes
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 from engine import Engine
+from reporting import ReportSession
 
 ROOT=Path(__file__).resolve().parents[2]
 SITE=ROOT/'APP/prototype'
 engine=Engine(SITE/'runtime')
+reports=ReportSession(engine,ROOT/'APP/desktop/branding/paddy.png')
 PORT=8765
 ORIGIN=f'http://127.0.0.1:{PORT}'
-BRIDGE="""<script>window.pywebview={api:Object.fromEntries(['status','predict_seasonal_yield','classify_image'].map(name=>[name,async value=>{const r=await fetch('/api/'+name,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(value??{})});if(!r.ok)throw new Error('Local preview request failed');return r.json()}]))};</script><link rel="stylesheet" href="/desktop.css"><link rel="stylesheet" href="/experience.css"><script defer src="/desktop.js"></script>"""
+BRIDGE="""<script>window.pywebview={api:Object.fromEntries(['status','predict_seasonal_yield','classify_image','export_pdf'].map(name=>[name,async value=>{const r=await fetch('/api/'+name,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(value??{})});if(!r.ok)throw new Error('Local preview request failed');return r.json()}]))};</script><link rel="stylesheet" href="/desktop.css"><link rel="stylesheet" href="/experience.css"><script defer src="/desktop.js"></script>"""
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -49,8 +52,9 @@ class Handler(BaseHTTPRequestHandler):
             size=int(self.headers.get('Content-Length','0'))
             if not 0<size<=14_000_100:raise ValueError('Invalid request size')
             value=json.loads(self.rfile.read(size))
-            methods={'/api/status':lambda _:engine.status(), '/api/predict_seasonal_yield':engine.predict_seasonal_yield,
-                     '/api/classify_image':engine.classify_image}
+            methods={'/api/status':lambda _:{**engine.status(),'pdfExportAvailable':True}, '/api/predict_seasonal_yield':reports.predict_seasonal_yield,
+                     '/api/classify_image':reports.classify_image,
+                     '/api/export_pdf':lambda v:{'ok':True,'filename':'Paddy-'+v.get('mode','report')+'.pdf','pdfBase64':base64.b64encode(reports.create(v)).decode('ascii')}}
             method=methods.get(urlsplit(self.path).path)
             if not method:return self.respond(404,b'Not found','text/plain')
             return self.respond(200,json.dumps(method(value),allow_nan=False).encode(),'application/json')

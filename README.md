@@ -3,11 +3,16 @@
 Offline Windows research application by **R Ritwik (23BAI0037)** and
 **Joshith G (23BAI0075)**. No Vercel deployment or cloud inference.
 
-[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.5.1/Paddy-Setup-0.5.1.exe)
+[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.6.0/Paddy-Setup-0.6.0.exe)
 · [Desktop build instructions](APP/desktop/README.md)
 · [Dataset guide](DATASET/README.md)
 
-## Version 0.5.1
+## Version 0.6.0
+
+Use **Export PDF** on Results to save a formatted yield report, crop-health report
+with your uploaded photo, or a combined report. These are typeset documents,
+not webpage screenshots. Exports include actual results, inputs, calculations,
+model explanations and limitations; the Save dialog chooses the destination.
 
 The native window and Windows shortcuts explicitly use the approved rice logo,
 including small taskbar icon sizes. Prediction models and data are unchanged.

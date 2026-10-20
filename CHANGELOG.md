@@ -1,6 +1,15 @@
 # Changelog
 
-## 0.5.1 — 2026-10-20
+## 0.6.0 — 2026-10-20
+
+- Added locally generated, typeset PDF exports for yield, crop health or both.
+  Reports use the dark Paddy theme, include the user's screening photo, exact
+  area/price calculations, model contributions, class scores and limitations.
+- Export snapshots are matched to result IDs so stale predictions or a previous
+  photo cannot silently be included. A native Save dialog chooses the destination.
+- Photos are kept in memory for screening/export; they are not uploaded.
+  Saving a crop-health PDF explicitly embeds the selected photo without EXIF.
+- The unreleased 0.5.1 icon correction is included in this release:
 
 - Bundled the approved multi-resolution rice ICO for the native window instead
   of relying on executable-icon extraction. Set taskbar identity before GUI startup.
