@@ -1,12 +1,12 @@
-# Paddy for Windows — 0.5.0
+# Paddy for Windows — 0.5.1
 
 Offline rice yield scenarios and rice-photo screening by R Ritwik (23BAI0037)
 and Joshith G (23BAI0075).
 
 ## Install
 
-Run `releases/Paddy-Setup-0.5.0.exe`, or download it from
-[GitHub Releases](https://github.com/ritwik1612/crop-yantra/releases/tag/v0.5.0).
+Run `releases/Paddy-Setup-0.5.1.exe`, or download it from
+[GitHub Releases](https://github.com/ritwik1612/crop-yantra/releases/tag/v0.5.1).
 The green/off-white installer uses the approved rice silhouette, defaults to
 Program Files, permits another destination and creates a Paddy Start menu
 shortcut for Windows Search. Administrator approval is required. A desktop
@@ -61,7 +61,8 @@ node APP/tests/test_health.cjs
 node APP/tests/test_architecture.cjs
 & OTHER/desktop_env/Scripts/python.exe APP/desktop/build.py
 node APP/tests/test_reference_photos.cjs
-& OTHER/paddy_build_0_5_0/dist/Paddy/Paddy.exe --self-test
+& OTHER/desktop_env/Scripts/python.exe -m unittest APP.tests.test_branding
+& OTHER/paddy_build_0_5_1/dist/Paddy/Paddy.exe --self-test
 ```
 
 Build uses PyInstaller and Inno Setup 6. Only allowlisted app assets and verified

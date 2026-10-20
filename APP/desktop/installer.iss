@@ -1,6 +1,6 @@
 ; Approved Paddy identity; green and off-white desktop visual language.
 #define AppName "Paddy"
-#define AppVersion "0.5.0"
+#define AppVersion "0.5.1"
 #define AppExeName "Paddy.exe"
 
 [Setup]
@@ -41,11 +41,11 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Shortcuts:"; Flags: unchecked
 
 [Files]
-Source: "..\..\OTHER\paddy_build_0_5_0\dist\Paddy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\OTHER\paddy_build_0_5_1\dist\Paddy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; AppUserModelID: "Paddy.Desktop.1"
-Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon; AppUserModelID: "Paddy.Desktop.1"
+Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\_internal\site\assets\paddy.ico"; IconIndex: 0; AppUserModelID: "Paddy.Desktop.1"
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\_internal\site\assets\paddy.ico"; IconIndex: 0; Tasks: desktopicon; AppUserModelID: "Paddy.Desktop.1"
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "Open {#AppName}"; Flags: nowait postinstall skipifsilent runasoriginaluser

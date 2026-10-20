@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.1 — 2026-10-20
+
+- Bundled the approved multi-resolution rice ICO for the native window instead
+  of relying on executable-icon extraction. Set taskbar identity before GUI startup.
+- Assigned the same explicit ICO to Start Menu and optional desktop shortcuts.
+  Preserved Paddy.Desktop.1 so upgrades retain the same application identity.
+- Added native-icon, ICO-size and installer-shortcut regression checks.
+
 ## 0.5.0 — 2026-10-20
 
 - Fixed all ten offline Real photo views: replaced seven excluded local-only

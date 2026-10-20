@@ -9,6 +9,9 @@ from engine import Engine
 def main():
     bundle = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parent))
     assets = bundle/'site' if getattr(sys,'frozen',False) else bundle.parent/'prototype'
+    icon = assets/'assets/paddy.ico' if getattr(sys,'frozen',False) else bundle/'branding/paddy.ico'
+    if not icon.is_file():
+        raise FileNotFoundError('Paddy application icon is missing from the installation.')
     engine = Engine(assets/'runtime')
     if '--self-test' in sys.argv:
         row = next((key for key in engine.history if '|2019|' in key),None)
@@ -23,6 +26,8 @@ def main():
         logits=image_session.run(None,{'image':np.zeros((1,3,224,224),dtype=np.float32)})[0]
         assert logits.shape==(1,len(engine.meta['classes'])) and len(engine.meta['classes'])==10
         return
+    # Establish taskbar identity before the GUI runtime creates any windows.
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('Paddy.Desktop.1')
     import webview
     ctypes.windll.kernel32.CreateMutexW.restype = ctypes.c_void_p
     qa = '--qa' in sys.argv
@@ -33,7 +38,6 @@ def main():
     # Store browser settings in the user's profile, never in Program Files.
     profile = Path(os.environ.get('LOCALAPPDATA',str(Path.home()))) / 'Paddy' / ('QAWebView' if qa else 'WebView')
     profile.mkdir(parents=True,exist_ok=True)
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('Paddy.Desktop.1')
     class API:
         def status(self): return engine.status()
         def predict_yield(self, request): return engine.predict_yield(request)
@@ -42,7 +46,9 @@ def main():
     window = webview.create_window('Paddy', str(assets/'index.html'), js_api=API(),
                                   width=1340,height=900,min_size=(880,650),background_color='#030303')
     try:
-        webview.start(gui='edgechromium',private_mode=False,storage_path=str(profile),debug=False)
+        # WinForms uses this file for Form.Icon. Do not rely on ExtractIconW's
+        # fallback from the frozen executable for title-bar/taskbar branding.
+        webview.start(gui='edgechromium',private_mode=False,storage_path=str(profile),debug=False,icon=str(icon))
     finally:
         ctypes.windll.kernel32.CloseHandle(ctypes.c_void_p(mutex))
 

@@ -3,11 +3,14 @@
 Offline Windows research application by **R Ritwik (23BAI0037)** and
 **Joshith G (23BAI0075)**. No Vercel deployment or cloud inference.
 
-[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.5.0/Paddy-Setup-0.5.0.exe)
+[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.5.1/Paddy-Setup-0.5.1.exe)
 · [Desktop build instructions](APP/desktop/README.md)
 · [Dataset guide](DATASET/README.md)
 
-## Version 0.5.0
+## Version 0.5.1
+
+The native window and Windows shortcuts explicitly use the approved rice logo,
+including small taskbar icon sizes. Prediction models and data are unchanged.
 
 The local review preview now uses a true WebGL rice model, not photographic
 billboards: connected culms, curved leaf surfaces and branched grain heads.
