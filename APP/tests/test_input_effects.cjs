@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {groupEffects}=require('../prototype/input-effects.js');
+const {groupEffects,featureInput}=require('../prototype/input-effects.js');
 const rows=[['STATE_Tamil Nadu',.15],['CENTROID_Y',-.05],['SEASON_Kharif',.06],['TAVG_MEAN',.12],['PREC_TOTAL',-.04],['RELH_MEAN',.03],['WSPD_MEAN',-.02],['RAD_TOTAL',.04],['VPRES_MEAN',.01],['CROP_AREA',-.06]].map(([feature,contribution])=>({feature,contribution}));
 const total=rows.reduce((s,r)=>s+r.contribution,0),result={modelKind:'gbdt',baseline:3,yieldTPerHa:3+total,contributions:rows};
 const grouped=groupEffects(result);
@@ -8,4 +8,8 @@ assert.ok(Math.abs(grouped.baseline+grouped.sum-result.yieldTPerHa)<1e-12);
 assert.equal(grouped.groups.find(g=>g.id==='shared').features[0].feature,'VPRES_MEAN');
 assert.equal(groupEffects({...result,modelKind:'mlp'}),null);
 assert.throws(()=>groupEffects({...result,yieldTPerHa:100}),/does not match/);
+const encoded={encodedCategories:{categorical__STATE_Karnataka:0,'categorical__STATE_Andhra Pradesh':1},features:[{name:'TAVG_MEAN',scaled:.3}]};
+assert.deepEqual(featureInput(encoded,'STATE_Karnataka'),{label:'State is Karnataka',value:'No (0)',category:true});
+assert.equal(featureInput(encoded,'STATE_Andhra Pradesh').value,'Yes (1)');
+assert.equal(featureInput(encoded,'TAVG_MEAN').value,'0.3000 (scaled)');
 console.log('Contribution grouping preserves every feature and the baseline/output identity; non-additive neural sensitivities are not grouped.');

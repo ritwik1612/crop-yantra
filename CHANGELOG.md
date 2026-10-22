@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.2 — 2026-10-22
+
+- Added actual one-hot values alongside state/season path contributions. Explain
+  why a zero flag can have an effect and why a zero effect is not a dataset share.
+- Added state split counts and one real decision-tree path with thresholds and
+  child-minus-parent calculations. Baseline reconciliation remains exact.
+- Distinguish geographic reference-blend percentages from signed model effects.
+  The same distinction is included in exported yield PDFs.
+- Regression-tested Nellore's actual Andhra Pradesh encoding and neighbour
+  transfer, plus measured-state scenarios. No model weights or labels changed.
+
 ## 0.6.1 — 2026-10-22
 
 - Replaced native crop-health meters with explicit proportional bars: a dark

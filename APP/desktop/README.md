@@ -1,12 +1,12 @@
-# Paddy for Windows — 0.6.1
+# Paddy for Windows — 0.6.2
 
 Offline rice yield scenarios and rice-photo screening by R Ritwik (23BAI0037)
 and Joshith G (23BAI0075).
 
 ## Install
 
-Run `releases/Paddy-Setup-0.6.1.exe`, or download it from
-[GitHub Releases](https://github.com/ritwik1612/crop-yantra/releases/tag/v0.6.1).
+Run `releases/Paddy-Setup-0.6.2.exe`, or download it from
+[GitHub Releases](https://github.com/ritwik1612/crop-yantra/releases/tag/v0.6.2).
 The green/off-white installer uses the approved rice silhouette, defaults to
 Program Files, permits another destination and creates a Paddy Start menu
 shortcut for Windows Search. Administrator approval is required. A desktop
@@ -14,6 +14,11 @@ shortcut is optional. Windows 10/11 x64 and Edge WebView2 are required.
 The academic installer is unsigned; security warnings require user review.
 
 ## Use
+
+Open **Understand the contributions** beneath yield effects for actual state
+flags, per-state split counts and an actual decision-tree path. A No (0) flag
+can select a not-that-state branch; an effect is not a state data-source share.
+Synthetic neighbour-reference blending has separate interpolation percentages.
 
 Crop-health class scores use dark tracks with contrasting proportional green
 fills and a brighter leading class. These are model scores, not disease severity.

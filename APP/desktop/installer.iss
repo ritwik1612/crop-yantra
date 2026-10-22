@@ -1,6 +1,6 @@
 ; Approved Paddy identity; green and off-white desktop visual language.
 #define AppName "Paddy"
-#define AppVersion "0.6.1"
+#define AppVersion "0.6.2"
 #define AppExeName "Paddy.exe"
 
 [Setup]

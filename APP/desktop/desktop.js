@@ -64,7 +64,7 @@
    explanation.textContent='Neighbour-based estimate · synthetic geographic transfer. '+supplied.length+' weather input'+(supplied.length===1?'':'s')+' supplied by you.';
    flow.children[1].querySelector('p').textContent='Missing local references are estimated from three geographically nearest training districts in the same season and crop year. Synthetic rows receive a lower training weight. Supplied weather replaces these references; derived features are recalculated. No observed local yield is claimed.';
    const donorRows=(r.neighbourReferences||[]).flatMap(ref=>ref.donors.map(d=>[ref.year,d.district,d.state,n(d.distanceKm,1)+' km',n(d.weight*100,1)+'%']));
-   flow.children[1].insertAdjacentHTML('beforeend',table(['Training year','Donor district','State','Distance','Weight'],donorRows));
+   flow.children[1].insertAdjacentHTML('beforeend',table(['Training year','Donor district','State','Distance','Reference blend (%)'],donorRows));
    const auditNote=$('result').querySelector('.prediction-audit-body>p');
    if(auditNote)auditNote.textContent=`Coverage-model test MAE ${n(r.testMetrics.MAE)} t/ha; RMSE ${n(r.testMetrics.RMSE)}. Evaluated on measured 2023–2024 records, not on missing districts. Missing-district and current-season accuracy remain unmeasured.`;
   }

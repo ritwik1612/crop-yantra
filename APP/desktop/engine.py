@@ -59,15 +59,26 @@ class Engine:
             tree_model=self.trees if _tree_model is None else _tree_model
             prediction = tree_model['baseline']
             root_offset = 0.0
-            for tree in tree_model['trees']:
+            path_counts = np.zeros(len(x),dtype=int)
+            path_example = None
+            for tree_number,tree in enumerate(tree_model['trees'],start=1):
                 index = 0
+                steps = []
                 root_offset += tree[0][0]
                 while not tree[index][5]:
                     node = tree[index]
                     child = node[3] if x[node[1]] <= node[2] else node[4]
-                    contributions[node[1]] += tree[child][0]-node[0]
+                    change = tree[child][0]-node[0]
+                    contributions[node[1]] += change
+                    path_counts[node[1]] += 1
+                    steps.append({'feature':self.prep['predictors'][node[1]].replace('numeric__','').replace('categorical__',''),
+                                  'input':float(x[node[1]]),'threshold':float(node[2]),
+                                  'branch':'left (≤)' if child==node[3] else 'right (>)',
+                                  'before':float(node[0]),'after':float(tree[child][0]),'change':float(change)})
                     index = child
                 prediction += tree[index][0]
+                if path_example is None or (not any(v['feature'].startswith('STATE_') for v in path_example['steps']) and any(v['feature'].startswith('STATE_') for v in steps)):
+                    path_example={'tree':tree_number,'rootValue':float(tree[0][0]),'leafValue':float(tree[index][0]),'steps':steps}
             if prediction < 0 or not math.isfinite(prediction):
                 raise ValueError('Model returned an invalid yield estimate.')
             baseline = tree_model['baseline'] + root_offset
@@ -138,6 +149,13 @@ class Engine:
                 influence = sorted([{'feature': name.replace('numeric__','').replace('categorical__',''),
                                  'contribution': float(value)} for name,value in zip(self.prep['predictors'],contributions)],
                                key=lambda r: abs(r['contribution']), reverse=True)
+            state_audit = []
+            if kind == 'gbdt':
+                for i,name in enumerate(self.prep['predictors']):
+                    if not name.startswith('categorical__STATE_'):continue
+                    state_audit.append({'state':name.removeprefix('categorical__STATE_'),'input':float(x[i]),
+                                        'contribution':float(contributions[i]),'pathSplits':int(path_counts[i]),
+                                        'modelSplits':sum(1 for tree in tree_model['trees'] for node in tree if not node[5] and node[1]==i)})
             warnings = []
             if request['season'] not in self.prep['categories'][1]:
                 warnings.append('Season not seen while fitting preprocessing; its one-hot indicators are all zero.')
@@ -152,6 +170,7 @@ class Engine:
                     'season': request['season'], 'features': feature_rows,
                     'encodedCategories': dict(zip(self.prep['predictors'][len(numeric):],x[len(numeric):])),
                     'baseline': baseline, 'contributions': influence, 'warnings': warnings,
+                    'stateEncodingAudit':state_audit,'treePathExample':path_example if kind=='gbdt' else None,
                     'explanationMethod': explanation, 'normalizedNetworkOutput': network_output,
                     'networkConfiguration': self.meta.get('yield_mlp') if kind == 'mlp' else None,
                     'contextInputs': {'year': year, 'district_index': district_index,

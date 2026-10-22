@@ -16,7 +16,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image, KeepTogether
 
-VERSION='0.6.1'
+VERSION='0.6.2'
 BG=colors.HexColor('#080a08'); PANEL=colors.HexColor('#141a14')
 INK=colors.HexColor('#eceee4'); MUTED=colors.HexColor('#a8b1a1')
 GREEN=colors.HexColor('#bdcda2'); LINE=colors.HexColor('#394333')
@@ -100,6 +100,7 @@ def build_pdf(yield_snapshot=None, health_snapshot=None, scenario=None, logo=Non
             effect=sum(v['contribution'] for v in contributions)
             story.append(p(f"Baseline {number(r['baseline'],6)} + all signed contributions {effect:+.6f} = {number(y,6)} t/ha. The table shows the largest ten; the reconciliation uses all {len(contributions)} features."))
         story.append(p('Contributions describe the model calculation, not causal agronomic effects or percentages of responsibility. Area scales harvest quantity; selling price scales gross value. Neither changes t/ha.','small'))
+        story.append(p('State flags are yes/no inputs, not data-source weights. A flag equal to 0 can still choose a not-that-state tree branch and receive a nonzero contribution. Zero net contribution does not mean that state’s training records were excluded. Reference-blend weights, when present, are separate geographic interpolation percentages.','small'))
         m=r['testMetrics'];story.append(p('Retrospective evaluation','h'))
         story.append(table(['MAE (t/ha)','RMSE (t/ha)','R-squared'],[[number(m['MAE']),number(m['RMSE']),number(m['R2'])]]))
         story.append(p('Held-out district-season evaluation, not a confidence interval for this result. Geographic-transfer results do not demonstrate accuracy in unobserved districts. Rice-photo screening does not adjust the predicted yield.','small'))

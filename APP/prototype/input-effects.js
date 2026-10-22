@@ -18,5 +18,11 @@
   if(Math.abs(result.baseline+sum-result.yieldTPerHa)>1e-6)throw Error('Contribution decomposition does not match model output');
   return {baseline:result.baseline,sum,prediction:result.yieldTPerHa,groups};
  }
- root.PaddyInputEffects={groupEffects};if(typeof module!=='undefined'&&module.exports)module.exports=root.PaddyInputEffects;
+ function featureInput(result,feature){
+  const flag=result.encodedCategories?.['categorical__'+feature];
+  if(flag!==undefined)return {label:feature.startsWith('STATE_')?'State is '+feature.slice(6):'Season is '+feature.slice(7),value:(Number(flag)===1?'Yes (1)':'No (0)'),category:true};
+  const row=result.features?.find(v=>v.name===feature);
+  return {label:feature,value:row&&Number.isFinite(row.scaled)?row.scaled.toFixed(4)+' (scaled)':'—',category:false};
+ }
+ root.PaddyInputEffects={groupEffects,featureInput};if(typeof module!=='undefined'&&module.exports)module.exports=root.PaddyInputEffects;
 })(typeof window==='undefined'?globalThis:window);
