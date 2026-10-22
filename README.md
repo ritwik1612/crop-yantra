@@ -3,11 +3,15 @@
 Offline Windows research application by **R Ritwik (23BAI0037)** and
 **Joshith G (23BAI0075)**. No Vercel deployment or cloud inference.
 
-[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.6.0/Paddy-Setup-0.6.0.exe)
+[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.6.1/Paddy-Setup-0.6.1.exe)
 · [Desktop build instructions](APP/desktop/README.md)
 · [Dataset guide](DATASET/README.md)
 
-## Version 0.6.0
+## Version 0.6.1
+
+Crop-health results use high-contrast proportional score bars. Dark tracks show
+the full range, green fills show each score, and the leading class is highlighted.
+Model weights and evaluation metrics are unchanged.
 
 Use **Export PDF** on Results to save a formatted yield report, crop-health report
 with your uploaded photo, or a combined report. These are typeset documents,

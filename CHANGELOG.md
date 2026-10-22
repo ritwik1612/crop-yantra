@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.1 — 2026-10-22
+
+- Replaced native crop-health meters with explicit proportional bars: a dark
+  track, contrasting green fill and a brighter highest-scoring class.
+- Preserved exact score widths and accessible meter values; tiny positive
+  scores display as <0.1% rather than misleadingly rounding to zero.
+- Added score-rendering regression checks. Models and predictions are unchanged.
+
 ## 0.6.0 — 2026-10-20
 
 - Added locally generated, typeset PDF exports for yield, crop health or both.

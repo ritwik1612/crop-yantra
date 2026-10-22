@@ -69,6 +69,6 @@ def main():
     if not compiler.exists():
         raise FileNotFoundError('Install Inno Setup 6 from jrsoftware.org to build Setup.exe.')
     subprocess.run([str(compiler),str(DESKTOP/'installer.iss')],check=True,cwd=DESKTOP)
-    print('Installer:',OUTPUT/'Paddy-Setup-0.6.0.exe')
+    print('Installer:',OUTPUT/'Paddy-Setup-0.6.1.exe')
 
 if __name__=='__main__': main()
