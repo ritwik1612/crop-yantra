@@ -1,0 +1,43 @@
+{
+  "stages": [
+    {
+      "name": "Stem",
+      "output": "/features/features.0/features.0.2/Mul_output_0"
+    },
+    {
+      "name": "MBConv group 1",
+      "output": "/features/features.1/features.1.0/block/block.2/block.2.0/Conv_output_0"
+    },
+    {
+      "name": "MBConv group 2",
+      "output": "/features/features.2/features.2.1/Add_output_0"
+    },
+    {
+      "name": "MBConv group 3",
+      "output": "/features/features.3/features.3.1/Add_output_0"
+    },
+    {
+      "name": "MBConv group 4",
+      "output": "/features/features.4/features.4.2/Add_output_0"
+    },
+    {
+      "name": "MBConv group 5",
+      "output": "/features/features.5/features.5.2/Add_output_0"
+    },
+    {
+      "name": "MBConv group 6",
+      "output": "/features/features.6/features.6.3/Add_output_0"
+    },
+    {
+      "name": "MBConv group 7",
+      "output": "/features/features.7/features.7.0/block/block.3/block.3.0/Conv_output_0"
+    },
+    {
+      "name": "Feature head",
+      "output": "/features/features.8/features.8.2/Mul_output_0"
+    }
+  ],
+  "pooled_output": "/Flatten_output_0",
+  "weights_unchanged": true,
+  "reference_logit_max_error": 0.0
+}

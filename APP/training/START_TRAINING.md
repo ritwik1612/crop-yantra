@@ -1,5 +1,10 @@
 # Crop Yantra — training runbook
 
+> Historical runbook. Training has since completed. Use SEQUENCE_TRAINING.md
+> for the active CNN–LSTM route (1,984/321/337 chronological rows) and
+> images/README.md for the ten-class image pipeline. The old preparation-only
+> status and four-class counts below describe the original experiment only.
+
 Preparation is complete locally; no supervised yield or rice-image training has
 been started. The DAE preprocessing model was fitted previously and is reused,
 not retrained by these commands. No trained predictor is activated in the app.

@@ -3,13 +3,42 @@
 Offline Windows research application by **R Ritwik (23BAI0037)** and
 **Joshith G (23BAI0075)**. No Vercel deployment or cloud inference.
 
-[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.6.2/Paddy-Setup-0.6.2.exe)
+[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.7.0/Paddy-Setup-0.7.0.exe)
 · [Desktop build instructions](APP/desktop/README.md)
 · [Dataset guide](DATASET/README.md)
 
-## Version 0.6.2
+## Version 0.7.0 — neural prediction routes
 
-Results now show actual state flags, split counts and an example tree path.
+**CNN–LSTM** now predicts yield; **EfficientNet-B0** classifies rice photographs.
+Both primary prediction tasks use deep learning. Trees are archived benchmarks,
+not app inference or a hidden fallback. DAE and Residual MLP are research artifacts.
+
+LSTM, masked 1D CNN and CNN–LSTM were each trained with two seeds. Validation
+selected CNN–LSTM seed 42, epoch 9. Its held-out test MAE is **0.474861 t/ha**,
+RMSE **0.599986 t/ha**, R² **0.191802**. This is modest performance, not a claim
+of superior accuracy over trees; the old tree uses different full-season inputs.
+
+Preparation reconciles all 2,642 measured rows against raw daily weather.
+Chronological splits are 1,984/321/337 rows, with training-only scaling and
+weather cut off 60 days before proxy season end. Ten-day bins contain ten
+weather variables plus bin-day count. The static branch has two coordinates,
+four state flags and five season flags. No generated yield labels are used.
+
+The offline form constructs **scenarios** from training-only weather templates
+and user assumptions, not a live observed weather feed. Missing district-season
+weather references use geographically nearby training templates, with donor
+provenance visible. No local accuracy is claimed for transferred references.
+
+Architecture shows a connected tensor-level diagram, timestep inputs, CNN/LSTM
+dimensions and the regression/production calculation. After inference, expand
+each stage's latest-run section for actual tensors and hidden activations.
+These activations and reference-occlusion sensitivities are not causal weights.
+See [sequence training and limitations](APP/training/SEQUENCE_TRAINING.md).
+
+## Previous version 0.6.2 (archived tree route)
+
+This historical section describes the previous app, not the 0.7.0 neural route.
+Results then showed actual state flags, split counts and an example tree path.
 Signed t/ha contributions are not state training-data shares or fixed weights;
 geographic reference blending is explained separately.
 
@@ -90,14 +119,16 @@ not FAO-56 reference evapotranspiration; radiation uses kWh/m²/day.
 Train: **1,984 rows (2001–2020)**; validation: **321 (2021–2022)**;
 test: **337 (2023–2024)**. Fit imputation/scaling/encoding only on training data;
 select configurations using validation, then evaluate held-out test. These scores
-are retrospective full-season district estimates, not live forecast accuracy.
+are district-scale evaluations, not live forecast accuracy. CNN–LSTM uses a
+60-day-truncated weather prefix; archived comparisons use full-season inputs.
 
 | Predictor | Test MAE t/ha | Test RMSE t/ha | Test R² | Deployment |
 | --- | ---: | ---: | ---: | --- |
-| HistGradientBoostingRegressor | 0.454 | 0.571 | 0.269 | Default, selected by validation RMSE |
-| Contextual Residual MLP | 0.605 | 0.819 | −0.506 | Research comparison, not a user selector |
+| CNN–LSTM | 0.475 | 0.600 | 0.192 | Active neural yield route |
+| HistGradientBoostingRegressor | 0.454 | 0.571 | 0.269 | Archived full-season benchmark |
+| Contextual Residual MLP | 0.605 | 0.819 | −0.506 | Archived full-season neural comparison |
 
-The neural candidate did **not** outperform the tree. Its weather branch is
+The earlier Residual MLP candidate did **not** outperform the tree. Its branch is
 30 → 64 → 32 → 1 with GELU/dropout and a learned district-season offset.
 Validation selected the no-year-trend candidate; its exported graph retains a
 constant-zero year slot for compatibility. Standard features are 21 numerical
@@ -120,9 +151,12 @@ are not classifier inputs. No disease-related yield loss is inferred.
 - `APP/`: application, training and data-maintenance code.
 - `DATASET/raw/`: unchanged original sources, recent UPAg source CSV and NASA responses.
 - `DATASET/merged/rice_master.csv`: current measured-source master.
-- `DATASET/training/recent/standard/`: active train/validation/test CSVs.
-- `APP/training/runs/recent_yield_20261019/`: fitted recent preprocessor and checkpoints.
+- `DATASET/training/sequences_lead60/`: active train/validation/test tensors,
+  observation keys and train-fit scaling manifest.
+- `APP/training/runs/sequences_20261023_cpu/`: frozen local checkpoints/results.
+- `DATASET/training/recent/standard/`: archived full-season tabular comparison CSVs.
 - `APP/prototype/runtime/`: verified portable models and inference metadata.
+- `docs/architecture/*.mmd`: detailed editable Mermaid data/training/inference flows.
 - `Testing Images/`: 332 local demonstration photos; not a new independent test set.
 - `OTHER/model_archive/`: rollback assets and rejected experiments, not training inputs.
 

@@ -18,10 +18,14 @@ class Engine:
             return json.loads((self.directory/name).read_text(encoding='utf8'))
         self.prep = read('preprocessor.json')
         self.history = read('historical.json')
-        self.trees = read('yield.json')
         self.meta = read('metadata.json')
+        self.sequence = None
+        if self.meta.get('yield_default_model')=='cnn_lstm':
+            from sequence_engine import SequenceYield
+            self.sequence=SequenceYield(self.directory)
+        self.trees = None if self.sequence else read('yield.json')
         coverage_path=self.directory/'spatial-coverage.json'
-        self.coverage=read('spatial-coverage.json') if coverage_path.exists() else None
+        self.coverage=read('spatial-coverage.json') if coverage_path.exists() and not self.sequence else None
         self.session = None
         self.yield_session = None
         self.session_lock = threading.Lock()
@@ -29,7 +33,7 @@ class Engine:
     def status(self):
         return {'ok': True, 'version': self.meta['version'], 'offline': True,
                 'yieldModel': self.meta['yield_model'], 'imageModel': self.meta['image_model'],
-                'yieldConfiguration': self.meta.get('yield_mlp'),
+                'yieldConfiguration': self.meta.get('yield_sequence') if self.sequence else self.meta.get('yield_mlp'),
                 'yieldDefaultModel':self.meta.get('yield_default_model','mlp'),
                 'yieldDataset':self.meta.get('yield_dataset'), 'yieldTest':self.meta.get('yield_test'),
                 'yieldCoverage':self.coverage['metadata'] if self.coverage else None,
@@ -37,6 +41,8 @@ class Engine:
                 'imageTest': {'accuracy':self.meta['image_test_accuracy'],'macro_F1':self.meta['image_test_macro_f1']}}
 
     def predict_yield(self, request, *, _row=None, _tree_model=None):
+        if self.sequence:
+            return {'ok':False,'error':'Historical aggregate prediction is archived. Use the CNN–LSTM seasonal sequence route.'}
         try:
             area = float(request['areaHa'])
             year = int(request['year'])
@@ -186,6 +192,8 @@ class Engine:
         User temperature is a scenario assumption, not a measured weather feed.
         The result is explicitly outside retrospective test validation.
         """
+        if self.sequence:
+            return self.sequence.predict(request)
         try:
             if 'year' in request or 'month' in request:
                 raise ValueError('Select a season; separate year/month inputs are not supported.')
@@ -310,7 +318,30 @@ class Engine:
                     options.intra_op_num_threads = 2; options.inter_op_num_threads = 1
                     self.session = ort.InferenceSession(str(self.directory/'rice.onnx'),options,
                                                         providers=['CPUExecutionProvider'])
-            logits = self.session.run(None, {'image': self.image_tensor(photo)})[0][0]
+            tensor=self.image_tensor(photo)
+            outputs=self.session.run(None, {'image':tensor})
+            logits=outputs[0][0]
+            image_trace=None
+            if (self.directory/'image-stages.json').exists():
+                stage_config=json.loads((self.directory/'image-stages.json').read_text())
+                def png(pixels):
+                    buffer=io.BytesIO();Image.fromarray(pixels).save(buffer,format='PNG')
+                    return 'data:image/png;base64,'+base64.b64encode(buffer.getvalue()).decode('ascii')
+                rgb=np.clip((tensor[0].transpose(1,2,0)*np.array([.229,.224,.225])+np.array([.485,.456,.406]))*255,0,255).astype(np.uint8)
+                stages=[];shape=[1,3,224,224]
+                for spec,values in zip(stage_config['stages'],outputs[1:10]):
+                    maps=[]
+                    for index in range(min(4,values.shape[1])):
+                        a=values[0,index];span=float(a.max()-a.min())
+                        pixels=((a-a.min())/(span or 1)*255).astype(np.uint8)
+                        maps.append({'channel':index,'image':png(pixels),'min':float(a.min()),'max':float(a.max())})
+                    stages.append({'name':spec['name'],'inputShape':shape,'outputShape':list(values.shape),
+                        'maps':maps,'sample':values[0,0,:4,:4].tolist()})
+                    shape=list(values.shape)
+                image_trace={'crop':png(rgb),'inputShape':list(tensor.shape),
+                    'normalizedSample':tensor[0,:,:4,:4].tolist(),'stages':stages,
+                    'pooled':outputs[10][0].tolist(),
+                    'notice':'Feature maps show the first four actual channels, independently contrast-scaled. They are not lesion segmentation, attention or causal attribution.'}
             if len(logits)!=len(self.meta['classes']) or not np.isfinite(logits).all():
                 raise ValueError('Image model and class metadata are inconsistent. Reinstall Paddy.')
             scores = np.exp(logits-logits.max()); scores /= scores.sum()
@@ -321,6 +352,7 @@ class Engine:
                     'candidate': self.meta['classes'][best], 'uncertain': uncertain,
                     'scores': [{'label': c, 'score': float(s)} for c,s in zip(self.meta['classes'],scores)],
                     'logits': [float(v) for v in logits], 'width': photo.width, 'height': photo.height,
+                    'imageTrace':image_trace,
                     'threshold': threshold, 'warnings': quality_warnings,
                     'testMetrics': {'accuracy':self.meta['image_test_accuracy'],'macro_F1':self.meta['image_test_macro_f1']},
                     'notice': f"{len(self.meta['classes'])}-class rice condition screening only. Scores are not calibrated confidence; unsupported plants or diseases may still receive a high score. Confirm symptoms with an agricultural expert."}

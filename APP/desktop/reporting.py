@@ -16,7 +16,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image, KeepTogether
 
-VERSION='0.6.2'
+VERSION='0.7.0'
 BG=colors.HexColor('#080a08'); PANEL=colors.HexColor('#141a14')
 INK=colors.HexColor('#eceee4'); MUTED=colors.HexColor('#a8b1a1')
 GREEN=colors.HexColor('#bdcda2'); LINE=colors.HexColor('#394333')
@@ -88,19 +88,26 @@ def build_pdf(yield_snapshot=None, health_snapshot=None, scenario=None, logo=Non
         story.append(PageBreak());heading('02 / model audit','How the estimate was derived')
         synthetic=r.get('referenceKind')=='synthetic_neighbour_transfer'
         story.append(table(['Model','Reference origin'],[[r['model'],'Neighbour-derived synthetic transfer' if synthetic else 'Local measured training-season references']]))
-        story.append(p(f"{r['referenceCount']} reference records. Saved median imputation, numerical standardization and state/season one-hot encoding are reused; all transforms were fitted on training data only."))
+        sequence=r.get('modelKind')=='cnn_lstm'
+        story.append(p(f"{r['referenceCount']} reference records. " + ('Training-only weather-bin scaling and coordinate scaling; state/season one-hot encoding. Two temporal convolutions, LSTM and dense regression head predict yield. No tree model is used.' if sequence else 'Saved median imputation, numerical standardization and state/season one-hot encoding are reused; all transforms were fitted on training data only.')))
         if synthetic:
-            story.append(p('This district-season estimate uses a separate neighbour-augmented predictor. Synthetic transfer does not establish measured accuracy for the selected district.','small'))
+            story.append(p(('Weather templates are transferred from neighbouring training districts. The same CNN-LSTM predicts yield; no synthetic yield target was used in its training.' if sequence else 'This district-season estimate uses a separate neighbour-augmented predictor.')+' Synthetic transfer does not establish measured accuracy for the selected district.','small'))
             donors=r.get('neighbourDonors') or r.get('donors')
             if donors:story.append(p('Donor provenance is retained in the app prediction flow.','small'))
-        story.append(p('Largest model-feature contributions','h'))
+        story.append(p('Largest input sensitivities' if sequence else 'Largest model-feature contributions','h'))
         contributions=sorted(r.get('contributions',[]),key=lambda v:abs(v['contribution']),reverse=True)
-        story.append(table(['Feature','Signed contribution (t/ha)'],[[v['feature'],f"{v['contribution']:+.6f}"] for v in contributions[:10]],[width*.68,width*.32]))
-        if r.get('modelKind')!='mlp':
+        story.append(table(['Feature','Sensitivity (t/ha)' if sequence else 'Signed contribution (t/ha)'],[[v['feature'],f"{v['contribution']:+.6f}"] for v in contributions[:6 if sequence else 10]],[width*.68,width*.32]))
+        if r.get('modelKind') not in ('mlp','cnn_lstm'):
             effect=sum(v['contribution'] for v in contributions)
             story.append(p(f"Baseline {number(r['baseline'],6)} + all signed contributions {effect:+.6f} = {number(y,6)} t/ha. The table shows the largest ten; the reconciliation uses all {len(contributions)} features."))
         story.append(p('Contributions describe the model calculation, not causal agronomic effects or percentages of responsibility. Area scales harvest quantity; selling price scales gross value. Neither changes t/ha.','small'))
-        story.append(p('State flags are yes/no inputs, not data-source weights. A flag equal to 0 can still choose a not-that-state tree branch and receive a nonzero contribution. Zero net contribution does not mean that state’s training records were excluded. Reference-blend weights, when present, are separate geographic interpolation percentages.','small'))
+        if sequence:
+            cfg=r['networkConfiguration'];seq=r['sequence']
+            story.append(p(f"Network normalized output {number(r['normalizedNetworkOutput'],6)} x target standard deviation {number(cfg['target_scale'],6)} + target mean {number(cfg['target_mean'],6)} = {number(y,6)} t/ha."))
+            story.append(p(f"{seq['steps']} valid ten-day bins ({number(seq['windowDays'],0)} reference days), padded to {seq['maxSteps']}. Weather ends {seq['leadDays']} days before the proxy season end. Current weather is assumed from training templates, not a measured daily feed."))
+            story.append(p('Sensitivity is prediction minus prediction with one channel or static group replaced by its training reference. It is not additive, causal, a fixed weight or a percentage of responsibility. Geographic weather-blend weights are separate.','small'))
+        else:
+            story.append(p('State flags are yes/no inputs, not data-source weights. A flag equal to 0 can still choose a not-that-state tree branch and receive a nonzero contribution. Zero net contribution does not mean that state’s training records were excluded. Reference-blend weights, when present, are separate geographic interpolation percentages.','small'))
         m=r['testMetrics'];story.append(p('Retrospective evaluation','h'))
         story.append(table(['MAE (t/ha)','RMSE (t/ha)','R-squared'],[[number(m['MAE']),number(m['RMSE']),number(m['R2'])]]))
         story.append(p('Held-out district-season evaluation, not a confidence interval for this result. Geographic-transfer results do not demonstrate accuracy in unobserved districts. Rice-photo screening does not adjust the predicted yield.','small'))

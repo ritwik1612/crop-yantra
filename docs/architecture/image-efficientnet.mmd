@@ -1,0 +1,94 @@
+%% Active ten-class EfficientNet-B0 pipeline, release 0.7.0.
+%% NCHW = batch, channels, height, width. App inference batch size is 1.
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Arial","primaryColor":"#ffffff","primaryTextColor":"#000000","primaryBorderColor":"#000000","lineColor":"#333333","secondaryColor":"#f5f5f5","tertiaryColor":"#ffffff","background":"#ffffff"},"flowchart":{"curve":"linear","nodeSpacing":32,"rankSpacing":55,"htmlLabels":true}}}%%
+flowchart TB
+ subgraph DATA["A. DATASET AND TRAINING"]
+  SOURCE["Rice disease classification dataset<br/>10,407 original labelled RGB photos<br/>Collected near Tirunelveli, Tamil Nadu<br/>No guarantee of broad regional generalization"]
+  DEDUP["Duplicate filtering before split<br/>8,419 selected representative images<br/>Prevent duplicate leakage between partitions"]
+  PARTS["Locked partitions<br/>5,905 train; 1,257 validation; 1,257 test"]
+  AUG["Training augmentation only<br/>Random crop, horizontal flip<br/>Rotation around +/-10 degrees and mild colour jitter<br/>ImageNet channel normalization"]
+  TRANSFER["EfficientNet-B0<br/>Initialize backbone with ImageNet weights<br/>Replace classifier with Linear 1280 to 10"]
+  FIT["Training<br/>Head training, then fine-tune final two backbone blocks<br/>AdamW + weighted cross-entropy<br/>Checkpoint by validation loss<br/>Architecture comparison by validation macro-F1"]
+  FROZEN["Frozen selected EfficientNet-B0<br/>Test accuracy 85.0438 percent<br/>Test macro-F1 83.5883 percent<br/>Held-out 1,257 photos<br/>Weakest recall: leaf blight 67.21 percent"]
+  ONNX["ONNX deployment<br/>Local CPU execution, no photo upload<br/>Expose intermediate outputs without changing weights<br/>Original photo reference logits preserved exactly"]
+  SOURCE --> DEDUP --> PARTS --> AUG --> TRANSFER --> FIT --> FROZEN --> ONNX
+ end
+ subgraph INPUT["B. USER PHOTO AND SAFETY CHECKS"]
+  FILE["User uploads rice photograph<br/>JPEG, PNG or WebP<br/>Photo-only flow needs no district"]
+  DECODE["Safe decode and dimensions<br/>Maximum 10 MB file<br/>At least 128 x 128 pixels<br/>At most 24 megapixels<br/>Reject unsupported or undecodable files"]
+  ORIENT["EXIF orientation correction<br/>Convert to RGB<br/>Input W x H x 3"]
+  QUALITY["Input-quality checks on 224px grey view<br/>Reject near-constant / very low-detail photo<br/>Warn about blur using Laplacian variance<br/>Warn about extreme mean brightness"]
+  INVALID["Reject invalid image<br/>Show actionable input error<br/>Do not fabricate a class or score"]
+  FILE --> DECODE --> ORIENT --> QUALITY
+  DECODE -->|"invalid"| INVALID
+  QUALITY -->|"insufficient detail"| INVALID
+ end
+ subgraph PRE["C. EXACT INFERENCE PREPROCESSING"]
+  RESIZE["Bicubic resize, preserve aspect ratio<br/>Shorter image edge becomes 256 pixels<br/>Longer edge scales proportionately"]
+  CROP["Centre crop<br/>RGB image 224 x 224 x 3<br/>Actual cropped image visible in Architecture"]
+  FLOAT["Float pixels<br/>pixel_float = pixel_uint8 / 255<br/>Values initially between 0 and 1"]
+  NORMAL["ImageNet normalization, channel by channel<br/>R: (R - 0.485) / 0.229<br/>G: (G - 0.456) / 0.224<br/>B: (B - 0.406) / 0.225<br/>Normalized values can be negative"]
+  TENSOR["Transpose HWC to CHW, add batch<br/>Float32 tensor [1,3,224,224]<br/>Only image pixels enter classifier"]
+  RESIZE --> CROP --> FLOAT --> NORMAL --> TENSOR
+ end
+ QUALITY --> RESIZE
+ subgraph CNN["D. EFFICIENTNET-B0 FORWARD PASS"]
+  STEM["Stem Conv2d, normalization, SiLU<br/>Input [1,3,224,224]<br/>Output [1,32,112,112]"]
+  MB1["MBConv stage group 1<br/>Input [1,32,112,112]<br/>Output [1,16,112,112]"]
+  MB2["MBConv stage group 2<br/>Input [1,16,112,112]<br/>Output [1,24,56,56]"]
+  MB3["MBConv stage group 3<br/>Input [1,24,56,56]<br/>Output [1,40,28,28]"]
+  MB4["MBConv stage group 4<br/>Input [1,40,28,28]<br/>Output [1,80,14,14]"]
+  MB5["MBConv stage group 5<br/>Input [1,80,14,14]<br/>Output [1,112,14,14]"]
+  MB6["MBConv stage group 6<br/>Input [1,112,14,14]<br/>Output [1,192,7,7]"]
+  MB7["MBConv stage group 7<br/>Input [1,192,7,7]<br/>Output [1,320,7,7]"]
+  HEAD["1x1 convolution feature head<br/>Input [1,320,7,7]<br/>Output [1,1280,7,7]"]
+  POOL["Global average pooling<br/>Average each channel over 7x7 spatial positions<br/>Input [1,1280,7,7]<br/>Output [1,1280,1,1]"]
+  FLAT["Flatten<br/>Output feature vector [1,1280]<br/>1,280 learned visual features"]
+  DROP["Classifier dropout<br/>Disabled in evaluation / app inference<br/>Same 1,280 inputs passed to linear classifier"]
+  LINEAR["Learned linear classifier<br/>10 weight rows and 10 biases<br/>logit_i = sum_j W_ij * pooled_j + bias_i<br/>Output [1,10] logits"]
+  STEM --> MB1 --> MB2 --> MB3 --> MB4 --> MB5 --> MB6 --> MB7 --> HEAD --> POOL --> FLAT --> DROP --> LINEAR
+ end
+ TENSOR --> STEM
+ ONNX -. "saved trained weights" .-> CNN
+ subgraph BLOCK["E. OPERATIONS INSIDE MBConv BLOCKS"]
+  EXPAND["1x1 channel expansion where applicable<br/>Batch normalization and SiLU"]
+  DEPTH["Depthwise spatial convolution<br/>Per-channel neighbourhood filtering<br/>Stride controls spatial downsampling"]
+  SE["Squeeze-and-excitation<br/>Pool channel responses<br/>Learn channel gating factors"]
+  PROJECT["1x1 projection + batch normalization<br/>Reduce to block output channel count"]
+  SKIP["Residual connection when shapes/stride permit<br/>Add input to transformed branch<br/>Training regularization disabled during inference"]
+  EXPAND --> DEPTH --> SE --> PROJECT --> SKIP
+ end
+ MB3 -. "stage contains MBConv blocks" .-> EXPAND
+ subgraph OUTPUT["F. SCORES, CLASS MAPPING AND SCREENING GUARD"]
+  SOFTMAX["Stable softmax<br/>u_i = logit_i - max(logits)<br/>p_i = exp(u_i) / sum_j exp(u_j)<br/>Ten nonnegative scores, sum approximately 1"]
+  ORDER["Fixed class order, indices 0-9<br/>0 bacterial leaf blight<br/>1 bacterial leaf streak<br/>2 bacterial panicle blight<br/>3 blast; 4 brown spot; 5 dead heart<br/>6 downy mildew; 7 hispa<br/>8 normal; 9 tungro"]
+  ARGMAX["Candidate = class at argmax(score)<br/>Score is not disease severity<br/>No temperature, district or yield influence"]
+  GUARD{"Highest score below 0.65<br/>OR image quality warning?"}
+  UNCERTAIN["Uncertain screening result<br/>Still show highest-scoring candidate and all scores<br/>Ask for a clearer photo / expert confirmation"]
+  CANDIDATE["Candidate disease / pest-symptom / normal label<br/>Ten proportional class-score bars<br/>Not a confirmed agricultural diagnosis"]
+  LIMIT["Unsupported crops or diseases may receive high scores<br/>Threshold is heuristic, not calibrated confidence<br/>Normal result does not prove absence of disease<br/>No lesion segmentation, severity or yield-loss estimate"]
+  LINEAR --> SOFTMAX --> ARGMAX --> GUARD
+  ORDER --> ARGMAX
+  QUALITY -->|"quality warning flag"| GUARD
+  GUARD -->|"yes"| UNCERTAIN
+  GUARD -->|"no"| CANDIDATE
+  CANDIDATE --> LIMIT
+  UNCERTAIN --> LIMIT
+ end
+ subgraph INSPECT["G. INTERACTIVE ARCHITECTURE AND EXPORT"]
+  CLICK["Click one of 14 actual-run stages<br/>Uploaded photo; normalization<br/>Stem; MBConv groups 1-7; feature head<br/>Pooling; classifier; softmax/result"]
+  PIXELS["Input inspection<br/>Original photograph and actual crop<br/>Normalized top-left pixel samples<br/>Actual input / output tensor shapes"]
+  MAPS["For each backbone stage<br/>First four actual output feature channels<br/>Previous stage feature maps show current inputs<br/>Independent contrast scaling for display<br/>Channel min/max and sample activation values"]
+  VECTOR["Pooling and classifier inspection<br/>All 1,280 pooled feature values<br/>Ten actual logits<br/>Ten actual softmax scores and guard result"]
+  NOTATTR["Feature-map previews are activations<br/>They are not lesion masks, Grad-CAM,<br/>causal evidence or calibrated disease localization"]
+  CONTEXT["Optional linked yield context<br/>District/season may accompany the result<br/>Context never enters classifier tensor<br/>Photo result never modifies yield prediction"]
+  PDF["Optional formatted PDF<br/>Uploaded photograph embedded<br/>Candidate / uncertainty, scores, quality notes<br/>Yield results included only for combined export<br/>Local Save dialog chooses destination"]
+  CLICK --> PIXELS
+  CLICK --> MAPS --> NOTATTR
+  CLICK --> VECTOR
+  CANDIDATE --> PDF
+  UNCERTAIN --> PDF
+  CONTEXT --> PDF
+ end
+ CNN -. "actual tensors from same forward pass" .-> CLICK
+ SOFTMAX --> VECTOR

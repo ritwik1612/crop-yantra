@@ -19,10 +19,12 @@ def main():
     if '--self-test' in sys.argv:
         row = next((key for key in engine.history if '|2019|' in key),None)
         district,year,season = row.split('|')
-        result = engine.predict_yield({'districtId': district,'year': int(year),'season': season,'areaHa': 12})
-        assert result['ok'] and result['yieldTPerHa'] > 0
-        neural = engine.predict_yield({'districtId': district,'year': int(year),'season': season,'areaHa': 12,'proposedModel':'mlp'})
-        assert neural['ok'] and neural['modelKind'] == 'mlp' and neural['yieldTPerHa'] > 0
+        if engine.sequence:
+            result=engine.predict_seasonal_yield({'districtId':district,'season':season,'areaHa':12,'averageTemperatureC':27})
+            assert result['ok'] and result['modelKind']=='cnn_lstm' and result['yieldTPerHa']>0
+        else:
+            result = engine.predict_yield({'districtId': district,'year': int(year),'season': season,'areaHa': 12})
+            assert result['ok'] and result['yieldTPerHa'] > 0
         import onnxruntime as ort
         image_session=ort.InferenceSession(str(assets/'runtime/rice.onnx'),providers=['CPUExecutionProvider'])
         import numpy as np

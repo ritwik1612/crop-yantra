@@ -1,4 +1,15 @@
-# Training preparation (no yield training performed yet)
+# Training status — 2026-10-23
+
+Yield sequence training is complete: LSTM, masked 1D CNN and CNN–LSTM, two seeds
+each. Validation selected CNN–LSTM seed 42, epoch 9. The 0.7.0 app uses that
+neural yield model and the trained ten-class EfficientNet-B0 image classifier.
+See [sequence runbook](SEQUENCE_TRAINING.md) for exact inputs, commands and
+limitations. Test MAE .474861, RMSE .599986 t/ha, R² .191802.
+
+## Historical preparation instructions (superseded for active models)
+
+The commands below describe earlier tabular/image experiments. Their old row
+counts and check-only default do not describe the deployed 0.7.0 sequence route.
 
 Start with the [shared runbook](START_TRAINING.md) for both yield and image
 training. `python APP/training/run.py` checks both without fitting and writes

@@ -1,0 +1,96 @@
+%% CNN-LSTM implementation, frozen run sequences_20261023_cpu, release 0.7.0.
+%% B = batch size, T = valid ten-day timesteps, C = channel count.
+%% Actual app inputs/outputs are available in Architecture after running prediction.
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"Arial","primaryColor":"#ffffff","primaryTextColor":"#000000","primaryBorderColor":"#000000","lineColor":"#333333","secondaryColor":"#f5f5f5","tertiaryColor":"#ffffff","background":"#ffffff"},"flowchart":{"curve":"linear","nodeSpacing":32,"rankSpacing":55,"htmlLabels":true}}}%%
+flowchart TB
+ subgraph SOURCES["A. RAW SOURCES AND OBSERVED TARGET"]
+  GOV["Government crop statistics + UPAg / DES<br/>State, district, crop-start year, season<br/>Harvested area hectares and production tonnes"]
+  BOUNDARY["GADM 4.1 district boundaries<br/>Exact normalized same-state district join<br/>Representative longitude and latitude<br/>Boundary representative points, not farm GPS"]
+  WEATHER["NASA POWER daily weather<br/>Preserved CSV + cached recent JSON responses<br/>Join exact location and calendar dates<br/>No generated daily observations"]
+  LABEL["Observed target YIELD<br/>Production tonnes / harvested hectares<br/>Target never enters predictor inputs"]
+  MASTER["Measured rice master<br/>2,642 rows x 30 columns<br/>68 matched districts in AP, KA, TN, TG<br/>Crop-start years 2001-2024"]
+  GOV --> LABEL
+  GOV --> MASTER
+  BOUNDARY --> MASTER
+  WEATHER --> MASTER
+ end
+ subgraph PREP["B. REAL WEATHER SEQUENCE PREPARATION"]
+  AUDIT["Audit exact daily joins<br/>Recompute full-season means and totals<br/>Reconcile all 2,642 master records<br/>Abort on missing weather or mismatches"]
+  CALENDAR["Season calendar proxies<br/>Kharif: Jun-Nov, crop-start year<br/>Rabi: Nov-Apr, crosses calendar year<br/>Autumn: Sep-Dec, crop-start year<br/>Winter: Dec-Mar, crosses calendar year<br/>Summer: Mar-Jun, following calendar year"]
+  CUTOFF["Forecast input prefix<br/>Stop 60 days before proxy season end<br/>No later weather supplied to neural network<br/>Proxy season end is not observed harvest date"]
+  BIN["Consecutive ten-day bins<br/>Temperature/atmospheric channels: means<br/>Rain, land evaporation, radiation: totals<br/>Keep partial last bin and its day count<br/>7-13 valid timesteps per observation"]
+  CHANNELS["11 values at EVERY timestep t<br/>0 Tmax C; 1 Tmin C; 2 Tavg C<br/>3 vapour pressure hPa; 4 wind m/s<br/>5 precipitation mm; 6 land evaporation mm<br/>7 solar radiation kWh/m2 per bin<br/>8 relative humidity percent; 9 pressure kPa<br/>10 number of days in bin<br/>EVLAND is land evaporation, not FAO ET0"]
+  SPLIT["Chronological partitions, unchanged rows<br/>Train: 2001-2020, 1,984 observations<br/>Validation: 2021-2022, 321 observations<br/>Test: 2023-2024, 337 observations"]
+  SCALE["Fit scaling on TRAINING ONLY<br/>Weather mean/std across valid training bins<br/>Longitude/latitude mean/std from training rows<br/>Target mean/std from training labels<br/>Exclude padding from fitted statistics"]
+  PAD["Scale and pad<br/>Weather x[t,c] = (value - train mean[c]) / train std[c]<br/>Pad tail with zeros to 13 steps<br/>Retain true lengths [B]<br/>Weather tensor [B,13,11]"]
+  STATIC["Static vector [B,11]<br/>2 scaled coordinates<br/>4 state one-hot flags<br/>5 season one-hot flags<br/>No observed yield, production, crop-year trend,<br/>district embedding, end-season crop area or price"]
+  AUDIT --> CALENDAR --> CUTOFF --> BIN --> CHANNELS --> PAD
+  SPLIT --> SCALE --> PAD
+  SCALE --> STATIC
+ end
+ MASTER --> AUDIT
+ MASTER --> SPLIT
+ BOUNDARY --> STATIC
+ subgraph FIT["C. TRAINING, SELECTION AND LOCKED EVALUATION"]
+  RUNS["Six CPU runs<br/>LSTM, masked 1D CNN, CNN-LSTM<br/>Seeds 42 and 73 for each architecture"]
+  OPT["AdamW optimizer<br/>Learning rate 0.001; weight decay 0.01<br/>MSE on standardized target<br/>Batch 64; gradient-norm clipping 5<br/>Maximum 150 epochs; early-stop patience 25"]
+  SELECT["Validation RMSE selects checkpoint and model<br/>LSTM best: 0.563130 t/ha<br/>1D CNN best: 0.559138 t/ha<br/>CNN-LSTM best: 0.542541 t/ha<br/>Select CNN-LSTM seed 42, epoch 9"]
+  TEST["Evaluate frozen winner once on 337 test rows<br/>MAE 0.474861 t/ha<br/>RMSE 0.599986 t/ha<br/>R-squared 0.191802<br/>Modest performance, not an accuracy percentage"]
+  EXPORT["Export selected weights to ONNX<br/>Parity verified on train, validation and test<br/>Maximum yield difference below 0.000001 t/ha<br/>Intermediate activations exposed for inspection<br/>No retraining or test-driven model reselection"]
+  RUNS --> OPT --> SELECT --> TEST --> EXPORT
+ end
+ PAD --> RUNS
+ STATIC --> RUNS
+ LABEL -->|"standardize using training-target statistics"| OPT
+ subgraph APP["D. OFFLINE USER SCENARIO CONSTRUCTION"]
+  USER["User inputs<br/>Map-selected district; season<br/>Average seasonal temperature, 10-40 C<br/>Rice area and total land size<br/>Optional rainfall, humidity, wind, radiation<br/>Date is automatic; no year/month selector"]
+  VALIDATE["Validate finite values and ranges<br/>Rice-planted area cannot exceed total land<br/>Resolve selected district/season reference<br/>Unsupported location/season returns an error"]
+  REF["Training-only weather trajectory<br/>Median values per bin for local district-season<br/>No target yield enters reference construction<br/>No current-weather download"]
+  NEIGH["Missing local weather reference<br/>Blend nearest training district-season templates<br/>Prefer same state, otherwise same-season donors<br/>Up to 3 donors; inverse-distance weights<br/>Keep target district's own coordinates/state<br/>Display donor names, distances and weights"]
+  ASSUME["Apply user assumptions to reference window<br/>Shift Tmax/Tmin/Tavg by average-temperature change<br/>Rain prefix total = seasonal rain x prefix-days / season-days<br/>Allocate rain over reference bin pattern<br/>Humidity: reference shift, clipped to 0-100<br/>Wind: entered value per bin<br/>Radiation: entered daily value x bin days<br/>Recompute vapour pressure from temperature/humidity"]
+  SCENARIO["Scenario tensors<br/>11 channels at each valid timestep<br/>Same saved train-only scaler and padding policy<br/>Weather [1,13,11], lengths [1], static [1,11]<br/>Reference assumptions, not measured current sequences"]
+  USER --> VALIDATE --> REF --> ASSUME --> SCENARIO
+  VALIDATE -->|"local reference absent"| NEIGH --> ASSUME
+ end
+ SCALE -. "saved training-only transformation" .-> SCENARIO
+ subgraph NETWORK["E. ACTIVE CNN-LSTM FORWARD PASS"]
+  INPUT["Weather input [B,13,11]<br/>True lengths [B]; B=1 for app prediction"]
+  TRANSPOSE["Transpose weather axes<br/>[B,13,11] to [B,11,13]<br/>Apply valid-length mask before convolution"]
+  CONV1["Convolution layer 1<br/>Conv1d 11 to 32 channels<br/>Kernel 3, stride 1, padding 1<br/>Output [B,32,13]"]
+  GELU1["GELU activation then padding mask<br/>Learn 32 local temporal feature channels<br/>Output [B,32,13]"]
+  CONV2["Convolution layer 2<br/>Conv1d 32 to 32 channels<br/>Kernel 3, stride 1, padding 1<br/>Output [B,32,13]"]
+  GELU2["GELU then padding mask<br/>Two layers give a five-bin receptive field<br/>Transpose to [B,13,32]"]
+  TIME1["Time t=1<br/>Input: 32 convolution features x1<br/>Initial h0 and c0 are zero"]
+  TIMET["Time t=2 ... valid T<br/>Inputs: xt [B,32], previous ht-1 [B,32], ct-1 [B,32]<br/>Shared learned LSTM gate weights across time"]
+  GATES["LSTM gates at each valid t<br/>i = sigmoid(Wi xt + Ui ht-1 + bi)<br/>f = sigmoid(Wf xt + Uf ht-1 + bf)<br/>g = tanh(Wg xt + Ug ht-1 + bg)<br/>c = f * ct-1 + i * g<br/>o = sigmoid(Wo xt + Uo ht-1 + bo)<br/>h = o * tanh(c)"]
+  LAST["Select final VALID hidden state [B,32]<br/>Training uses packed lengths<br/>ONNX gathers last valid unidirectional output<br/>Padding does not become the selected state"]
+  STATICAPP["Static branch input [B,11]<br/>Scaled longitude/latitude<br/>Selected state and season one-hot values<br/>Supplied once per observation"]
+  CONCAT["Concatenate along feature axis<br/>32 final hidden values + 11 static values<br/>Joined dense input [B,43]"]
+  DENSE["Linear regression hidden layer<br/>43 to 64 values, [B,64]<br/>GELU activation<br/>Dropout 0.2 during training only"]
+  Z["Final Linear 64 to 1<br/>Standardized yield z [B]<br/>Continuous regression, no softmax"]
+  YIELD["Inverse target transform<br/>Yield t/ha = z x training-target std<br/>+ training-target mean<br/>Nonfinite / negative output returns an error"]
+  INPUT --> TRANSPOSE --> CONV1 --> GELU1 --> CONV2 --> GELU2 --> TIME1 --> TIMET --> GATES --> LAST --> CONCAT --> DENSE --> Z --> YIELD
+  STATICAPP --> CONCAT
+ end
+ SCENARIO --> INPUT
+ SCENARIO --> STATICAPP
+ EXPORT -. "frozen CNN-LSTM weights" .-> NETWORK
+ subgraph OUT["F. OUTPUT, EXPLANATION AND EXPORT"]
+  AREA["Rice-planted area in hectares<br/>Total land is validation only<br/>Neither area nor price enters t/ha network"]
+  PROD["Production tonnes = predicted t/ha x hectares<br/>Mass kilograms = tonnes x 1,000"]
+  PRICE["Optional selling price INR/kg"]
+  VALUE["Gross value INR = kg x entered price<br/>Before costs; not a profit estimate"]
+  OCCLUDE["Reference-occlusion sensitivity<br/>Replace one weather channel with its train-bin mean<br/>Or replace coordinate/state/season group with train reference<br/>Re-run network: effect = original yield - reference yield<br/>13 effects; not additive, causal, fixed weights or percentages"]
+  TRACE["Click stage in Architecture<br/>Actual raw/scaled timestep values<br/>Conv1 and Conv2 outputs [T,32]<br/>LSTM states at every valid t [T,32]<br/>43 joined inputs; 64 dense activations; z<br/>Heatmaps show activations, not feature importance"]
+  PDF["Optional typeset PDF<br/>Selected inputs, yield, production, calculations<br/>Sensitivities and limitations<br/>Combined export can include uploaded crop photo"]
+  LIMIT["Scope of claims<br/>Measured test sequences differ from current template scenarios<br/>Missing-district accuracy is unmeasured<br/>No soil/fertilizer/irrigation effect learned without observations<br/>Image health does not reduce or alter predicted yield"]
+  YIELD --> PROD
+  AREA --> PROD
+  PROD --> VALUE
+  PRICE --> VALUE
+  YIELD --> OCCLUDE
+  NETWORK -. "actual intermediate tensors" .-> TRACE
+  PROD --> PDF
+  OCCLUDE --> PDF
+  YIELD --> LIMIT
+ end

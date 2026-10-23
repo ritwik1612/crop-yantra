@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.7.0 — 2026-10-23
+
+- Added auditable weather-sequence preparation and CPU training for LSTM,
+  masked 1D CNN and CNN–LSTM yield candidates with static location/season inputs.
+- Use chronological splits, training-only scaling, masked padding and a
+  60-day pre-season-end cutoff. No synthetic yield targets are added.
+- Added padding/backpropagation/calendar regression checks. Candidate training
+  does not replace the installed app's model; completion is recorded per run.
+- Completed six neural runs; validation selected CNN–LSTM seed 42, epoch 9.
+  Held-out MAE .474861 t/ha, RMSE .599986, R² .191802; no accuracy-win claim.
+- Integrated CNN–LSTM as the sole active yield route alongside EfficientNet-B0
+  for photos. Trees/MLP remain archived research artifacts, not app fallbacks.
+- Verified ONNX parity on all 2,642 observations. Training-only weather templates
+  support explicit scenarios and documented neighbour-weather transfer.
+- Added connected tensor-level architecture, every-timestep input tables,
+  actual convolution/LSTM/dense traces and non-additive input sensitivities.
+- Updated PDF calculations and installer version; preserve map/photo interactions.
+- Exposed nine EfficientNet feature stages and pooled vectors without changing
+  weights or reference-image logits. Added 14 clickable image inspection stages.
+- Updated FINAL REVIEW slides with neural models/results and editable diagrams;
+  omitted tree/MLP discussion from the deck as requested.
+- Added detailed Mermaid source diagrams for both complete model pipelines.
+
 ## 0.6.2 — 2026-10-22
 
 - Added actual one-hot values alongside state/season path contributions. Explain

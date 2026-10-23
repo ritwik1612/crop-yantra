@@ -27,7 +27,7 @@ def main():
         if item.is_file() and item.suffix in {'.html','.css','.js','.svg'}:
             shutil.copy2(item,stage/item.name)
     for folder in ['assets','runtime']:
-        shutil.copytree(source/folder,stage/folder,ignore=shutil.ignore_patterns('local-references','rice-specimen-*.png','rice-condition-*.png','rice-leaf-healthy.png','rice-leaf-blast.png','rice-leaf-bacterial*.png','rice-leaf-brown_spot.png','rice-leaf-downy_mildew.png','rice-leaf-hispa.png'))
+        shutil.copytree(source/folder,stage/folder,ignore=shutil.ignore_patterns('yield.json','yield-mlp.onnx','spatial-coverage.json','local-references','rice-specimen-*.png','rice-condition-*.png','rice-leaf-healthy.png','rice-leaf-blast.png','rice-leaf-bacterial*.png','rice-leaf-brown_spot.png','rice-leaf-downy_mildew.png','rice-leaf-hispa.png'))
     assert not (stage/'assets/local-references').exists(),'Restricted reference photos entered installer stage'
     subprocess.run(['node',str(ROOT/'APP/tests/test_reference_photos.cjs'),str(stage)],check=True)
     for filename in ['desktop.js','desktop.css']:
@@ -69,6 +69,6 @@ def main():
     if not compiler.exists():
         raise FileNotFoundError('Install Inno Setup 6 from jrsoftware.org to build Setup.exe.')
     subprocess.run([str(compiler),str(DESKTOP/'installer.iss')],check=True,cwd=DESKTOP)
-    print('Installer:',OUTPUT/'Paddy-Setup-0.6.2.exe')
+    print('Installer:',OUTPUT/'Paddy-Setup-0.7.0.exe')
 
 if __name__=='__main__': main()

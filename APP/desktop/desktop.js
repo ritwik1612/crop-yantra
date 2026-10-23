@@ -31,6 +31,7 @@
   finally{button.disabled=false;button.innerHTML=original;}
  };
  function renderSeasonalYield(request,r){
+  if(r.modelKind==='cnn_lstm'){root.SequenceUI.render(request,r);return;}
   const neural=r.modelKind==='mlp';let area=request.areaHa;
   const effects=r.contributions.slice(0,7),top=Math.max(...effects.map(v=>Math.abs(v.contribution)),.01);
   $('empty-result').hidden=true;$('result').hidden=false;
@@ -108,6 +109,7 @@
    $('image-result').innerHTML=`<article class="image-output-card"><p class="eyebrow">OFFLINE RICE SCREENING</p><h2>${r.uncertain?'Result uncertain':esc(labels[r.label])}</h2><p>${r.uncertain?'Use a clearer photo and seek expert confirmation. Highest-scoring candidate: '+esc(labels[r.candidate])+'.':'Candidate classification, not a confirmed diagnosis.'}</p><div class="screening-grid"><img class="screening-photo" src="${esc(url)}" alt="Selected rice photo"><div>${root.HealthScoreBars.renderRows(r.scores,labels)}<p>Model scores, not diagnostic confidence.</p></div></div>${r.warnings.map(w=>`<p class="error">${esc(w)}</p>`).join('')}<p>${esc(r.notice)}</p><p>Context: ${esc(request.context.district)}, ${esc(request.context.state)} · ${esc(request.context.season)}. Context does not change the pixel-based class or predicted yield.</p><a href="#health" class="inline-link">Screen another photo →</a></article><details class="prediction-audit"><summary>Show prediction flow <span>Photo · image transforms · model scores</span></summary><div class="prediction-audit-body"><ol class="request-flow"><li><b>1. Validate the rice photo</b><p>${r.width} × ${r.height} pixels; ${n(request.image.bytes/1024,1)} KB. File format, dimensions, contrast and basic blur/lighting checks. Processing stays on this PC. The photo is saved only when you export it inside a PDF.</p></li><li><b>2. Prepare the pixels</b><code>Orientation correction → RGB → shorter edge 256 → centre crop 224 × 224<br>Channel = (pixel / 255 − mean) / standard deviation<br>Mean [0.485, 0.456, 0.406], std [0.229, 0.224, 0.225]</code></li><li><b>3. EfficientNet-B0 → logits → softmax</b><code>pᵢ = exp(zᵢ − max(z)) / Σ exp(zⱼ − max(z))</code>${table(['Class','Actual logit','Model score'],r.scores.map((s,i)=>[labels[s.label],n(r.logits[i],6),n(s.score*100,3)+'%']))}</li><li><b>4. Apply the screening guard</b><p>Abstain when the highest score is below ${n(r.threshold*100,0)}% or basic quality warnings occur. This threshold is a conservative heuristic, not clinically or agronomically calibrated. Unsupported crops and diseases are not reliably rejected.</p><p>Image regions are not attributed. Weather inputs do not explain the class. Held-out ten-class test accuracy: ${n(r.testMetrics.accuracy*100,2)}%; macro-F1: ${n(r.testMetrics.macro_F1*100,2)}%. These describe all test classifications before the optional screening guard.</p></li></ol></div></details>`;
    if(!linkedContext)Array.from($('image-result').querySelectorAll('p')).find(p=>p.textContent.startsWith('Context:'))?.remove();
    native.healthExport={id:r.exportId,url};
+   root.SequenceUI?.attachImage?.(r,url);
    root.PredictionFlow.mode='image';location.hash='image-results';$('photo-status').textContent='Screening completed locally. Photo not uploaded.';
   }catch(error){$('photo-error').textContent=error.message||'Local image screening failed.';}
   finally{button.disabled=$('photo-preview').hidden;button.textContent='Screen rice photo →';document.querySelector('.botanical-stage')?.classList.remove('is-screening');}
@@ -188,6 +190,7 @@
    const coverage=document.createElement('p');coverage.textContent='Missing district-season references use a separate neighbour-augmented HistGradientBoostingRegressor. '+n(status.yieldCoverage.synthetic_train_rows,0)+' explicitly synthetic training rows supplement '+n(status.yieldCoverage.measured_train_rows,0)+' measured rows. Donors are training-only, geographically nearest districts in the same season and crop year. Local measured accuracy is not established for these transferred estimates.';
    $('models-section').append(coverage);
   }
+   if(status.yieldDefaultModel==='cnn_lstm')root.SequenceUI.configure(status);
   }catch{native.ready=false;$('form-error').textContent='Local model bridge could not initialize. Close and reopen the app.';}
  }
  root.addEventListener('pywebviewready',initialize);if(root.pywebview?.api)initialize();

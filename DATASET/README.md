@@ -2,6 +2,25 @@
 
 ## Active yield data
 
+The version 0.7.0 app uses **CNN–LSTM weather sequences**, not the older
+full-season tabular feature representation:
+
+- `training/sequences_lead60/train.npz`: 1,984 observations (2001–2020).
+- `training/sequences_lead60/validation.npz`: 321 observations (2021–2022).
+- `training/sequences_lead60/test.npz`: 337 observations (2023–2024).
+- Each NPZ contains standardized `weather`, valid `lengths`, `static` inputs,
+  standardized `target` and original `yield_t_ha` labels. Corresponding records
+  CSVs retain district/year/season keys and weather cutoffs for audit.
+- `training/sequences_lead60/manifest.json`: train-only scaling statistics,
+  input order, raw-source hashes, calendar/cutoff assumptions and limitations.
+- Weather tensors have 13 padded timesteps × 11 channels. Static inputs have
+  two scaled coordinates, four state flags and five season flags. Padding is
+  excluded from scaling and model aggregation. No synthetic yield targets.
+- Sources and master remain unchanged. All 2,642 source joins reconcile with
+  full-season master weather; prediction tensors omit the final 60 proxy days.
+
+## Preserved full-season tabular comparison data
+
 - **Master:** `merged/rice_master.csv` — 2,642 source-derived records, 30 columns,
   68 same-state matched districts, crop-start years 2001–2024 (through 2024–25).
 - **Training:** `training/recent/standard/train.csv` — 1,984 rows, 2001–2020.
