@@ -16,7 +16,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image, KeepTogether
 
-VERSION='0.7.0'
+VERSION='2.0'
 BG=colors.HexColor('#080a08'); PANEL=colors.HexColor('#141a14')
 INK=colors.HexColor('#eceee4'); MUTED=colors.HexColor('#a8b1a1')
 GREEN=colors.HexColor('#bdcda2'); LINE=colors.HexColor('#394333')

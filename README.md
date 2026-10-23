@@ -3,11 +3,14 @@
 Offline Windows research application by **R Ritwik (23BAI0037)** and
 **Joshith G (23BAI0075)**. No Vercel deployment or cloud inference.
 
-[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v0.7.0/Paddy-Setup-0.7.0.exe)
+[Windows installer](https://github.com/ritwik1612/crop-yantra/releases/download/v2/Paddy-Setup-v2.exe)
 · [Desktop build instructions](APP/desktop/README.md)
 · [Dataset guide](DATASET/README.md)
 
-## Version 0.7.0 — neural prediction routes
+## v2 — neural prediction routes
+
+Fixed the layout observer that reinserted legacy diagrams above the neural
+architecture panels. Both panels now show only their new stage-level views.
 
 **CNN–LSTM** now predicts yield; **EfficientNet-B0** classifies rice photographs.
 Both primary prediction tasks use deep learning. Trees are archived benchmarks,

@@ -114,7 +114,7 @@ def main():
     meta=json.loads((runtime/'metadata.json').read_text())
     if meta.get('yield_default_model')!='cnn_lstm':
         meta['archived_tree_benchmark']={'model':meta['yield_model'],'test':meta['yield_test']}
-    meta.update(version='0.7.0',yield_default_model='cnn_lstm',yield_model=config['model'],
+    meta.update(version='2.0',yield_default_model='cnn_lstm',yield_model=config['model'],
                 yield_test=config['test'],yield_sequence=config,yield_neural_only=True)
     (runtime/'metadata.json').write_text(json.dumps(meta,separators=(',',':')),encoding='utf-8')
     print(json.dumps({'parity':errors,'references':len(groups),'model':config['model']}),flush=True)

@@ -1,12 +1,13 @@
 ; Approved Paddy identity; green and off-white desktop visual language.
 #define AppName "Paddy"
-#define AppVersion "0.7.0"
+#define AppVersion "2.0"
 #define AppExeName "Paddy.exe"
 
 [Setup]
 AppId={{A4C79094-C8C6-4AAF-98AC-56D949EEFC17}
 AppName={#AppName}
 AppVersion={#AppVersion}
+AppVerName=Paddy v2
 AppPublisher=R Ritwik and Joshith G
 DefaultDirName={autopf}\{#AppName}
 DisableDirPage=no
@@ -15,7 +16,7 @@ DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\{#AppExeName}
 OutputDir=releases
-OutputBaseFilename=Paddy-Setup-{#AppVersion}
+OutputBaseFilename=Paddy-Setup-v2
 SetupIconFile=branding\paddy.ico
 Compression=lzma2
 SolidCompression=yes

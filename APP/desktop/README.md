@@ -1,11 +1,11 @@
-# Paddy for Windows — 0.7.0
+# Paddy for Windows — v2
 
 Offline rice yield scenarios and rice-photo screening.
 
 ## Install
 
-Run releases/Paddy-Setup-0.7.0.exe or download it from
-[GitHub Releases](https://github.com/ritwik1612/crop-yantra/releases/tag/v0.7.0).
+Run releases/Paddy-Setup-v2.exe or download it from
+[GitHub Releases](https://github.com/ritwik1612/crop-yantra/releases/tag/v2).
 The green/off-white installer uses the approved rice silhouette, defaults to
 Program Files, allows another destination and creates a Windows Search shortcut.
 Administrator approval is required; unsigned-installer warnings need user review.

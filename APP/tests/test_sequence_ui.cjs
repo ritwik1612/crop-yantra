@@ -1,6 +1,7 @@
 const {chromium}=require('C:/Users/ritwi/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
 const ROOT=path.resolve(__dirname,'../..');
+const SITE=process.env.PADDY_TEST_SITE||null;
 (async()=>{
  const fixtures=JSON.parse(await fs.readFile(path.join(ROOT,'OTHER/ui-audit-fixture.json'),'utf8'));
  const browser=await chromium.launch({headless:true,channel:'msedge'});
@@ -9,8 +10,8 @@ const ROOT=path.resolve(__dirname,'../..');
  const errors=[];page.on('pageerror',err=>errors.push(err.message));
  await page.route('http://paddy.test/**',async route=>{
   const rel=decodeURIComponent(new URL(route.request().url()).pathname).slice(1)||'index.html';
-  try{let body=await fs.readFile(path.join(ROOT,rel.startsWith('desktop.')?'APP/desktop':'APP/prototype',rel));
-   if(rel==='index.html')body=Buffer.from(body.toString().replace('</head>','<link rel="stylesheet" href="desktop.css"><script defer src="desktop.js"></script></head>'));
+  try{let body=await fs.readFile(SITE?path.join(SITE,rel):path.join(ROOT,rel.startsWith('desktop.')?'APP/desktop':'APP/prototype',rel));
+   if(rel==='index.html'&&!body.toString().includes('src="desktop.js"'))body=Buffer.from(body.toString().replace('</head>','<link rel="stylesheet" href="desktop.css"><script defer src="desktop.js"></script></head>'));
    await route.fulfill({body,contentType:rel.endsWith('.html')?'text/html':rel.endsWith('.css')?'text/css':rel.endsWith('.js')?'application/javascript':rel.endsWith('.svg')?'image/svg+xml':undefined});
   }catch{await route.fulfill({status:404,body:''});}
  });
@@ -19,6 +20,9 @@ const ROOT=path.resolve(__dirname,'../..');
   window.pywebview={api:{status:async()=>fixtures.status,predict_seasonal_yield:async request=>{window.testCalls.yield.push(request);return fixtures.yield;},classify_image:async()=>fixtures.health,export_pdf:async options=>{window.testCalls.export.push(options);return {ok:false,cancelled:true};}}};
  },fixtures);
  await page.goto('http://paddy.test/');await page.waitForFunction(()=>window.CropDesktop?.ready&&document.querySelector('#seq-stage-6'));
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ assert.equal(await page.locator('#architecture .system-explorer').count(),0,'Legacy architecture must not be reinserted above neural diagrams');
+ assert.doesNotMatch(await page.locator('#architecture-yield-panel').innerText(),/HistGradientBoosting|Residual MLP/);
  await page.locator('.state-surface[aria-label^="Andhra Pradesh,"]').press('Enter');
  await page.getByRole('button',{name:'Nellore, Andhra Pradesh. Select district.',exact:true}).press('Enter');
  await page.locator('#land-area').fill('15');await page.locator('#area').fill('12');

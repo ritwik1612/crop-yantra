@@ -1,5 +1,14 @@
 # Changelog
 
+## v2 — 2026-10-23
+
+- Fixed an architecture layout observer that reinserted the legacy diagram
+  above both neural architecture panels after initialization.
+- Neural panels now own their contents; image architecture replaces, rather
+  than supplements, the legacy view. Stage inputs/outputs remain inspectable.
+- Added regression checks against installed/packaged assets that reject legacy
+  architecture reinsertion. No model weights or prediction calculations changed.
+
 ## 0.7.0 — 2026-10-23
 
 - Added auditable weather-sequence preparation and CPU training for LSTM,

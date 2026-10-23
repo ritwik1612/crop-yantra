@@ -83,7 +83,7 @@ class SequenceYield:
             for i,row in enumerate(w):
                 sequence_rows.append({'step':i+1,'startDay':int(days[:i].sum())+1,'endDay':int(days[:i+1].sum()),
                                       'raw':row.tolist(),'scaled':scaled[i].tolist()})
-            return {'ok':True,'version':'0.7.0','model':cfg['model'],'modelKind':'cnn_lstm',
+            return {'ok':True,'version':'2.0','model':cfg['model'],'modelKind':'cnn_lstm',
                     'scope':'current_season_scenario','yieldTPerHa':prediction,'productionTonnes':prediction*area,
                     'areaHa':area,'landAreaHa':land,'sourceState':ref['state'],'district':ref['district'],
                     'season':request['season'],'predictionDate':now.date().isoformat(),
